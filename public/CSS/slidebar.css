@@ -1,3 +1,15 @@
+.main-div {
+    position: relative;
+    width: auto;
+    height: 800px;
+}
+
+.left-sidebar {
+    position: absolute;
+    right: 10px;
+    top: 11px;
+}
+
 /*Slide bar chính*/
 #slidebar {
     position: absolute;
