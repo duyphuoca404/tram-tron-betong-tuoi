@@ -1,0 +1,186 @@
+/*Màn hình MAN*/
+#Screen_Manu {
+    position: absolute;
+    left: 215px;
+    top: 11px;
+    width: 800px;
+    height: 686px;
+    background-color: rgb(15, 228, 210);
+}
+/*Valve số 1*/
+#scrManu_Valve_1 {
+    position: absolute;
+    left: 360px;
+    top: 235px;
+    width: 65px;
+    height: 65px;
+    
+}
+/*Valve số 2*/
+#scrManu_Valve_2 {
+    position: absolute;
+    left: 720px;
+    top: 235px;
+    width: 65px;
+    height: 65px;
+    
+}
+/*Valve số 3*/
+#scrManu_Valve_3 {
+    position: absolute;
+    left: 720px;
+    top: 627px;
+    width: 65px;
+    height: 65px;
+    
+}
+/*Động cơ trộn*/
+#scrManu_Motor_1 {
+    position: absolute;
+    left: 535px;
+    top: 325px;
+    width: 85px;
+    height: 65px;
+    
+}
+/*Cảm biến số 1 _ Báo cạn*/
+#scrManu_Sensor_1 {
+    position: absolute;
+    left: 410px;
+    top: 530px;
+    width: 80px;
+    height: 35px;
+    
+}
+
+/*Code css cho nút nhấn ở chế độ Manu*/
+#bttManu_AutoMode {
+    border: none; 
+    background-color: rgb(72, 255, 0); 
+    color: rgb(255, 255, 255);   
+    text-align: center; 
+    display: inline-block;
+    font-size: 13px; 
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute; 
+    width: 80px; height: 40px; 
+    left: 40px; top: 100px;
+}
+#bttManu_ManuMode {
+    border: none; 
+    background-color: rgb(225, 255, 0); 
+    color: rgb(255, 255, 255);   
+    text-align: center; 
+    display: inline-block;
+    font-size: 13px; 
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute; 
+    width: 80px; height: 40px; 
+    left: 150px; top: 100px;
+}
+#bttManu_OpenV1 {
+    border: none; 
+    background-color: rgb(71, 104, 147); 
+    color: rgb(255, 255, 255);   
+    text-align: center; 
+    display: inline-block;
+    font-size: 14px; 
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute; 
+    width: 50px; height: 30px; 
+    left: 115px; top: 222px;
+}
+#bttManu_CloseV1 {
+    border: none; 
+    background-color: rgb(71, 104, 147); 
+    color: rgb(255, 255, 255);   
+    text-align: center; 
+    display: inline-block;
+    font-size: 14px; 
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute; 
+    width: 50px; height: 30px; 
+    left: 180px; top: 222px;
+}
+#bttManu_OpenV2 {
+    border: none; 
+    background-color: rgb(71, 104, 147); 
+    color: rgb(255, 255, 255);   
+    text-align: center; 
+    display: inline-block;
+    font-size: 14px; 
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute; 
+    width: 50px; height: 30px; 
+    left: 115px; top: 262px;
+}
+#bttManu_CloseV2 {
+    border: none; 
+    background-color: rgb(71, 104, 147); 
+    color: rgb(255, 255, 255);   
+    text-align: center; 
+    display: inline-block;
+    font-size: 14px; 
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute; 
+    width: 50px; height: 30px; 
+    left: 180px; top: 262px;
+}
+#bttManu_OpenV3 {
+    border: none; 
+    background-color: rgb(71, 104, 147); 
+    color: rgb(255, 255, 255);   
+    text-align: center; 
+    display: inline-block;
+    font-size: 14px; 
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute; 
+    width: 50px; height: 30px; 
+    left: 115px; top: 302px;
+}
+#bttManu_CloseV3 {
+    border: none; 
+    background-color: rgb(71, 104, 147); 
+    color: rgb(255, 255, 255);   
+    text-align: center; 
+    display: inline-block;
+    font-size: 14px; 
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute; 
+    width: 50px; height: 30px; 
+    left: 180px; top: 302px;
+}
+#bttManu_RunM1 {
+    border: none; 
+    background-color: rgb(71, 104, 147); 
+    color: rgb(255, 255, 255);   
+    text-align: center; 
+    display: inline-block;
+    font-size: 14px; 
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute; 
+    width: 50px; height: 30px; 
+    left: 115px; top: 342px;
+}
+#bttManu_StopM1 {
+    border: none; 
+    background-color: rgb(71, 104, 147); 
+    color: rgb(255, 255, 255);   
+    text-align: center; 
+    display: inline-block;
+    font-size: 14px; 
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute; 
+    width: 50px; height: 30px; 
+    left: 180px; top: 342px;
+}
