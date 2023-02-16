@@ -273,7 +273,7 @@
 
 .scrAutobackground {
     height: auto;
-    width: 100%;
+    width: 1470px;
 }
 
 .red {
@@ -282,4 +282,11 @@
 
 .green {
     border: 1px solid green;
+}
+
+img {
+    border: 2px solid;
+
+    resize: both;
+    overflow: auto;
 }
