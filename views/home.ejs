@@ -61,18 +61,30 @@
             <img id="scrAuto_Motor_bump">
             <script> fn_SymbolStatus("scrAuto_Motor_bump", "Motor3", "status_DC_Tron") </script>
 
-            <!-- Tạo Cảm biến có tên Symname là Sensor1 -->
-            <!-- <img id="scrAuto_Sensor_1">
-            <script> fn_SymbolStatus("scrAuto_Sensor_1", "Sensor1", "CB_Can") </script> -->
+            <!-- Tạo Cảm biến/CTHT có tên Symname là Sensor1 -->
+            <img id="scrAuto_Sensor_1">
+            <script> fn_SymbolStatus("scrAuto_Sensor_1", "Light", "CB_Can") </script>
+            <!-- Tạo Cảm biến/CTHT có tên Symname là Sensor2 -->
+            <img id="scrAuto_Sensor_2">
+            <script> fn_SymbolStatus("scrAuto_Sensor_2", "Light", "CB_Can") </script>
+            <!-- Tạo Cảm biến/CTHT có tên Symname là Sensor3 -->
+            <img id="scrAuto_Sensor_3">
+            <script> fn_SymbolStatus("scrAuto_Sensor_3", "Light", "CB_Can") </script>
+            <!-- Tạo Cảm biến/CTHT có tên Symname là Sensor4 -->
+            <img id="scrAuto_Sensor_4">
+            <script> fn_SymbolStatus("scrAuto_Sensor_4", "Light", "CB_Can") </script>
+            <!-- Tạo Cảm biến/CTHT có tên Symname là Sensor5 -->
+            <img id="scrAuto_Sensor_5">
+            <script> fn_SymbolStatus("scrAuto_Sensor_5", "Light", "CB_Can") </script>
+
+            <!-- Hướng động cơ đang đi lên -->
+            <img id="scrAuto_Motor_Up">
+            <script> fn_SymbolStatus("scrAuto_Motor_Up", "Arrow1", "CB_Can") </script>
+            <!-- Hướng độn cơ đang xuống -->
+            <img id="scrAuto_Motor_Down">
+            <script> fn_SymbolStatus("scrAuto_Motor_Down", "Arrow2", "CB_Can") </script>
 
 
-            <!-- //////////////Code cho button////////////// -->
-            <!-- Tạo Nút nhấn Auto -->
-            <button id="bttAuto_AutoMode" onclick="socket.emit('cmd_Auto', true);">TỰ ĐỘNG</button>
-            <!-- Tạo Nút nhấn Manual -->
-            <button id="bttAuto_ManuMode" onclick="socket.emit('cmd_Manu', true);">BẰNG TAY</button>
-            <!-- Tạo Nút nhấn Xác nhận -->
-            <button id="bttAuto_ConfirmMode" onclick="socket.emit('cmd_Confirm', true);">XÁC NHẬN</button>
             <!-- //////////////Code hiển thị các giá trị của IO Field////////////// -->
             <div class="inforXi red">
                 <!-- Hien thi trang thai cua Xi mang -->
@@ -98,19 +110,45 @@
                 <input id="act_Time_Tron" disabled="disabled" type="text" />
                 <script>fn_IOFieldDataShow("Act_Time_Tron", "act_Time_Tron", 0);</script>
             </div>
-            <!--Nút nhấn sửa/lưu - Lưu ý: Nút nhấn lưu phải nằm trước nút nhấn sửa-->
-            <button id="btt_scrAuto_Save" onclick="fn_scrAuto_SaveBtt()">LƯU</button>
-            <button id="btt_scrAuto_Edit" onclick="fn_scrAuto_EditBtt()">SỬA</button>
-            <!-- IO Field cài đặt khối lượng liệu 1 -->
-            <input id="set_Weight1" disabled="disabled" type="text" />
-            <script>fn_scrAuto_IOField_IO("Setting_Weight_1", "set_Weight1", 2);</script>
-            <!-- IO Field cài đặt khối lượng liệu 2 -->
-            <input id="set_Weight2" disabled="disabled" type="text" />
-            <script>fn_scrAuto_IOField_IO("Setting_Weight_2", "set_Weight2", 2);</script>
-            <!-- IO Field cài đặt thời gian trộn -->
-            <input id="set_Time_Tron" disabled="disabled" type="text" />
-            <script>fn_scrAuto_IOField_IO("Setting_Time_Tron", "set_Time_Tron", 0);</script>
 
+
+            <div class="setup_OperationParamet">
+                <div>
+                    <span>Cài đặt thời gian trộn:</span>
+                    <!-- IO Field cài đặt thời gian trộn -->
+                    <input id="set_Time_Tron" disabled="disabled" type="text" />
+                    <script>fn_scrAuto_IOField_IO("Setting_Time_Tron", "set_Time_Tron", 0);</script>
+                </div>
+                <div>
+                    <span>Cài đặt thời gian xả:</span>
+                    <!-- IO Field cài đặt khối lượng liệu 1 -->
+                    <input id="set_Weight1" disabled="disabled" type="text" />
+                    <script>fn_scrAuto_IOField_IO("Setting_Weight_1", "set_Weight1", 2);</script>
+                </div>
+                <!-- IO field thêm nước -->
+                <div class="setup_Themnuoc">
+                    <span>Cài đặt lượng nước cần thêm:</span>
+                    <!-- IO Field cài đặt khối lượng liệu 2 -->
+                    <input id="set_Weight2" disabled="disabled" type="text" />
+                    <script>fn_scrAuto_IOField_IO("Setting_Weight_2", "set_Weight2", 2);</script>
+                </div>
+                <div class="edit_save">
+                    <!--Nút nhấn sửa/lưu - Lưu ý: Nút nhấn lưu phải nằm trước nút nhấn sửa-->
+                    <button id="btt_scrAuto_Save" onclick="fn_scrAuto_SaveBtt()">LƯU</button>
+                    <button id="btt_scrAuto_Edit" onclick="fn_scrAuto_EditBtt()">SỬA</button>
+                </div>
+
+            </div>
+
+            <div class="btt_Control">
+                <!-- //////////////Code cho button////////////// -->
+                <!-- Tạo Nút nhấn Auto -->
+                <button id="bttAuto_AutoMode" onclick="socket.emit('cmd_Auto', true);">TỰ ĐỘNG</button>
+                <!-- Tạo Nút nhấn Manual -->
+                <button id="bttAuto_ManuMode" onclick="socket.emit('cmd_Manu', true);">BẰNG TAY</button>
+                <!-- Tạo Nút nhấn Xác nhận -->
+                <button id="bttAuto_ConfirmMode" onclick="socket.emit('cmd_Confirm', true);">XÁC NHẬN</button>
+            </div>
         </div>
         <!-- //////////////Code cho màn hình Manual////////////// -->
         <div id="Screen_Manu">
@@ -152,9 +190,7 @@
             <!-- Tạo Nút nhấn dừng Động cơ trộn -->
             <button id="bttManu_StopM1" onclick="socket.emit('cmd_StopM1', true);">DỪNG</button>
         </div>
-        <div class="left-sidebar">
-            <span>Day la sidebar ben trai</span>
-        </div>
+
     </div>
 </body>
 
