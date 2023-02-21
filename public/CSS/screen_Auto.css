@@ -137,10 +137,53 @@ body {
     height: 15px;
 }
 
+/* .openTPlieu {
+    position: absolute;
+    left: 1094px;
+    top: 621px;
+}
+
+.openTPlieu img {
+    width: 54px;
+    height: 45px;
+} */
+
+#scrAuto_OpenTP_1 {
+    position: absolute;
+    left: 1106px;
+    top: 626px;
+    width: 40px;
+    height: 30px;
+}
+
+#scrAuto_OpenTP_2 {
+    position: absolute;
+    left: 1192px;
+    top: 626px;
+    width: 40px;
+    height: 30px;
+}
+
+#scrAuto_OpenTP_3 {
+    position: absolute;
+    left: 1278px;
+    top: 626px;
+    width: 40px;
+    height: 30px;
+}
+
+#scrAuto_OpenTP_4 {
+    position: absolute;
+    left: 1364px;
+    top: 626px;
+    width: 40px;
+    height: 30px;
+}
+
 /*Code css cho nút nhấn Auto*/
 #bttAuto_AutoMode {
     border: none;
-    background-color: rgb(72, 255, 0);
+    background-color: rgb(156, 184, 134);
     color: rgb(255, 255, 255);
     text-align: center;
     /* display: inline-block; */
@@ -148,15 +191,15 @@ body {
     font-weight: bold;
     cursor: pointer;
     /* position: absolute; */
-    width: 80px;
+    width: 33%;
     height: 40px;
-    left: 40px;
-    top: 100px;
+    /* left: 40px;
+    top: 100px; */
 }
 
 #bttAuto_ManuMode {
     border: none;
-    background-color: rgb(225, 255, 0);
+    background-color: rgba(0, 255, 38, 0.99);
     color: rgb(255, 255, 255);
     text-align: center;
     /* display: inline-block; */
@@ -164,10 +207,10 @@ body {
     font-weight: bold;
     cursor: pointer;
     /* position: absolute; */
-    width: 80px;
+    width: 33%;
     height: 40px;
-    left: 150px;
-    top: 100px;
+    /* left: 150px;
+    top: 100px; */
 }
 
 #bttAuto_ConfirmMode {
@@ -224,16 +267,6 @@ body {
     background-color: aquamarine;
 }
 
-
-
-/*IO Field giá trị cân liệu 2*/
-/* #act_Weight2 {
-    position: absolute;
-    left: 875px;
-    top: 98px;
-    width: 70px;
-    height: 20px;
-} */
 .inforNuoc {
     position: absolute;
     left: 700px;
@@ -249,13 +282,59 @@ body {
     display: inline;
 }
 
-/* #act_Time_Tron {
+
+
+
+/* Bảng đếm ngược thoài gian */
+.count_ThoigianTron {
     position: absolute;
-    left: 730px;
-    top: 445px;
-    width: 70px;
+    left: 230px;
+    top: 428px;
+    width: 60px;
     height: 20px;
+    text-align: center;
+}
+
+.count_ThoigianXa {
+    position: absolute;
+    left: 374px;
+    top: 428px;
+    width: 60px;
+    height: 20px;
+    text-align: center;
+}
+
+.count_Thoigian {
+    width: 60px;
+    height: 60px;
+    display: block;
+    background-color: aquamarine;
+}
+
+/* .count_ThoigianTron span {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.count_ThoigianXa span {
+    font-size: 20px;
+    font-weight: bold;
 } */
+
+/* Bảng điều khiển */
+.bang_Dieukhien {
+    position: absolute;
+    left: 10px;
+    top: 550px;
+}
+
+.edit_save {
+    margin-right: 10px;
+    text-align: right;
+    /* hoặc có thể dùng float:right  */
+}
+
+
 
 /*Nút nhấn LƯU*/
 #btt_scrAuto_Save {
@@ -294,25 +373,31 @@ body {
 
 /* Phần cài đặt và chạy thông số */
 .btt_Control {
-    position: absolute;
+    border-radius: 10px;
+    border: 1px solid rgba(9, 14, 1, 0.74);
+    background-color: #e5e5e5;
+    padding: 5px;
+    /* position: absolute;
     left: 10px;
-    top: 600px;
-    display: inline-block;
+    top: 700px; */
+    display: flex;
+    text-align: center;
+    margin-top: 10px;
 }
 
 .setup_OperationParamet {
     border-radius: 10px;
     border: 1px solid rgba(9, 14, 1, 0.74);
-    background-color: rgb(46, 69, 90);
+    background-color: #e5e5e5;
     padding: 5px;
-    position: absolute;
+    /* position: absolute;
     left: 10px;
-    top: 450px;
+    top: 560px; */
     display: inline-block;
 }
 
-.edit_save {
-    margin-right: 10px;
+.setup_OperationParamet div {
+    margin-bottom: 5px;
 }
 
 /*IO Field cài đặt khối lượng liệu 1*/
@@ -322,6 +407,7 @@ body {
     top: 290px; */
     width: 60px;
     height: 20px;
+    margin-left: 31px;
 }
 
 /*IO Field cài đặt khối lượng liệu 2*/
@@ -331,6 +417,7 @@ body {
     top: 325px; */
     width: 60px;
     height: 20px;
+    margin-left: 20px;
 }
 
 /*IO Field cài đặt thời gian trộn liệu*/
@@ -340,6 +427,7 @@ body {
     top: 355px; */
     width: 60px;
     height: 20px;
+    margin-left: 20px;
 }
 
 .main-div {
@@ -355,8 +443,8 @@ body {
 } */
 
 .scrAutobackground {
-    height: auto;
-    width: 100%;
+    height: 857px;
+    width: 1470px;
 }
 
 .red {
@@ -371,3 +459,112 @@ img {
     resize: both;
     overflow: auto;
 }
+
+.trangthaime {
+    position: absolute;
+    top: 845px;
+    border-radius: 10px;
+    border: 1px solid rgba(9, 14, 1, 0.74);
+    background-color: #e5e5e5;
+    padding: 5px;
+    width: 100%;
+}
+
+/* 
+Generic Styling, for Desktops/Laptops 
+*/
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Zebra striping */
+tr:nth-of-type(odd) {
+    background: #eee;
+}
+
+th {
+    background: #333;
+    color: white;
+    font-weight: bold;
+}
+
+td,
+th {
+    padding: 3px;
+    border: 1px solid #ccc;
+    text-align: center;
+}
+
+/* 
+  Max width before this PARTICULAR table gets nasty
+  This query will take effect for any screen smaller than 760px
+  and also iPads specifically.
+  */
+/* @media only screen and (max-width: 760px),
+(min-device-width: 768px) and (max-device-width: 1024px) {
+    .responsive-table-input-matrix {
+        display: block;
+        position: relative;
+        width: 100%;
+    }
+
+    .responsive-table-input-matrix:after {
+        clear: both;
+        content: "";
+        display: block;
+        font-size: 0;
+        height: 0;
+        visibility: hidden;
+    }
+
+    .responsive-table-input-matrix tbody {
+        display: block;
+        overflow-x: auto;
+        position: relative;
+        white-space: nowrap;
+        width: auto;
+    }
+
+    .responsive-table-input-matrix tbody tr {
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .responsive-table-input-matrix tbody tr td {
+        display: block;
+        text-align: center;
+    }
+
+    .responsive-table-input-matrix tbody tr td:first-child {
+        text-align: left;
+    }
+
+    .responsive-table-input-matrix thead {
+        display: block;
+        float: left;
+        margin-right: 10px;
+    }
+
+    .responsive-table-input-matrix thead:after {
+        clear: both;
+        content: "";
+        display: block;
+        font-size: 0;
+        height: 0;
+        visibility: hidden;
+    }
+
+    .responsive-table-input-matrix thead th:first-of-type {
+        height: 1.4em;
+    }
+
+    .responsive-table-input-matrix thead th {
+        display: block;
+        text-align: right;
+    }
+
+    .responsive-table-input-matrix thead th:first-child {
+        text-align: right;
+    }
+} */

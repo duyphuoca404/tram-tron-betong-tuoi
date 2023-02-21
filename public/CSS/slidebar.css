@@ -2,13 +2,67 @@
     position: relative;
     width: auto;
     height: 800px;
-}
+} */
 
 .left-sidebar {
     position: absolute;
-    right: 10px;
+    right: 5px;
     top: 11px;
-} */
+    display: inline-block;
+    max-width: 200px;
+    height: 500px;
+}
+
+/* CSS hiển thị nhiệt độ các vùng */
+.bang_Nhietdohientai {
+    border-radius: 10px;
+    border: 1px solid rgba(9, 14, 1, 0.74);
+    background-color: #e5e5e5;
+    padding: 5px;
+    margin-top: 10px;
+    /* position: absolute;
+    right: 10px;
+    top: 60px;
+    display: inline-block; */
+}
+
+/* Ô hiển thị nhiệt độ */
+.indicator_nhiet_Zone {
+    max-width: 60px;
+    height: 20px;
+    margin-bottom: 5px;
+}
+
+.bang_Phieubetong {
+    border-radius: 10px;
+    border: 1px solid rgba(9, 14, 1, 0.74);
+    background-color: #e5e5e5;
+    padding: 5px;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+#indicator_m3Me {
+    max-width: 60px;
+}
+
+#indicator_soMe {
+    max-width: 60px;
+}
+
+#indicator_MaPhieu {
+    float: right;
+}
+
+#indicator_KhachHang {
+    float: right;
+}
+
+#indicator_DonHang {
+    float: right;
+}
+
+
 
 /*Slide bar chính*/
 #slidebar {
@@ -16,7 +70,7 @@
     left: 5px;
     top: 11px;
     width: 198px;
-    height: 686px;
+    height: 933px;
     background-color: rgb(40, 58, 107);
 }
 
