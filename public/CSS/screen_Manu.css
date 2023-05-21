@@ -22,12 +22,12 @@
 }
 
 /*Bảng mác bê tông*/
-.main-container {
+.main-container-macBetong {
     border: 1px solid black;
     padding: 10px;
 }
 
-.table-container {
+.table-container-macBetong {
     display: flex;
 }
 
@@ -101,13 +101,13 @@ td {
 }
 
 /* ///////////////Hiển thị các input field///////////////// */
-.form-container {
+.form-container-macBetong {
     margin-left: 20px;
     border: 1px solid black;
     padding: 10px;
 }
 
-.form-container>div {
+.form-container-macBetong>div {
     margin-bottom: 1px;
 }
 
@@ -119,8 +119,8 @@ td {
     margin-right: 10px;
 }
 
-.table-container,
-.form-container {
+.table-container-macBetong,
+.form-container-macBetong {
     border-radius: 5px;
 }
 

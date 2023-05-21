@@ -71,7 +71,7 @@ function fn_Table01_SQL_Show() {
     socket.emit("msg_SQL_Show", "true");
     socket.on('SQL_Show', function (data) {
         fn_table_01(data);
-        // fn_table_02(data);
+        fn_table_02(data);
     });
 }
 // Chương trình con đọc dữ liệu SQL
@@ -187,6 +187,6 @@ function addRowClickListener(tableSelector, inputSelector) {
 }
 //Lắng nghe sự kiện tải lại trang và gọi hàm khi có sự kiện Click
 document.addEventListener('DOMContentLoaded', () => {
-    updateInputsOnRowClick('#datCapphoi', '#Screen_datCapphoi .form-container-datCapphoi input');
-    addRowClickListener('#macBetong', '.form-container input');
+    updateInputsOnRowClick(`#datCapphoi`, `.form-container-datCapphoi input`);
+    addRowClickListener(`#macBetong`, `.form-container-macBetong input`);
 });
