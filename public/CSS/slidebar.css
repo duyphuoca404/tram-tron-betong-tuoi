@@ -4,7 +4,7 @@
     height: 800px;
 } */
 
-.left-sidebar {
+.right-sidebar {
     position: absolute;
     right: 5px;
     top: 11px;
@@ -107,4 +107,21 @@
     height: 40px;
     left: 22px;
     top: 70px;
+}
+
+#btt_Screen_datCapphoi {
+    border: none;
+    background-color: rgb(240, 236, 11);
+    border: none;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: normal;
+    cursor: pointer;
+    position: absolute;
+    width: 150px;
+    height: 40px;
+    left: 22px;
+    top: 120px;
 }

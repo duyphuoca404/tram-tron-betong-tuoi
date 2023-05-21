@@ -3,59 +3,125 @@
     position: absolute;
     left: 215px;
     top: 11px;
-    width: 800px;
-    height: 686px;
-    background-color: rgb(15, 228, 210);
+    /* width: 800px;
+    height: 686px; */
+    background-color: rgb(33, 210, 210);
+    display: none;
+    /*Ban đầu thẻ này sẽ không được hiện, để khi load web lên chỉ có Screen_Auto là hiển thị lên màn hình, sau đó khi nhấn button của màn hình thì sẽ đổi thuộc tính display này thành block để nó có thể hiện lên trên web*/
 }
 
-/*Valve số 1*/
-#scrManu_Valve_1 {
+#Screen_datCapphoi {
     position: absolute;
-    left: 360px;
-    top: 235px;
-    width: 65px;
-    height: 65px;
-
+    left: 215px;
+    top: 11px;
+    /* width: 800px;
+    height: 686px; */
+    background-color: rgb(33, 210, 210);
+    display: none;
+    /*Ban đầu thẻ này sẽ không được hiện*/
 }
 
-/*Valve số 2*/
-#scrManu_Valve_2 {
-    position: absolute;
-    left: 720px;
-    top: 235px;
-    width: 65px;
-    height: 65px;
-
+/*Bảng mác bê tông*/
+.main-container {
+    border: 1px solid black;
+    padding: 10px;
 }
 
-/*Valve số 3*/
-#scrManu_Valve_3 {
-    position: absolute;
-    left: 720px;
-    top: 627px;
-    width: 65px;
-    height: 65px;
-
+.table-container {
+    display: flex;
 }
 
-/*Động cơ trộn*/
-#scrManu_Motor_1 {
-    position: absolute;
-    left: 535px;
-    top: 325px;
-    width: 85px;
-    height: 65px;
-
+/*Bảng mác bê tông, dành cho id #macBetong*/
+#macBetong {
+    display: block;
+    height: 400px;
+    overflow-y: scroll;
+    overflow: auto;
+    border-collapse: collapse;
+    width: 100%;
 }
 
-/*Cảm biến số 1 _ Báo cạn*/
-#scrManu_Sensor_1 {
-    position: absolute;
-    left: 410px;
-    top: 530px;
-    width: 80px;
-    height: 35px;
+#macBetong tr {
+    cursor: pointer;
+}
 
+#macBetong tr:hover {
+    background-color: #ddd;
+}
+
+#macBetong thead th {
+    position: sticky;
+    top: 0;
+}
+
+#macBetong th,
+td {
+    padding: 8px 16px;
+}
+
+#macBetong th {
+    background: #eee;
+}
+
+/*Bảng datCapphoi, dành cho id #datCapphoi*/
+#datCapphoi {
+    display: block;
+    height: 400px;
+    overflow-y: scroll;
+    overflow: auto;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#datCapphoi tr {
+    cursor: pointer;
+}
+
+#datCapphoi tr:hover {
+    background-color: #ddd;
+}
+
+#datCapphoi thead th {
+    position: sticky;
+    top: 0;
+}
+
+#datCapphoi th,
+td {
+    padding: 8px 16px;
+}
+
+#datCapphoi th {
+    background: #eee;
+}
+
+/* Highlight dòng trong bảng nếu nó được chọn */
+.selected {
+    background-color: yellow;
+}
+
+/* ///////////////Hiển thị các input field///////////////// */
+.form-container {
+    margin-left: 20px;
+    border: 1px solid black;
+    padding: 10px;
+}
+
+.form-container>div {
+    margin-bottom: 1px;
+}
+
+.button-container {
+    display: flex;
+}
+
+.button-container button {
+    margin-right: 10px;
+}
+
+.table-container,
+.form-container {
+    border-radius: 5px;
 }
 
 /*Code css cho nút nhấn ở chế độ Manu*/
@@ -89,132 +155,4 @@
     height: 40px;
     left: 150px;
     top: 100px;
-}
-
-#bttManu_OpenV1 {
-    border: none;
-    background-color: rgb(71, 104, 147);
-    color: rgb(255, 255, 255);
-    text-align: center;
-    display: inline-block;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    position: absolute;
-    width: 50px;
-    height: 30px;
-    left: 115px;
-    top: 222px;
-}
-
-#bttManu_CloseV1 {
-    border: none;
-    background-color: rgb(71, 104, 147);
-    color: rgb(255, 255, 255);
-    text-align: center;
-    display: inline-block;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    position: absolute;
-    width: 50px;
-    height: 30px;
-    left: 180px;
-    top: 222px;
-}
-
-#bttManu_OpenV2 {
-    border: none;
-    background-color: rgb(71, 104, 147);
-    color: rgb(255, 255, 255);
-    text-align: center;
-    display: inline-block;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    position: absolute;
-    width: 50px;
-    height: 30px;
-    left: 115px;
-    top: 262px;
-}
-
-#bttManu_CloseV2 {
-    border: none;
-    background-color: rgb(71, 104, 147);
-    color: rgb(255, 255, 255);
-    text-align: center;
-    display: inline-block;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    position: absolute;
-    width: 50px;
-    height: 30px;
-    left: 180px;
-    top: 262px;
-}
-
-#bttManu_OpenV3 {
-    border: none;
-    background-color: rgb(71, 104, 147);
-    color: rgb(255, 255, 255);
-    text-align: center;
-    display: inline-block;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    position: absolute;
-    width: 50px;
-    height: 30px;
-    left: 115px;
-    top: 302px;
-}
-
-#bttManu_CloseV3 {
-    border: none;
-    background-color: rgb(71, 104, 147);
-    color: rgb(255, 255, 255);
-    text-align: center;
-    display: inline-block;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    position: absolute;
-    width: 50px;
-    height: 30px;
-    left: 180px;
-    top: 302px;
-}
-
-#bttManu_RunM1 {
-    border: none;
-    background-color: rgb(71, 104, 147);
-    color: rgb(255, 255, 255);
-    text-align: center;
-    display: inline-block;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    position: absolute;
-    width: 50px;
-    height: 30px;
-    left: 115px;
-    top: 342px;
-}
-
-#bttManu_StopM1 {
-    border: none;
-    background-color: rgb(71, 104, 147);
-    color: rgb(255, 255, 255);
-    text-align: center;
-    display: inline-block;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    position: absolute;
-    width: 50px;
-    height: 30px;
-    left: 180px;
-    top: 342px;
 }

@@ -181,7 +181,7 @@ body {
 }
 
 /*Code css cho nút nhấn Auto*/
-#bttAuto_AutoMode {
+#bttAuto_XeTronMoi {
     border: none;
     background-color: rgb(156, 184, 134);
     color: rgb(255, 255, 255);
@@ -197,7 +197,7 @@ body {
     top: 100px; */
 }
 
-#bttAuto_ManuMode {
+#bttAuto_Chay {
     border: none;
     background-color: rgba(0, 255, 38, 0.99);
     color: rgb(255, 255, 255);
@@ -258,9 +258,9 @@ body {
     margin-bottom: 3px;
 }
 
-#act_Weight1,
-#act_Weight2,
-#act_Time_Tron {
+#act_Xi,
+#act_Nuoc,
+#act_TPLieu {
     width: 140px;
     height: 60px;
     display: block;
@@ -401,7 +401,7 @@ body {
 }
 
 /*IO Field cài đặt khối lượng liệu 1*/
-#set_Weight1 {
+#set_ThemNuoc {
     /* position: absolute;
     left: 135px;
     top: 290px; */
@@ -411,7 +411,7 @@ body {
 }
 
 /*IO Field cài đặt khối lượng liệu 2*/
-#set_Weight2 {
+#set_ThoigianTron {
     /* position: absolute;
     left: 135px;
     top: 325px; */
@@ -421,7 +421,7 @@ body {
 }
 
 /*IO Field cài đặt thời gian trộn liệu*/
-#set_Time_Tron {
+#set_ThoigianXa {
     /* position: absolute;
     left: 135px;
     top: 355px; */
@@ -447,13 +447,13 @@ body {
     width: 1470px;
 }
 
-.red {
+/* .red {
     border: 1px solid red;
 }
 
 .green {
     border: 1px solid green;
-}
+} */
 
 img {
     resize: both;
@@ -470,101 +470,24 @@ img {
     width: 100%;
 }
 
-/* 
-Generic Styling, for Desktops/Laptops 
-*/
-table {
+.trangthaime table {
     width: 100%;
     border-collapse: collapse;
 }
 
-/* Zebra striping */
-tr:nth-of-type(odd) {
+.trangthaime tr:nth-of-type(odd) {
     background: #eee;
 }
 
-th {
+.trangthaime th {
     background: #333;
     color: white;
     font-weight: bold;
 }
 
-td,
-th {
+.trangthaime td,
+.trangthaime th {
     padding: 3px;
     border: 1px solid #ccc;
     text-align: center;
 }
-
-/* 
-  Max width before this PARTICULAR table gets nasty
-  This query will take effect for any screen smaller than 760px
-  and also iPads specifically.
-  */
-/* @media only screen and (max-width: 760px),
-(min-device-width: 768px) and (max-device-width: 1024px) {
-    .responsive-table-input-matrix {
-        display: block;
-        position: relative;
-        width: 100%;
-    }
-
-    .responsive-table-input-matrix:after {
-        clear: both;
-        content: "";
-        display: block;
-        font-size: 0;
-        height: 0;
-        visibility: hidden;
-    }
-
-    .responsive-table-input-matrix tbody {
-        display: block;
-        overflow-x: auto;
-        position: relative;
-        white-space: nowrap;
-        width: auto;
-    }
-
-    .responsive-table-input-matrix tbody tr {
-        display: inline-block;
-        vertical-align: top;
-    }
-
-    .responsive-table-input-matrix tbody tr td {
-        display: block;
-        text-align: center;
-    }
-
-    .responsive-table-input-matrix tbody tr td:first-child {
-        text-align: left;
-    }
-
-    .responsive-table-input-matrix thead {
-        display: block;
-        float: left;
-        margin-right: 10px;
-    }
-
-    .responsive-table-input-matrix thead:after {
-        clear: both;
-        content: "";
-        display: block;
-        font-size: 0;
-        height: 0;
-        visibility: hidden;
-    }
-
-    .responsive-table-input-matrix thead th:first-of-type {
-        height: 1.4em;
-    }
-
-    .responsive-table-input-matrix thead th {
-        display: block;
-        text-align: right;
-    }
-
-    .responsive-table-input-matrix thead th:first-child {
-        text-align: right;
-    }
-} */

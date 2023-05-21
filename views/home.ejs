@@ -7,7 +7,9 @@
     <title>Scada hệ thống giám sát trên internet</title>
     <script src="js/FC1_Common.js"></script>
     <script src="js/FC2_Screen_Auto.js"></script>
-    <script src="jquery.js"></script>
+
+
+    <script src="js/jquery-3.6.3.min.js"></script>
     <script src="socket.io/socket.io.js"></script>
     <script>
         var socket = io("http://localhost:3000") // IP tĩnh (hoặc IP động, hoặc localhost)
@@ -22,18 +24,29 @@
 <!-- Phần thân của website -->
 
 <body class="bodyBackground">
+    <!-- <script>
+        // Chương trình con load lại trang
+        window.addEventListener('load', function () {
+            fn_ScreenChange('Screen_Auto', 'Screen_Manu');
+        });
+
+    </script> -->
     <div class="main-div">
         <!-- ////////////// Code cho slidebar////////////// -->
         <div id="slidebar">
             <!--Nút chọn màn hình chính-->
-            <button id="btt_Screen_Auto" onclick=" 
-            fn_ScreenChange('Screen_Auto','Screen_Manu');
-        ">MÀN HÌNH AUTO</button>
+            <button id="btt_Screen_Auto"
+                onclick="fn_ScreenChange('Screen_Auto','Screen_Manu','Screen_datCapphoi');fn_ShowByClass('bang_Phieubetong')">MÀN
+                HÌNH AUTO</button>
             <!--Nút chọn màn hình 1-->
-            <button id="btt_Screen_Manu" onclick=" 
-            fn_ScreenChange('Screen_Manu','Screen_Auto');
-        ">MÀN HÌNH MANU</button>
-
+            <button id="btt_Screen_Manu"
+                onclick="fn_ScreenChange('Screen_Manu','Screen_Auto','Screen_datCapphoi');fn_ShowById('Screen_Manu');fn_HideByClass('bang_Phieubetong');fn_Table01_SQL_Show();">MÀN
+                HÌNH
+                MANU</button>
+            <!--Nút chọn màn hình 1-->
+            <button id="btt_Screen_datCapphoi"
+                onclick="fn_ScreenChange('Screen_datCapphoi','Screen_Manu','Screen_Auto');fn_ShowById('Screen_datCapphoi');fn_HideByClass('bang_Phieubetong');fn_Table02_SQL_Show();">ĐẶT
+                CẤP PHÔI</button>
         </div>
         <!-- //////////////Code cho màn hình chính////////////// -->
         <div id="Screen_Auto">
@@ -42,102 +55,109 @@
             <!-- //////////////Code cho Symbol////////////// -->
             <!-- Tạo động cơ có tên là Motor1 -->
             <img id="scrAuto_Motor_1">
-            <script> fn_SymbolStatus("scrAuto_Motor_1", "Motor1", "status_DC_Tron") </script>
+            <script> fn_SymbolStatus("scrAuto_Motor_1", "Motor1", "CAN_XIMANG") </script>
             <!-- Tạo động cơ có tên là Motor1 -->
             <img id="scrAuto_Motor_2">
-            <script> fn_SymbolStatus("scrAuto_Motor_2", "Motor2", "status_DC_Tron") </script>
+            <script> fn_SymbolStatus("scrAuto_Motor_2", "Motor2", "CAN_XIMANG") </script>
             <!-- Tạo Van có tên là Valve1 -->
             <img id="scrAuto_Valve_1">
-            <script> fn_SymbolStatus("scrAuto_Valve_1", "Valve1", "status_Valve_1") </script>
+            <script> fn_SymbolStatus("scrAuto_Valve_1", "Valve1", "XA_XI") </script>
             <!-- Tạo Van có tên là Valve2 -->
             <img id="scrAuto_Valve_2">
-            <script> fn_SymbolStatus("scrAuto_Valve_2", "Valve2", "status_Valve_2") </script>
+            <script> fn_SymbolStatus("scrAuto_Valve_2", "Valve2", "XA_NUOC") </script>
             <!-- Tạo Cylinder xả có tên là Cylinder1 -->
             <img id="scrAuto_CylinderXa_BT">
-            <script> fn_SymbolStatus("scrAuto_CylinderXa_BT", "Cylinder1", "status_Valve_3") </script>
+            <script> fn_SymbolStatus("scrAuto_CylinderXa_BT", "Cylinder1", "XA_BT") </script>
             <!-- Tạo ảnh động cơ trộn -->
             <img id="scrAuto_Motor_mix">
-            <script> fn_SymbolStatus("scrAuto_Motor_mix", "Motor1", "status_DC_Tron") </script>
+            <script> fn_SymbolStatus("scrAuto_Motor_mix", "Motor1", "COI_CHAY") </script>
             <!-- Tạo ảnh động cơ bơm nước -->
             <img id="scrAuto_Motor_bump">
-            <script> fn_SymbolStatus("scrAuto_Motor_bump", "Motor3", "status_DC_Tron") </script>
+            <script> fn_SymbolStatus("scrAuto_Motor_bump", "Motor3", "OUT_CAN_NUOC") </script>
             <!-- Tạo Cảm biến/CTHT có tên Symname là Sensor1 -->
             <img id="scrAuto_Sensor_1">
-            <script> fn_SymbolStatus("scrAuto_Sensor_1", "Light", "CB_Can") </script>
+            <script> fn_SymbolStatus("scrAuto_Sensor_1", "Light", "DTO") </script>
             <!-- Tạo Cảm biến/CTHT có tên Symname là Sensor2 -->
             <img id="scrAuto_Sensor_2">
-            <script> fn_SymbolStatus("scrAuto_Sensor_2", "Light", "CB_Can") </script>
+            <script> fn_SymbolStatus("scrAuto_Sensor_2", "Light", "DT1") </script>
             <!-- Tạo Cảm biến/CTHT có tên Symname là Sensor3 -->
             <img id="scrAuto_Sensor_3">
-            <script> fn_SymbolStatus("scrAuto_Sensor_3", "Light", "CB_Can") </script>
+            <script> fn_SymbolStatus("scrAuto_Sensor_3", "Light", "DT2") </script>
             <!-- Tạo Cảm biến/CTHT có tên Symname là Sensor4 -->
             <img id="scrAuto_Sensor_4">
-            <script> fn_SymbolStatus("scrAuto_Sensor_4", "Light", "CB_Can") </script>
+            <script> fn_SymbolStatus("scrAuto_Sensor_4", "Light", "MTT") </script>
             <!-- Tạo Cảm biến/CTHT có tên Symname là Sensor5 -->
             <img id="scrAuto_Sensor_5">
-            <script> fn_SymbolStatus("scrAuto_Sensor_5", "Light", "CB_Can") </script>
+            <script> fn_SymbolStatus("scrAuto_Sensor_5", "Light", "DTT") </script>
 
             <div class="openTPlieu">
                 <!-- Xilanh mở thành phần liệu 1 -->
                 <img id="scrAuto_OpenTP_1">
-                <script> fn_SymbolStatus("scrAuto_OpenTP_1", "Cylinder2", "CB_Can") </script>
+                <script> fn_SymbolStatus("scrAuto_OpenTP_1", "Cylinder2", "TP1") </script>
                 <!-- Xilanh mở thành phần liệu 2 -->
                 <img id="scrAuto_OpenTP_2">
-                <script> fn_SymbolStatus("scrAuto_OpenTP_2", "Cylinder2", "CB_Can") </script>
+                <script> fn_SymbolStatus("scrAuto_OpenTP_2", "Cylinder2", "TP2") </script>
                 <!-- Xilanh mở thành phần liệu 3 -->
                 <img id="scrAuto_OpenTP_3">
-                <script> fn_SymbolStatus("scrAuto_OpenTP_3", "Cylinder2", "CB_Can") </script>
+                <script> fn_SymbolStatus("scrAuto_OpenTP_3", "Cylinder2", "TP3") </script>
                 <!-- Xilanh mở thành phần liệu 4 -->
                 <img id="scrAuto_OpenTP_4">
-                <script> fn_SymbolStatus("scrAuto_OpenTP_4", "Cylinder2", "CB_Can") </script>
+                <script> fn_SymbolStatus("scrAuto_OpenTP_4", "Cylinder2", "TP4") </script>
             </div>
 
 
             <!-- Hướng động cơ đang đi lên -->
             <img id="scrAuto_Motor_Up">
-            <script> fn_SymbolStatus("scrAuto_Motor_Up", "Arrow1", "CB_Can") </script>
+            <script> fn_SymbolStatus("scrAuto_Motor_Up", "Arrow1", "GAU_LEN") </script>
             <!-- Hướng độn cơ đang xuống -->
             <img id="scrAuto_Motor_Down">
-            <script> fn_SymbolStatus("scrAuto_Motor_Down", "Arrow2", "CB_Can") </script>
+            <script> fn_SymbolStatus("scrAuto_Motor_Down", "Arrow2", "GAU_XUONG") </script>
+
             <!-- //////////////Code hiển thị các giá trị của IO Field////////////// -->
-            <div class="inforXi red">
+            <div class="inforXi">
                 <!-- Hien thi trang thai cua Xi mang -->
                 <input id="act_statusXi" disabled="disabled" type="text" />
+                <script>fn_ShowStatus("VB4154", "VB4155", "act_statusXi");</script>
                 <input id="act_someXi" disabled="disabled" type="text" />
-                <!-- IO Field hiển thị liệu 1 -->
-                <input id="act_Weight1" disabled="disabled" type="text" />
-                <script>fn_IOFieldDataShow("Act_Weight_1", "act_Weight1", 2);</script>
+                <script>fn_ShowSoMe("SO_ME_HT2", "SO_ME_DM", "act_someXi");</script>
+                <!-- IO Field hiển thị Khối lượng Xi -->
+                <input id="act_Xi" disabled="disabled" type="text" />
+                <script>fn_IOFieldDataShow("KL_CAN2", "act_Xi", 1);</script>
             </div>
-            <div class="inforNuoc green">
+            <div class="inforNuoc">
                 <!-- Hien thi trang thai cua Nuoc -->
                 <input id="act_statusNuoc" disabled="disabled" type="text" />
+                <script>fn_ShowStatus("VB4254", "VB4255", "act_statusNuoc");</script>
                 <input id="act_someNuoc" disabled="disabled" type="text" />
-                <!-- IO Field hiển thị liệu 2 -->
-                <input id="act_Weight2" disabled="disabled" type="text" />
-                <script>fn_IOFieldDataShow("Act_Weight_2", "act_Weight2", 2);</script>
+                <script>fn_ShowSoMe("SOME_HT3", "SO_ME_DM", "act_someNuoc");</script>
+                <!-- IO Field hiển thị Khối lượng Nước -->
+                <input id="act_Nuoc" disabled="disabled" type="text" />
+                <script>fn_IOFieldDataShow("KL_CAN3", "act_Nuoc", 1);</script>
             </div>
-            <div class="inforTPLieu red">
+            <div class="inforTPLieu">
                 <!-- Hien thi trang thai cua TP Liệu -->
                 <input id="act_statusTPLieu" disabled="disabled" type="text" />
+                <script>fn_ShowStatus("VB5054", "VB5055", "act_statusTPLieu");</script>
                 <input id="act_someTPLieu" disabled="disabled" type="text" />
-                <!-- IO Field hiển thị thời gian trộn -->
-                <input id="act_Time_Tron" disabled="disabled" type="text" />
-                <script>fn_IOFieldDataShow("Act_Time_Tron", "act_Time_Tron", 0);</script>
+                <script>fn_ShowSoMe("SO_ME_HT1", "SO_ME_DM", "act_someTPLieu");</script>
+                <!-- IO Field hiển thị các TP Liệu -->
+                <input id="act_TPLieu" disabled="disabled" type="text" />
+                <script>fn_IOFieldDataShow("KL_CAN1", "act_TPLieu", 1);</script>
             </div>
 
-            <!-- Hiển thị thời gian đếm người cho trộn và xả -->
+            <!-- Hiển thị thời gian đếm ngược cho trộn và xả -->
             <div>
                 <div class="count_ThoigianTron">
                     <span>TRỘN</span>
                     <!-- IO Field hiển thị liệu 1 -->
                     <input class="count_Thoigian" id="act_ThoigianTron" disabled="disabled" type="text" />
-                    <script>fn_IOFieldDataShow("act_ThoigianTron", "act_Weight1", 2);</script>
+                    <script>fn_IOFieldDataShow("CountDownTronBON", "act_ThoigianTron", 0);</script>
                 </div>
                 <div class="count_ThoigianXa">
                     <span>XẢ</span>
                     <!-- IO Field hiển thị liệu 1 -->
                     <input class="count_Thoigian" id="act_ThoigianXa" disabled="disabled" type="text" />
-                    <script>fn_IOFieldDataShow("act_ThoigianXa", "act_Weight1", 2);</script>
+                    <script>fn_IOFieldDataShow("CountDownXaBON", "act_ThoigianXa", 0);</script>
                 </div>
             </div>
             <div class="bang_Dieukhien">
@@ -145,23 +165,23 @@
                     <div>
                         <span>Cài đặt thời gian trộn:</span>
                         <!-- IO Field cài đặt thời gian trộn -->
-                        <input id="set_Time_Tron" disabled="disabled" type="text" />
-                        <script>fn_scrAuto_IOField_IO("Setting_Time_Tron", "set_Time_Tron", 0);</script>
+                        <input id="set_ThoigianTron" disabled="disabled" type="text" />
+                        <script>fn_scrAuto_IOField_TronXA("TGTRON", "set_ThoigianTron", 1);</script>
                         <span> [s]</span>
                     </div>
                     <div>
                         <span>Cài đặt thời gian xả:</span>
                         <!-- IO Field cài đặt khối lượng liệu 1 -->
-                        <input id="set_Weight1" disabled="disabled" type="text" />
-                        <script>fn_scrAuto_IOField_IO("Setting_Weight_1", "set_Weight1", 2);</script>
+                        <input id="set_ThoigianXa" disabled="disabled" type="text" />
+                        <script>fn_scrAuto_IOField_TronXA("TG_XA", "set_ThoigianXa", 1);</script>
                         <span> [s]</span>
                     </div>
                     <!-- IO field thêm nước -->
                     <div class="setup_Themnuoc">
                         <span>Cài đặt lượng nước cần thêm:</span>
                         <!-- IO Field cài đặt khối lượng liệu 2 -->
-                        <input id="set_Weight2" disabled="disabled" type="text" />
-                        <script>fn_scrAuto_IOField_IO("Setting_Weight_2", "set_Weight2", 2);</script>
+                        <input id="set_ThemNuoc" disabled="disabled" type="text" />
+                        <script>fn_scrAuto_IOField_IO("NUOC_THEM", "set_ThemNuoc", 1);</script>
                         <span> [Lít]</span>
                     </div>
                     <div class="edit_save">
@@ -175,9 +195,9 @@
                 <div class="btt_Control">
                     <!-- //////////////Code cho button////////////// -->
                     <!-- Tạo Nút nhấn Auto -->
-                    <button id="bttAuto_AutoMode" onclick="socket.emit('cmd_Auto', true);">XE TRỘN MỚI</button>
+                    <button id="bttAuto_XeTronMoi" onclick="socket.emit('cmd_XeTronMoi', true);">XE TRỘN MỚI</button>
                     <!-- Tạo Nút nhấn Manual -->
-                    <button id="bttAuto_ManuMode" onclick="socket.emit('cmd_Manu', true);">CHẠY</button>
+                    <button id="bttAuto_Chay" onclick="socket.emit('cmd_Chay', true);">CHẠY</button>
                     <!-- Tạo Nút nhấn Xác nhận -->
                     <button id="bttAuto_ConfirmMode" onclick="socket.emit('cmd_Confirm', true);">PHIẾU CHI
                         TIẾT</button>
@@ -213,6 +233,18 @@
                             <td></td>
                         </tr>
                         <tr>
+                            <td>Thực tế</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
                             <td>Sai số (%)</td>
                             <td></td>
                             <td></td>
@@ -230,45 +262,132 @@
         </div>
         <!-- //////////////Code cho màn hình Manual////////////// -->
         <div id="Screen_Manu">
-            <img src="/images/background_SCR_Manu.png">
-            <!-- Tạo động cơ có tên là Motor1 -->
-            <img id="scrManu_Motor_1">
-            <script> fn_SymbolStatus("scrManu_Motor_1", "Motor1", "status_DC_Tron") </script>
-            <!-- Tạo Van có tên là Valve1 -->
-            <img id="scrManu_Valve_1">
-            <script> fn_SymbolStatus("scrManu_Valve_1", "Valve1", "status_Valve_1") </script>
-            <!-- Tạo Van có tên là Valve2 -->
-            <img id="scrManu_Valve_2">
-            <script> fn_SymbolStatus("scrManu_Valve_2", "Valve1", "status_Valve_2") </script>
-            <!-- Tạo Van có tên là Valve3 -->
-            <img id="scrManu_Valve_3">
-            <script> fn_SymbolStatus("scrManu_Valve_3", "Valve1", "status_Valve_3") </script>
-            <!-- Tạo cảm biến có tên Sensor_1 -->
-            <img id="scrManu_Sensor_1">
-            <script> fn_SymbolStatus("scrManu_Sensor_1", "Sensor1", "CB_Can") </script>
-            <!-- //////////////Code cho nút nhấn điều khiển////////////// -->
-            <!-- Tạo Nút nhấn Auto -->
-            <button id="bttManu_AutoMode" onclick="socket.emit('cmd_Auto', true);">TỰ ĐỘNG</button>
-            <!-- Tạo Nút nhấn Manual -->
-            <button id="bttManu_ManuMode" onclick="socket.emit('cmd_Manu', true);">BẰNG TAY</button>
-            <!-- Tạo Nút nhấn mở Van 1 -->
-            <button id="bttManu_OpenV1" onclick="socket.emit('cmd_OpenV1', true);">MỞ</button>
-            <!-- Tạo Nút nhấn đóng Van 1 -->
-            <button id="bttManu_CloseV1" onclick="socket.emit('cmd_CloseV1', true);">ĐÓNG</button>
-            <!-- Tạo Nút nhấn mở Van 2 -->
-            <button id="bttManu_OpenV2" onclick="socket.emit('cmd_OpenV2', true);">MỞ</button>
-            <!-- Tạo Nút nhấn đóng Van 2 -->
-            <button id="bttManu_CloseV2" onclick="socket.emit('cmd_CloseV2', true);">ĐÓNG</button>
-            <!-- Tạo Nút nhấn mở Van 3 -->
-            <button id="bttManu_OpenV3" onclick="socket.emit('cmd_OpenV3', true);">MỞ</button>
-            <!-- Tạo Nút nhấn đóng Van 3 -->
-            <button id="bttManu_CloseV3" onclick="socket.emit('cmd_CloseV3', true);">ĐÓNG</button>
-            <!-- Tạo Nút nhấn chạy Động cơ trộn -->
-            <button id="bttManu_RunM1" onclick="socket.emit('cmd_RunM1', true);">CHẠY</button>
-            <!-- Tạo Nút nhấn dừng Động cơ trộn -->
-            <button id="bttManu_StopM1" onclick="socket.emit('cmd_StopM1', true);">DỪNG</button>
+            <div class="main-container">
+                <h2>Tra cứu và cập nhật mác bê tông</h2>
+
+                <div class="table-container">
+                    <table id="macBetong">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>TenMacBeTong</th>
+                                <th>TP1</th>
+                                <th>TP2</th>
+                                <th>TP3</th>
+                                <th>TP4</th>
+                                <th>Xi</th>
+                                <th>Nuoc</th>
+                                <th>PG1</th>
+                                <th>PG2</th>
+                                <th>DoSutThongKe</th>
+                            </tr>
+                        </thead>
+                    </table>
+
+                    <!-- Thêm các trường nhập liệu và nút vào đây -->
+                    <div class="form-container">
+                        <div>STT: <br>
+                            <input type="text" data-label="STT">
+                        </div>
+                        <div>TenMacBeTong: <br>
+                            <input class="exclude" type="text" data-label="TenMacBeTong">
+                        </div>
+                        <div>TP1: <br>
+                            <input type="text" data-label="TP1">
+                        </div>
+                        <div>TP2: <br>
+                            <input type="text" data-label="TP2">
+                        </div>
+                        <div>TP3: <br>
+                            <input type="text" data-label="TP3">
+                        </div>
+                        <div>TP4: <br>
+                            <input type="text" data-label="TP4">
+                        </div>
+                        <div>Xi: <br>
+                            <input type="text" data-label="Xi">
+                        </div>
+                        <div>Nuoc: <br>
+                            <input type="text" data-label="Nuoc">
+                        </div>
+                        <div>PG1: <br>
+                            <input type="text" data-label="PG1">
+                        </div>
+                        <div>PG2: <br>
+                            <input type="text" data-label="PG2">
+                        </div>
+                        <div>DoSutThongKe: <br>
+                            <input class="exclude" type="text" data-label="DoSutThongKe">
+                        </div>
+                        <br>
+                        <!-- Thêm các nút vào đây -->
+                        <div class="button-container">
+                            <button id="button1" onclick="validateNumberInput()">Nút 1</button><br><br>
+                            <button>Nút 2</button><br><br>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="left-sidebar">
+        <div id="Screen_datCapphoi">
+            <div class="main-container-datCapphoi">
+                <h2>Tra cứu và cập nhật mác bê tông</h2>
+                <div class="table-container-datCapphoi">
+                    <table id="datCapphoi">
+                        <thead>
+                            <tr>
+                                <th>Cột 1</th>
+                                <th>Cột 2</th>
+                            </tr>
+                        </thead>
+                    </table>
+
+                    <!-- Thêm các trường nhập liệu và nút vào đây -->
+                    <div class="form-container-datCapphoi">
+                        <div>STT: <br>
+                            <input type="text" data-label="STT">
+                        </div>
+                        <div>TenMacBeTong: <br>
+                            <input class="exclude" type="text" data-label="TenMacBeTong">
+                        </div>
+                        <div>TP1: <br>
+                            <input type="text" data-label="TP1">
+                        </div>
+                        <div>TP2: <br>
+                            <input type="text" data-label="TP2">
+                        </div>
+                        <div>TP3: <br>
+                            <input type="text" data-label="TP3">
+                        </div>
+                        <div>TP4: <br>
+                            <input type="text" data-label="TP4">
+                        </div>
+                        <div>Xi: <br>
+                            <input type="text" data-label="Xi">
+                        </div>
+                        <div>Nuoc: <br>
+                            <input type="text" data-label="Nuoc">
+                        </div>
+                        <div>PG1: <br>
+                            <input type="text" data-label="PG1">
+                        </div>
+                        <div>PG2: <br>
+                            <input type="text" data-label="PG2">
+                        </div>
+                        <div>DoSutThongKe: <br>
+                            <input class="exclude" type="text" data-label="DoSutThongKe">
+                        </div>
+                        <br>
+                        <!-- Thêm các nút vào đây -->
+                        <div class="button-container">
+                            <button id="button3" onclick="validateNumberInput()">Nút 1</button><br><br>
+                            <button>Nút 2</button><br><br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="right-sidebar">
             <!-- Hiển thị nhiệt độ hiện tại của các vùng -->
             <div class="bang_Nhietdohientai">
                 <div style="margin-bottom:5px;">
@@ -278,28 +397,28 @@
                     <span>Zone1:</span>
                     <!-- Hiển thị nhiệt độ Zone1 -->
                     <input class="indicator_nhiet_Zone" id="act_Zone1" disabled="disabled" type="text" />
-                    <script>fn_IOFieldDataShow("act_Zone1", "act_Time_Tron", 0);</script>
+                    <script>fn_IOFieldDataShow("G1_Real_Tem", "act_Zone1", 1);</script>
                     <span> [&#8451]</span>
                 </div>
                 <div>
                     <span>Zone2:</span>
                     <!-- Hiển thị nhiệt độ Zone2 -->
                     <input class="indicator_nhiet_Zone" id="act_Zone2" disabled="disabled" type="text" />
-                    <script>fn_IOFieldDataShow("act_Zone2", "set_Weight1", 2);</script>
+                    <script>fn_IOFieldDataShow("G2_Real_Tem", "act_Zone2", 1);</script>
                     <span> [&#8451]</span>
                 </div>
                 <div>
                     <span>Zone3:</span>
                     <!-- Hiển thị nhiệt độ Zone3 -->
                     <input class="indicator_nhiet_Zone" id="act_Zone3" disabled="disabled" type="text" />
-                    <script>fn_IOFieldDataShow("act_Zone3", "set_Weight1", 2);</script>
+                    <script>fn_IOFieldDataShow("G3_Real_Tem", "act_Zone3", 1);</script>
                     <span> [&#8451]</span>
                 </div>
                 <div>
                     <span>Zone4:</span>
                     <!-- Hiển thị nhiệt độ Zone4 -->
                     <input class="indicator_nhiet_Zone" id="act_Zone4" disabled="disabled" type="text" />
-                    <script>fn_IOFieldDataShow("act_Zone4", "set_Weight1", 2);</script>
+                    <script>fn_IOFieldDataShow("G4_Real_Tem", "act_Zone4", 1);</script>
                     <span> [&#8451]</span>
                 </div>
 
@@ -313,26 +432,26 @@
                     <div style="margin-bottom:5px;">
                         <span>Số &#13221/mẻ:</span>
                         <input id="indicator_m3Me" disabled="disabled" type="text" />
-                        <script>fn_IOFieldDataShow("indicator_m3Me", "set_Weight1", 0);</script>
+                        <script>fn_IOFieldDataShow("set_Weight1", "indicator_m3Me", 0);</script>
                     </div>
                     <div style="margin-bottom:5px;">
                         <span>Số mẻ:</span>
                         <input id="indicator_soMe" disabled="disabled" type="text" />
-                        <script>fn_IOFieldDataShow("indicator_soMe", "set_Weight1", 0);</script>
+                        <script>fn_IOFieldDataShow("set_Weight1", "indicator_soMe", 0);</script>
                     </div>
                     <div style="margin-bottom:5px;">
                         <span>Mã phiếu:</span>
                     </div>
                     <div>
                         <input id="indicator_MaPhieu" disabled="disabled" type="text" />
-                        <script>fn_IOFieldDataShow("indicator_MaPhieu", "set_Weight1", 0);</script>
+                        <script>fn_IOFieldDataShow("set_Weight1", "indicator_MaPhieu", 0);</script>
                     </div>
                     <div style="margin-bottom:5px;">
                         <span>Khách hàng:</span>
                     </div>
                     <div>
                         <input id="indicator_KhachHang" disabled="disabled" type="text" />
-                        <script>fn_IOFieldDataShow("indicator_KhachHang", "set_Weight1", 0);</script>
+                        <script>fn_IOFieldDataShow("set_Weight1", "indicator_KhachHang", 0);</script>
                     </div>
                     <div style="margin-bottom:5px;">
                         <span>Đơn hàng:</span>
@@ -340,7 +459,7 @@
                     </div>
                     <div>
                         <input id="indicator_DonHang" disabled="disabled" type="text" />
-                        <script>fn_IOFieldDataShow("indicator_DonHang", "set_Weight1", 0);</script>
+                        <script>fn_IOFieldDataShow("set_Weight1", "indicator_DonHang", 0);</script>
                     </div>
 
                 </div>
@@ -348,6 +467,7 @@
             </div>
         </div>
     </div>
+    <script src="js/FC3_Screen_Setup.js"></script>
 </body>
 
 </html>
