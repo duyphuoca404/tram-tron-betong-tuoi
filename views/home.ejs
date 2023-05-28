@@ -390,14 +390,15 @@
                     <fieldset style="border: 1px solid black; border-radius: 10px; padding: 10px; margin-right: 10px;">
                         <legend>Tra cứu và cập nhật đơn hàng</legend>
                         <div style="display: flex;">
-                            <div class="listbox-container" style="margin-right: 10px;">
-                                <select class="listbox" size="5">
-                                    <option>Item 1</option>
-                                    <option>Item 2</option>
-                                    <option>Item 3</option>
-                                    <option>Item 4</option>
-                                    <option>Item 5</option>
-                                </select>
+                            <div class="table-container-datCapphoi" style="margin-right: 10px;">
+                                <table class="class-small-table" id="donhang">
+                                    <thead>
+                                        <tr>
+                                            <th>Cột 1</th>
+                                            <th>Cột 2</th>
+                                        </tr>
+                                    </thead>
+                                </table>
                             </div>
                             <div style="border: 1px solid black; border-radius: 10px; padding: 10px;">
                                 <label for="madondathang">Mã đơn đặt hàng:</label>
@@ -452,22 +453,14 @@
                                 </select>
                             </div>
                             <div style="border: 1px solid black; border-radius: 10px; padding: 10px;">
-                                <label for="madondathang">Mã đơn đặt hàng:</label>
-                                <input type="text" id="madondathang" name="madondathang"><br><br>
-                                <label for="khachhang">Khách hàng:</label>
-                                <select id="khachhang" name="khachhang">
-                                    <option value="">--Chọn khách hàng--</option>
-                                    <!-- Các tùy chọn khách hàng -->
-                                </select>
-                                <button>Button</button><br><br>
+                                <label for="makhachhang">Mã Khách hàng:</label>
+                                <input type="text" id="makhachhang" name="makhachhang"><br><br>
+                                <label for="tenkhachhang">Tên khách hàng:</label>
+                                <input type="text" id="tenkhachhang" name="tenkhachhang"><br><br>
+
                                 <label for="diachi">Địa chỉ:</label>
                                 <input type="text" id="diachi" name="diachi"><br><br>
-                                <label for="diachicongtruong">Địa chỉ công trường:</label>
-                                <input type="text" id="diachicongtruong" name="diachicongtruong"><br><br>
-                                <label for="som3dathang">Số m3 đặt hàng:</label>
-                                <input type="text" id="som3dathang" name="som3dathang"><br><br>
-                                <label for="som3dado">Số m3 đã đổ:</label>
-                                <input type="text" id="som3dado" name="som3dado"><br><br>
+
                             </div><br>
                         </div>
 
@@ -503,22 +496,12 @@
                                 </select>
                             </div>
                             <div style="border: 1px solid black; border-radius: 10px; padding: 10px;">
-                                <label for="madondathang">Mã đơn đặt hàng:</label>
-                                <input type="text" id="madondathang" name="madondathang"><br><br>
-                                <label for="khachhang">Khách hàng:</label>
-                                <select id="khachhang" name="khachhang">
-                                    <option value="">--Chọn khách hàng--</option>
-                                    <!-- Các tùy chọn khách hàng -->
-                                </select>
-                                <button>Button</button><br><br>
-                                <label for="diachi">Địa chỉ:</label>
-                                <input type="text" id="diachi" name="diachi"><br><br>
-                                <label for="diachicongtruong">Địa chỉ công trường:</label>
-                                <input type="text" id="diachicongtruong" name="diachicongtruong"><br><br>
-                                <label for="som3dathang">Số m3 đặt hàng:</label>
-                                <input type="text" id="som3dathang" name="som3dathang"><br><br>
-                                <label for="som3dado">Số m3 đã đổ:</label>
-                                <input type="text" id="som3dado" name="som3dado"><br><br>
+                                <label for="sttXebon">STT:</label>
+                                <input type="text" id="sttXebon" name="sttXebon"><br><br>
+                                <label for="bienso">Biển số:</label>
+                                <input type="text" id="bienso" name="bienso"><br><br>
+                                <label for="taixe">Tài xế:</label>
+                                <input type="text" id="taixe" name="taixe"><br><br>
                             </div><br>
                         </div>
 

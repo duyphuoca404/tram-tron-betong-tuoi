@@ -104,7 +104,6 @@ td {
     overflow-y: scroll;
     overflow: auto;
     border-collapse: collapse;
-
 }
 
 #datCapphoi tr {
@@ -193,4 +192,35 @@ td {
     height: 40px;
     left: 150px;
     top: 100px;
+}
+
+/*Bảng thông tin small*/
+.class-small-table {
+    display: block;
+    height: 400px;
+    overflow-y: scroll;
+    overflow: auto;
+    border-collapse: collapse;
+}
+
+.class-small-table tr {
+    cursor: pointer;
+}
+
+.class-small-table tr:hover {
+    background-color: #ddd;
+}
+
+.class-small-table thead th {
+    position: sticky;
+    top: 0;
+}
+
+.class-small-table th,
+td {
+    padding: 28px 16px;
+}
+
+.class-small-table th {
+    background: transparent;
 }
