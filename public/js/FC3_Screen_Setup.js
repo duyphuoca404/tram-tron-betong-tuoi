@@ -131,38 +131,7 @@ function fn_table_02(data) {
         }
     }
 }
-//Cập nhật vào trường input trong datCapphoi
-function updateInputsOnRowClick(tableSelector, inputSelector) {
-    // Lấy phần tử bảng và các phần tử input
-    let table = document.querySelector(tableSelector);
-    let inputs = document.querySelectorAll(inputSelector);
 
-    // Thêm sự kiện click vào bảng
-    table.addEventListener("click", event => {
-        // Lấy hàng được click
-        let row = event.target.closest("tr");
-        if (!row) return;
-
-        // Lấy dữ liệu của hàng từ thuộc tính data của phần tử tr
-        let rowData = JSON.parse(row.dataset.rowData);
-        console.log(rowData)
-        // Duyệt qua từng thuộc tính của dữ liệu hàng và cập nhật giá trị của phần tử input tương ứng
-        // Object.keys(rowData).forEach((key, index) => {
-        //     if (index < inputs.length) {
-        //         inputs[index].value = rowData[key];
-        //     }
-        // });
-        for (let key in rowData) {
-            let input = document.querySelector(`input[data-label="${key}"]`);
-            if (input) {
-                input.value = rowData[key];
-            }
-            console.log(key);
-            console.log(input);
-            console.log(input.value);
-        }
-    });
-}
 //////////////Hàm chọn và chỉnh sửa nội dung tổng bảng////////////////////////////
 function addRowClickListener(tableSelector, inputSelector) {
     const table = document.querySelector(tableSelector);
@@ -185,8 +154,46 @@ function addRowClickListener(tableSelector, inputSelector) {
         });
     });
 }
+//Cập nhật vào trường input trong datCapphoi
+function updateInputsOnRowClick(tableSelector, inputSelector) {
+    // Lấy phần tử bảng và các phần tử input
+    let table = document.querySelector(tableSelector);
+    let inputs = document.querySelectorAll(inputSelector);
+
+    // Thêm sự kiện click vào bảng
+    table.addEventListener("click", event => {
+        // Lấy hàng được click
+        let row = event.target.closest("tr");
+        if (!row) return;
+
+        // Lấy dữ liệu của hàng từ thuộc tính data của phần tử tr
+        let rowData = JSON.parse(row.dataset.rowData);
+        //console.log(rowData)
+        // Duyệt qua từng thuộc tính của dữ liệu hàng và cập nhật giá trị của phần tử input tương ứng
+        // Object.keys(rowData).forEach((key, index) => {
+        //     if (index < inputs.length) {
+        //         inputs[index].value = rowData[key];
+        //     }
+        // });
+        for (let key in rowData) {
+            let input = document.querySelector(`input[data-label="${key}"]`);
+            if (input) {
+                if (key == "TP1") {
+                    input.value = rowData[key] * document.querySelector(`input[data-label="${key}"] + input`).value;;
+
+                } else {
+                    input.value = rowData[key];
+                }
+
+            }
+            console.log(key);
+            console.log(input);
+            console.log(input.value);
+        }
+    });
+}
 //Lắng nghe sự kiện tải lại trang và gọi hàm khi có sự kiện Click
 document.addEventListener('DOMContentLoaded', () => {
-    updateInputsOnRowClick(`#datCapphoi`, `.form-container-datCapphoi input`);
     addRowClickListener(`#macBetong`, `.form-container-macBetong input`);
+    updateInputsOnRowClick('#datCapphoi', '.form-container-datCapphoi input');
 });

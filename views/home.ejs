@@ -261,10 +261,66 @@
             </div>
         </div>
         <!-- //////////////Code cho màn hình Manual////////////// -->
+        <div id="Screen_datCapphoi">
+            <div class="main-container-datCapphoi">
+                <h2>Tra cứu và cập nhật mác bê tông</h2>
+                <div class="table-container-datCapphoi">
+                    <table id="datCapphoi">
+                        <thead>
+                            <tr>
+                                <th>Cột 1</th>
+                                <th>Cột 2</th>
+                            </tr>
+                        </thead>
+                    </table>
+                    <!-- Thêm các trường nhập liệu và nút vào đây -->
+                    <div class="form-container-datCapphoi">
+                        <div>STT: <br>
+                            <input type="text" data-label="STT">
+                        </div>
+                        <div>TenMacBeTong: <br>
+                            <input class="exclude" type="text" data-label="TenMacBeTong">
+                        </div>
+                        <div>TP1: <br>
+                            <input type="text" data-label="TP1">[Kg]<input type="text">%
+                        </div>
+                        <div>TP2: <br>
+                            <input type="text" data-label="TP2">[Kg]<input type="text">%
+                        </div>
+                        <div>TP3: <br>
+                            <input type="text" data-label="TP3">[Kg]<input type="text">%
+                        </div>
+                        <div>TP4: <br>
+                            <input type="text" data-label="TP4">[Kg]<input type="text">%
+                        </div>
+                        <div>Xi: <br>
+                            <input type="text" data-label="Xi">
+                        </div>
+                        <div>Nuoc: <br>
+                            <input type="text" data-label="Nuoc">
+                        </div>
+                        <div>PG1: <br>
+                            <input type="text" data-label="PG1">
+                        </div>
+                        <div>PG2: <br>
+                            <input type="text" data-label="PG2">
+                        </div>
+                        <div>DoSutThongKe: <br>
+                            <input class="exclude" type="text" data-label="DoSutThongKe">
+                        </div>
+                        <br>
+                        <!-- Thêm các nút vào đây -->
+                        <div class="button-container-datCapphoi">
+                            <button id="button3" onclick="validateNumberInput()">Nút 1</button><br><br>
+                            <button>Nút 2</button><br><br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div id="Screen_Manu">
             <div class="main-container-macBetong">
                 <h2>Tra cứu và cập nhật mác bê tông</h2>
-
                 <div class="table-container-macBetong">
                     <table id="macBetong">
                         <thead>
@@ -320,71 +376,172 @@
                             <input class="exclude" type="text" data-label="DoSutThongKe">
                         </div>
                         <br>
-                        <div class="button-container">
+                        <div class="button-container-macBetong">
                             <button id="button1" onclick="validateNumberInput()">Nút 1</button><br><br>
                             <button>Nút 2</button><br><br>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div id="Screen_datCapphoi">
-            <div class="main-container-datCapphoi">
-                <h2>Tra cứu và cập nhật mác bê tông</h2>
-                <div class="table-container-datCapphoi">
-                    <table id="datCapphoi">
-                        <thead>
-                            <tr>
-                                <th>Cột 1</th>
-                                <th>Cột 2</th>
-                            </tr>
-                        </thead>
-                    </table>
-                    <!-- Thêm các trường nhập liệu và nút vào đây -->
-                    <div class="form-container-datCapphoi">
-                        <div>STT: <br>
-                            <input type="text" data-label="STT">
+
+            <div class="main-container-macBetong">
+                <h2>Tra cứu và cập nhật dữ liệu khách hàng</h2>
+                <div style="display: flex;">
+                    <fieldset style="border: 1px solid black; border-radius: 10px; padding: 10px; margin-right: 10px;">
+                        <legend>Tra cứu và cập nhật đơn hàng</legend>
+                        <div style="display: flex;">
+                            <div class="listbox-container" style="margin-right: 10px;">
+                                <select class="listbox" size="5">
+                                    <option>Item 1</option>
+                                    <option>Item 2</option>
+                                    <option>Item 3</option>
+                                    <option>Item 4</option>
+                                    <option>Item 5</option>
+                                </select>
+                            </div>
+                            <div style="border: 1px solid black; border-radius: 10px; padding: 10px;">
+                                <label for="madondathang">Mã đơn đặt hàng:</label>
+                                <input type="text" id="madondathang" name="madondathang"><br><br>
+                                <label for="khachhang">Khách hàng:</label>
+                                <select id="khachhang" name="khachhang">
+                                    <option value="">--Chọn khách hàng--</option>
+                                    <!-- Các tùy chọn khách hàng -->
+                                </select>
+                                <button>Button</button><br><br>
+                                <label for="diachi">Địa chỉ:</label>
+                                <input type="text" id="diachi" name="diachi"><br><br>
+                                <label for="diachicongtruong">Địa chỉ công trường:</label>
+                                <input type="text" id="diachicongtruong" name="diachicongtruong"><br><br>
+                                <label for="som3dathang">Số m3 đặt hàng:</label>
+                                <input type="text" id="som3dathang" name="som3dathang"><br><br>
+                                <label for="som3dado">Số m3 đã đổ:</label>
+                                <input type="text" id="som3dado" name="som3dado"><br><br>
+                            </div><br>
                         </div>
-                        <div>TenMacBeTong: <br>
-                            <input class="exclude" type="text" data-label="TenMacBeTong">
+
+                        <button>Thêm</button>
+                        <button>Sửa</button>
+                        <button>Xóa</button>
+                        <button>Thoát</button>
+
+                        <style>
+                            .listbox-container {
+                                border: 1px solid #000;
+                                border-radius: 10px;
+                            }
+
+                            .listbox {
+                                border: none;
+                            }
+                        </style>
+                    </fieldset>
+
+                    <!-- New rectangle with a caption -->
+                    <fieldset style="border: 1px solid black; border-radius: 10px; padding: 10px;">
+                        <!-- Add your caption here -->
+                        <legend>Thông tin khách hàng</legend>
+
+                        <div style="display: flex;">
+                            <div class="listbox-container" style="margin-right: 10px;">
+                                <select class="listbox" size="5">
+                                    <option>Item 1</option>
+                                    <option>Item 2</option>
+                                    <option>Item 3</option>
+                                    <option>Item 4</option>
+                                    <option>Item 5</option>
+                                </select>
+                            </div>
+                            <div style="border: 1px solid black; border-radius: 10px; padding: 10px;">
+                                <label for="madondathang">Mã đơn đặt hàng:</label>
+                                <input type="text" id="madondathang" name="madondathang"><br><br>
+                                <label for="khachhang">Khách hàng:</label>
+                                <select id="khachhang" name="khachhang">
+                                    <option value="">--Chọn khách hàng--</option>
+                                    <!-- Các tùy chọn khách hàng -->
+                                </select>
+                                <button>Button</button><br><br>
+                                <label for="diachi">Địa chỉ:</label>
+                                <input type="text" id="diachi" name="diachi"><br><br>
+                                <label for="diachicongtruong">Địa chỉ công trường:</label>
+                                <input type="text" id="diachicongtruong" name="diachicongtruong"><br><br>
+                                <label for="som3dathang">Số m3 đặt hàng:</label>
+                                <input type="text" id="som3dathang" name="som3dathang"><br><br>
+                                <label for="som3dado">Số m3 đã đổ:</label>
+                                <input type="text" id="som3dado" name="som3dado"><br><br>
+                            </div><br>
                         </div>
-                        <div>TP1: <br>
-                            <input type="text" data-label="TP1">
+
+                        <button>Thêm</button>
+                        <button>Sửa</button>
+                        <button>Xóa</button>
+                        <button>Thoát</button>
+
+                        <style>
+                            .listbox-container {
+                                border: 1px solid #000;
+                                border-radius: 10px;
+                            }
+
+                            .listbox {
+                                border: none;
+                            }
+                        </style>
+                    </fieldset>
+                    <!-- New rectangle with a caption -->
+                    <fieldset style="border: 1px solid black; border-radius: 10px; padding: 10px;">
+                        <!-- Add your caption here -->
+                        <legend>Thông tin xe bồn</legend>
+
+                        <div style="display: flex;">
+                            <div class="listbox-container" style="margin-right: 10px;">
+                                <select class="listbox" size="5">
+                                    <option>Item 1</option>
+                                    <option>Item 2</option>
+                                    <option>Item 3</option>
+                                    <option>Item 4</option>
+                                    <option>Item 5</option>
+                                </select>
+                            </div>
+                            <div style="border: 1px solid black; border-radius: 10px; padding: 10px;">
+                                <label for="madondathang">Mã đơn đặt hàng:</label>
+                                <input type="text" id="madondathang" name="madondathang"><br><br>
+                                <label for="khachhang">Khách hàng:</label>
+                                <select id="khachhang" name="khachhang">
+                                    <option value="">--Chọn khách hàng--</option>
+                                    <!-- Các tùy chọn khách hàng -->
+                                </select>
+                                <button>Button</button><br><br>
+                                <label for="diachi">Địa chỉ:</label>
+                                <input type="text" id="diachi" name="diachi"><br><br>
+                                <label for="diachicongtruong">Địa chỉ công trường:</label>
+                                <input type="text" id="diachicongtruong" name="diachicongtruong"><br><br>
+                                <label for="som3dathang">Số m3 đặt hàng:</label>
+                                <input type="text" id="som3dathang" name="som3dathang"><br><br>
+                                <label for="som3dado">Số m3 đã đổ:</label>
+                                <input type="text" id="som3dado" name="som3dado"><br><br>
+                            </div><br>
                         </div>
-                        <div>TP2: <br>
-                            <input type="text" data-label="TP2">
-                        </div>
-                        <div>TP3: <br>
-                            <input type="text" data-label="TP3">
-                        </div>
-                        <div>TP4: <br>
-                            <input type="text" data-label="TP4">
-                        </div>
-                        <div>Xi: <br>
-                            <input type="text" data-label="Xi">
-                        </div>
-                        <div>Nuoc: <br>
-                            <input type="text" data-label="Nuoc">
-                        </div>
-                        <div>PG1: <br>
-                            <input type="text" data-label="PG1">
-                        </div>
-                        <div>PG2: <br>
-                            <input type="text" data-label="PG2">
-                        </div>
-                        <div>DoSutThongKe: <br>
-                            <input class="exclude" type="text" data-label="DoSutThongKe">
-                        </div>
-                        <br>
-                        <!-- Thêm các nút vào đây -->
-                        <div class="button-container">
-                            <button id="button3" onclick="validateNumberInput()">Nút 1</button><br><br>
-                            <button>Nút 2</button><br><br>
-                        </div>
-                    </div>
+
+                        <button>Thêm</button>
+                        <button>Sửa</button>
+                        <button>Xóa</button>
+                        <button>Thoát</button>
+
+                        <style>
+                            .listbox-container {
+                                border: 1px solid #000;
+                                border-radius: 10px;
+                            }
+
+                            .listbox {
+                                border: none;
+                            }
+                        </style>
+                    </fieldset>
                 </div>
             </div>
         </div>
+
         <div class="right-sidebar">
             <!-- Hiển thị nhiệt độ hiện tại của các vùng -->
             <div class="bang_Nhietdohientai">

@@ -63,6 +63,40 @@ td {
     background: #eee;
 }
 
+/* ///////////////Hiển thị các input field ở màn hình MÁC BÊ TÔNG///////////////// */
+.form-container-macBetong {
+    margin-left: 20px;
+    border: 1px solid black;
+    padding: 10px;
+}
+
+.form-container-macBetong>div {
+    margin-bottom: 1px;
+}
+
+.button-container-macBetong {
+    display: flex;
+}
+
+.button-container-macBetong button {
+    margin-right: 10px;
+}
+
+.table-container-macBetong,
+.form-container-macBetong {
+    border-radius: 5px;
+}
+
+/*Khu vực cho Đặt cáp phối*/
+.main-container-datCapphoi {
+    border: 1px solid black;
+    padding: 10px;
+}
+
+.table-container-datCapphoi {
+    display: flex;
+}
+
 /*Bảng datCapphoi, dành cho id #datCapphoi*/
 #datCapphoi {
     display: block;
@@ -70,7 +104,7 @@ td {
     overflow-y: scroll;
     overflow: auto;
     border-collapse: collapse;
-    width: 100%;
+
 }
 
 #datCapphoi tr {
@@ -95,33 +129,37 @@ td {
     background: #eee;
 }
 
-/* Highlight dòng trong bảng nếu nó được chọn */
-.selected {
-    background-color: yellow;
-}
-
-/* ///////////////Hiển thị các input field///////////////// */
-.form-container-macBetong {
+/* ///////////////Hiển thị các input field ở màn hình đặt cấp phối///////////////// */
+.form-container-datCapphoi {
     margin-left: 20px;
     border: 1px solid black;
     padding: 10px;
 }
 
-.form-container-macBetong>div {
+.form-container-datCapphoi>div {
     margin-bottom: 1px;
 }
 
-.button-container {
+.button-container-datCapphoi {
     display: flex;
 }
 
-.button-container button {
+.button-container-datCapphoi button {
     margin-right: 10px;
 }
 
-.table-container-macBetong,
-.form-container-macBetong {
+.table-container-datCapphoi,
+.form-container-datCapphoi {
     border-radius: 5px;
+}
+
+/* Highlight dòng trong bảng nếu nó được chọn */
+.selected {
+    background-color: yellow;
+}
+
+.form-container-datCapphoi input[type="text"] {
+    width: 90px;
 }
 
 /*Code css cho nút nhấn ở chế độ Manu*/
