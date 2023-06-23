@@ -137,17 +137,6 @@ body {
     height: 15px;
 }
 
-/* .openTPlieu {
-    position: absolute;
-    left: 1094px;
-    top: 621px;
-}
-
-.openTPlieu img {
-    width: 54px;
-    height: 45px;
-} */
-
 #scrAuto_OpenTP_1 {
     position: absolute;
     left: 1106px;
@@ -282,10 +271,7 @@ body {
     display: inline;
 }
 
-
-
-
-/* Bảng đếm ngược thoài gian */
+/* Bảng đếm ngược thời gian */
 .count_ThoigianTron {
     position: absolute;
     left: 230px;
@@ -311,16 +297,6 @@ body {
     background-color: aquamarine;
 }
 
-/* .count_ThoigianTron span {
-    font-size: 20px;
-    font-weight: bold;
-}
-
-.count_ThoigianXa span {
-    font-size: 20px;
-    font-weight: bold;
-} */
-
 /* Bảng điều khiển */
 .bang_Dieukhien {
     position: absolute;
@@ -334,7 +310,26 @@ body {
     /* hoặc có thể dùng float:right  */
 }
 
+.edit_save>button {
+    border-radius: 2px;
+    /* padding: 3px; */
+    height: 20px;
+    width: 50px;
+    text-align: center;
+}
 
+/* Combobox chọn xe bồn*/
+.selectXebon-container {
+    position: absolute;
+    left: 500px;
+    top: 700px;
+}
+
+.xebon_display {
+    position: absolute;
+    left: 550px;
+    top: 614px;
+}
 
 /*Nút nhấn LƯU*/
 #btt_scrAuto_Save {
@@ -438,22 +433,10 @@ body {
     /* background-color: rgb(150, 150, 150); */
 }
 
-/* .bodyBackground {
-    background-color: rgb(150, 150, 150);
-} */
-
 .scrAutobackground {
     height: 857px;
     width: 1470px;
 }
-
-/* .red {
-    border: 1px solid red;
-}
-
-.green {
-    border: 1px solid green;
-} */
 
 img {
     resize: both;

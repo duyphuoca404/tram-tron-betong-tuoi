@@ -5,20 +5,28 @@
 <head>
     <!-- ////////////// CHƯƠNG TRÌNH HỆ THỐNG //////////////  -->
     <title>Scada hệ thống giám sát trên internet</title>
-    <script src="js/FC1_Common.js"></script>
-    <script src="js/FC2_Screen_Auto.js"></script>
-
-
     <script src="js/jquery-3.6.3.min.js"></script>
+    <script src="js/jquery-ui.js"></script>
     <script src="socket.io/socket.io.js"></script>
     <script>
         var socket = io("http://localhost:3000") // IP tĩnh (hoặc IP động, hoặc localhost)
+
     </script>
+    <script src="js/FC2_Screen_Auto.js"></script>
+    <script src="js/FC1_Common.js"></script>
+    <!-- Sử dụng thư viện jQuery để áp dụng widget selectmenu của jQuery UI cho tất cả các thẻ select trên trang  -->
+    <!-- <script>
+        $(function () {
+            $("select").selectmenu();
+        });
+    </script> -->
+
 
     <!-- ////////////// GỌI CÁC CSS //////////////  -->
     <link rel="stylesheet" href="CSS/slidebar.css">
     <link rel="stylesheet" href="CSS/screen_Auto.css">
     <link rel="stylesheet" href="CSS/screen_Manu.css">
+    <link rel="stylesheet" href="CSS/jquery-ui.css">
 </head>
 
 <!-- Phần thân của website -->
@@ -35,18 +43,11 @@
         <!-- ////////////// Code cho slidebar////////////// -->
         <div id="slidebar">
             <!--Nút chọn màn hình chính-->
-            <button id="btt_Screen_Auto"
-                onclick="fn_ScreenChange('Screen_Auto','Screen_Manu','Screen_datCapphoi');fn_ShowByClass('bang_Phieubetong')">MÀN
-                HÌNH AUTO</button>
+            <button id="btt_Screen_Auto" onclick="">HOME</button>
             <!--Nút chọn màn hình 1-->
-            <button id="btt_Screen_Manu"
-                onclick="fn_ScreenChange('Screen_Manu','Screen_Auto','Screen_datCapphoi');fn_ShowById('Screen_Manu');fn_HideByClass('bang_Phieubetong');fn_Table01_SQL_Show();">MÀN
-                HÌNH
-                MANU</button>
+            <button id="btt_Screen_Manu" onclick="">QUẢN LÝ CHUNG</button>
             <!--Nút chọn màn hình 1-->
-            <button id="btt_Screen_datCapphoi"
-                onclick="fn_ScreenChange('Screen_datCapphoi','Screen_Manu','Screen_Auto');fn_ShowById('Screen_datCapphoi');fn_HideByClass('bang_Phieubetong');fn_Table02_SQL_Show();">ĐẶT
-                CẤP PHÔI</button>
+            <button id="btt_Screen_datCapphoi" onclick="">THIẾT LẬP CẤU HÌNH</button>
         </div>
         <!-- //////////////Code cho màn hình chính////////////// -->
         <div id="Screen_Auto">
@@ -160,20 +161,31 @@
                     <script>fn_IOFieldDataShow("CountDownXaBON", "act_ThoigianXa", 0);</script>
                 </div>
             </div>
+            <div class="xebon_display">
+                <input id="xebon_recently" disabled="disabled" type="text"
+                    style="width:80px; border: 1px solid black; border-radius: 5px;" />
+            </div>
+            <div class="selectXebon-container">
+                <select class="scr_Auto_listbox-xebon" size="1">
+                    <!-- Các tùy chọn khách hàng -->
+                    <option value="">Vui lòng chọn</option>
+
+                </select>
+            </div>
             <div class="bang_Dieukhien">
                 <div class="setup_OperationParamet">
                     <div>
                         <span>Cài đặt thời gian trộn:</span>
                         <!-- IO Field cài đặt thời gian trộn -->
                         <input id="set_ThoigianTron" disabled="disabled" type="text" />
-                        <script>fn_scrAuto_IOField_TronXA("TGTRON", "set_ThoigianTron", 1);</script>
+                        <script>fn_scrAuto_IOField_TronXA("TGTRON", "set_ThoigianTron", 2);</script>
                         <span> [s]</span>
                     </div>
                     <div>
                         <span>Cài đặt thời gian xả:</span>
                         <!-- IO Field cài đặt khối lượng liệu 1 -->
                         <input id="set_ThoigianXa" disabled="disabled" type="text" />
-                        <script>fn_scrAuto_IOField_TronXA("TG_XA", "set_ThoigianXa", 1);</script>
+                        <script>fn_scrAuto_IOField_TronXA("TG_XA", "set_ThoigianXa", 2);</script>
                         <span> [s]</span>
                     </div>
                     <!-- IO field thêm nước -->
@@ -186,8 +198,8 @@
                     </div>
                     <div class="edit_save">
                         <!--Nút nhấn sửa/lưu - Lưu ý: Nút nhấn lưu phải nằm trước nút nhấn sửa-->
-                        <button id="btt_scrAuto_Save" onclick="fn_scrAuto_SaveBtt()">LƯU</button>
                         <button id="btt_scrAuto_Edit" onclick="fn_scrAuto_EditBtt()">SỬA</button>
+                        <button id="btt_scrAuto_Save" onclick="fn_scrAuto_SaveBtt()">LƯU</button>
                     </div>
 
                 </div>
@@ -195,16 +207,17 @@
                 <div class="btt_Control">
                     <!-- //////////////Code cho button////////////// -->
                     <!-- Tạo Nút nhấn Auto -->
-                    <button id="bttAuto_XeTronMoi" onclick="socket.emit('cmd_XeTronMoi', true);">XE TRỘN MỚI</button>
+                    <button id="bttAuto_XeTronMoi">XE TRỘN MỚI</button>
+                    <button id="test">TEST</button>
                     <!-- Tạo Nút nhấn Manual -->
-                    <button id="bttAuto_Chay" onclick="socket.emit('cmd_Chay', true);">CHẠY</button>
+                    <button id="bttAuto_Chay" disabled>CHẠY</button>
                     <!-- Tạo Nút nhấn Xác nhận -->
                     <button id="bttAuto_ConfirmMode" onclick="socket.emit('cmd_Confirm', true);">PHIẾU CHI
                         TIẾT</button>
                 </div>
             </div>
             <div class="trangthaime">
-                <table class="responsive-table-input-matrix">
+                <table class="responsive-table-input-matrix" id="responsive-table-input-matrix">
                     <thead>
                         <tr>
                             <th></th>
@@ -262,57 +275,457 @@
         </div>
         <!-- //////////////Code cho màn hình Manual////////////// -->
         <div id="Screen_datCapphoi">
-            <div class="main-container-datCapphoi">
-                <h2>Tra cứu và cập nhật mác bê tông</h2>
-                <div class="table-container-datCapphoi">
-                    <table id="datCapphoi">
-                        <thead>
-                            <tr>
-                                <th>Cột 1</th>
-                                <th>Cột 2</th>
-                            </tr>
-                        </thead>
-                    </table>
-                    <!-- Thêm các trường nhập liệu và nút vào đây -->
-                    <div class="form-container-datCapphoi">
-                        <div>STT: <br>
-                            <input type="text" data-label="STT">
-                        </div>
-                        <div>TenMacBeTong: <br>
-                            <input class="exclude" type="text" data-label="TenMacBeTong">
-                        </div>
-                        <div>TP1: <br>
-                            <input type="text" data-label="TP1">[Kg]<input type="text">%
-                        </div>
-                        <div>TP2: <br>
-                            <input type="text" data-label="TP2">[Kg]<input type="text">%
-                        </div>
-                        <div>TP3: <br>
-                            <input type="text" data-label="TP3">[Kg]<input type="text">%
-                        </div>
-                        <div>TP4: <br>
-                            <input type="text" data-label="TP4">[Kg]<input type="text">%
-                        </div>
-                        <div>Xi: <br>
-                            <input type="text" data-label="Xi">
-                        </div>
-                        <div>Nuoc: <br>
-                            <input type="text" data-label="Nuoc">
-                        </div>
-                        <div>PG1: <br>
-                            <input type="text" data-label="PG1">
-                        </div>
-                        <div>PG2: <br>
-                            <input type="text" data-label="PG2">
-                        </div>
-                        <div>DoSutThongKe: <br>
-                            <input class="exclude" type="text" data-label="DoSutThongKe">
+            <div class="main-container-datCapphoi" style="display: flex; flex-direction: row;">
+                <div class="khungThietlapcapphoi"
+                    style="margin-right:20px; border: 1px solid black; border-radius: 5px; padding: 10px;">
+                    <h2>Thiết lập cấp phối</h2>
+                    <div class="container-datCapphoi">
+                        <div style="display: flex; flex-direction: row;">
+                            <table id="datCapphoi">
+                                <thead>
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Tên Mác Bê Tông</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                            <!-- Thêm các trường nhập liệu và nút vào đây -->
+                            <div class="form-container-datCapphoi">
+                                <div>STT: <br>
+                                    <input type="text" data-label="STT">
+                                </div>
+                                <div>Tên Mác Bê Tông: <br>
+                                    <input class="exclude" type="text" data-label="TenMacBeTong">
+                                </div>
+                                <div>TP1: <br>
+                                    <input type="text" data-label="TP1">[Kg]<input id="DoAmTP1" type="text">%
+                                </div>
+                                <div>TP2: <br>
+                                    <input type="text" data-label="TP2">[Kg]<input id="DoAmTP2" type="text">%
+                                </div>
+                                <div>TP3: <br>
+                                    <input type="text" data-label="TP3">[Kg]<input id="DoAmTP3" type="text">%
+                                </div>
+                                <div>TP4: <br>
+                                    <input type="text" data-label="TP4">[Kg]<input id="DoAmTP4" type="text">%
+                                </div>
+                                <div>Xi: <br>
+                                    <input type="text" data-label="Xi">
+                                </div>
+                                <div>Nước: <br>
+                                    <input type="text" data-label="Nuoc">
+                                </div>
+                                <div>PG1: <br>
+                                    <input type="text" data-label="PG1">
+                                </div>
+                                <div>PG2: <br>
+                                    <input type="text" data-label="PG2">
+                                </div>
+                                <div>Độ Sụt Thống Kê: <br>
+                                    <input class="exclude" type="text" data-label="DoSutThongKe">
+                                </div>
+                                <br>
+                                <!-- Thêm các nút vào đây -->
+                                <div class="button-container-datCapphoi">
+                                    <button id="button3" onclick="validateNumberInput()">Sửa cấp
+                                        phối</button><br><br>
+                                </div>
+                            </div>
                         </div>
                         <br>
-                        <!-- Thêm các nút vào đây -->
-                        <div class="button-container-datCapphoi">
-                            <button id="button3" onclick="validateNumberInput()">Nút 1</button><br><br>
-                            <button>Nút 2</button><br><br>
+                        <div>
+                            <fieldset class="thongtinme-datCapphoi">
+                                <legend>Thông tin mẻ</legend>
+                                <div>
+                                    <label for="som3me-datCapphoi">Số m3/mẻ:</label>
+                                    <input type="text" id="som3me-datCapphoi">
+                                </div>
+                                <div style="margin-left:10px;">
+                                    <label for="some-datCapphoi">Số mẻ:</label>
+                                    <input type="text" id="some-datCapphoi">
+                                </div>
+                            </fieldset>
+                        </div>
+                        <br>
+                        <div>
+                            <fieldset class="thongtinphieu-datCapphoi" style="display: flex; flex-direction:column">
+                                <legend>Thông tin phiếu</legend>
+                                <div style="display: flex; flex-direction:column">
+                                    <div>
+                                        <label for="sophieu">Số Phiếu:</label>
+                                        <input type="text" id="sophieu" name="sophieu" style="margin-left: 18px;"><br>
+                                        <label for="khachhang">Khách hàng:</label>
+                                        <select class="listbox-datcapphoi-khachhang" id="datcapphoikhachhang"
+                                            name="khachhang">
+                                            <option value="">Vui lòng chọn ...............</option>
+                                            <!-- Các tùy chọn khách hàng -->
+                                        </select><br>
+                                        <label for="donhang">Đơn hàng:</label>
+                                        <select class="listbox-datcapphoi-donhang" id="datcapphoidonhang" name="donhang"
+                                            style="margin-left: 13px;">
+                                            <option value="">Vui lòng chọn ...............</option>
+                                            <!-- Các tùy chọn khách hàng -->
+                                        </select><br>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <br>
+                        <button id="sendDatcapphoi" style="border-radius: 2px; padding: 3px;">Truyền thông tin Cấp
+                            phối
+                            đến PLC</button>
+                    </div>
+                </div>
+                <div class="khungThietlapTencualieu"
+                    style="margin-right:20px; border: 1px solid black; border-radius: 5px; padding: 10px;">
+                    <h2>Tên cửa liệu</h2>
+                    <div class="container-datCapphoi">
+                        <fieldset style="border-radius: 5px;">
+                            <legend>Cửa liệu</legend>
+                            <label for="pheuCan1">Phễu cân 1:</label><br>
+                            <input type="text" id="pheuCan1" list="pheuCan1List">
+                            <datalist id="pheuCan1List">
+                                <option value="">
+                                <option value="">
+                                <option value="">
+                                <option value="">
+                            </datalist><br>
+                            <label for="pheuCan2">Phễu cân 2:</label><br>
+                            <input type="text" id="pheuCan2" list="pheuCan2List">
+                            <datalist id="pheuCan2List">
+                                <option value="">
+                                <option value="">
+                                <option value="">
+                                <option value="">
+                            </datalist><br>
+                            <label for="pheuCan3">Phễu cân 3:</label><br>
+                            <input type="text" id="pheuCan3" list="pheuCan3List">
+                            <datalist id="pheuCan3List">
+                                <option value="">
+                                <option value="">
+                                <option value="">
+                                <option value="">
+                            </datalist><br>
+                            <label for="pheuCan4">Phễu cân 4:</label><br>
+                            <input type="text" id="pheuCan4" list="pheuCan4List">
+                            <datalist id="pheuCan4List">
+                                <option value="">
+                                <option value="">
+                                <option value="">
+                                <option value="">
+                            </datalist><br>
+                        </fieldset>
+                        <br>
+                        <fieldset style="border-radius: 5px;">
+                            <legend>Xi và PG</legend>
+                            <label for="tenXi">Tên Xi:</label><br>
+                            <input type="text" id="tenXi"><br>
+                            <label for="tenPG1">Tên PG1:</label><br>
+                            <input type="text" id="tenPG1"><br>
+                            <label for="tenPG2">Tên PG2:</label><br>
+                            <input type="text" id="tenPG2"><br>
+                        </fieldset>
+                        <br>
+                        <button id="saveCuavatlieu" style="border-radius: 2px; padding: 3px;">Lưu</button>
+                    </div>
+                </div>
+                <div class="khungThietlapThongsocan"
+                    style="margin-right:20px; border: 1px solid black; border-radius: 5px; padding: 10px;">
+                    <h2>Thông số cân</h2>
+                    <div class="container-datThongsocan">
+                        <fieldset style="border-radius: 5px;">
+                            <legend>Cân cốt liệu</legend>
+                            <div class="thongsoCancotlieu" style="display: flex; flex-direction: row;">
+                                <div>
+                                    <label for="CUT_COM1">Cắt cửa 1:</label><br>
+                                    <input type="number" id="CUT_COM1" tabindex="101"><br>
+                                    <script>fn_IOField_IO_datThongsocan("CUT_COM1", "CUT_COM1", 0);</script>
+                                    <label for="CUT_COM2">Cắt cửa 2:</label><br>
+                                    <input type="number" id="CUT_COM2" tabindex="103"><br>
+                                    <script>fn_IOField_IO_datThongsocan("CUT_COM2", "CUT_COM2", 0);</script>
+                                    <label for="CUT_COM3">Cắt cửa 3:</label><br>
+                                    <input type="number" id="CUT_COM3" tabindex="105"><br>
+                                    <script>fn_IOField_IO_datThongsocan("CUT_COM3", "CUT_COM3", 0);</script>
+                                    <label for="CUT_COM4">Cắt cửa 4:</label><br>
+                                    <input type="number" id="CUT_COM4" tabindex="107"><br>
+                                    <script>fn_IOField_IO_datThongsocan("CUT_COM4", "CUT_COM4", 0);</script>
+                                    <label for="EMTY1">Empty:</label><br>
+                                    <input type="number" id="EMTY1" tabindex="109"><br>
+                                    <script>fn_IOField_IO_datThongsocan("EMTY1", "EMTY1", 0);</script>
+                                    <label for="DELAY_1">Khởi động:</label><br>
+                                    <input type="number" id="DELAY_1" tabindex="111"><br>
+                                    <script>fn_IOField_showforTime("DELAY_1", "DELAY_1", 1);</script>
+                                </div>
+                                <div>
+                                    <label for="TG_NHAY_COM1">Nháy cửa 1:</label><br>
+                                    <input type="number" id="TG_NHAY_COM1" tabindex="102"><br>
+                                    <script>fn_IOField_showforTime("TG_NHAY_COM1", "TG_NHAY_COM1", 1);</script>
+                                    <label for="TG_NHAY_COM2">Nháy cửa 2:</label><br>
+                                    <input type="number" id="TG_NHAY_COM2" tabindex="104"><br>
+                                    <script>fn_IOField_showforTime("TG_NHAY_COM2", "TG_NHAY_COM2", 1);</script>
+                                    <label for="TG_NHAY_COM3">Nháy cửa 3:</label><br>
+                                    <input type="number" id="TG_NHAY_COM3" tabindex="106"><br>
+                                    <script>fn_IOField_showforTime("TG_NHAY_COM3", "TG_NHAY_COM3", 1);</script>
+                                    <label for="TG_NHAY_COM4">Nháy cửa 4:</label><br>
+                                    <input type="number" id="TG_NHAY_COM4" tabindex="108"><br>
+                                    <script>fn_IOField_showforTime("TG_NHAY_COM4", "TG_NHAY_COM4", 1);</script>
+                                    <label for="PAUSE1">Ổn định cân:</label><br>
+                                    <input type="number" id="PAUSE1" tabindex="110"><br>
+                                    <script>fn_IOField_showforTime("PAUSE1", "PAUSE1", 0);</script>
+                                    <label for="DELAY_PE">Trễ lên gầu:</label><br>
+                                    <input type="number" id="DELAY_PE" tabindex="112"><br>
+                                    <script>fn_IOField_showforTime("DELAY_PE", "DELAY_PE", 1);</script>
+                                </div>
+                                <br>
+                            </div>
+                        </fieldset>
+                        <br>
+                        <fieldset style="border-radius: 5px;">
+                            <legend>Cân xi</legend>
+                            <div class="thongsoCanxi" style="display: flex; flex-direction: row;">
+                                <div>
+                                    <label for="CUT_XI1">Cắt xi:</label><br>
+                                    <input type="number" id="CUT_XI1" tabindex="201"><br>
+                                    <script>fn_IOField_IO_datThongsocan("CUT_XI1", "CUT_XI1", 0);</script>
+                                    <label for="EMTY2">Empty:</label><br>
+                                    <input type="number" id="EMTY2" tabindex="203"><br>
+                                    <script>fn_IOField_IO_datThongsocan("EMTY2", "EMTY2", 0);</script>
+                                    <label for="TG_TRE_CAN2">Khởi động:</label><br>
+                                    <input type="number" id="TG_TRE_CAN2" tabindex="205"><br>
+                                    <script>fn_IOField_showforTime("TG_TRE_CAN2", "TG_TRE_CAN2", 1);</script>
+                                </div>
+                                <div>
+                                    <label for="TG_NHAY_XI_1">Nháy xi:</label><br>
+                                    <input type="number" id="TG_NHAY_XI_1" tabindex="202"><br>
+                                    <script>fn_IOField_showforTime("TG_NHAY_XI_1", "TG_NHAY_XI_1", 1);</script>
+                                    <label for="PAUSE2">Ổn đinh cân:</label><br>
+                                    <input type="number" id="PAUSE2" tabindex="204"><br>
+                                    <script>fn_IOField_showforTime("PAUSE2", "PAUSE2", 1);</script>
+                                    <label for="TG_TRE_XA_XI">Trễ xả xi:</label><br>
+                                    <input type="number" id="TG_TRE_XA_XI" tabindex="206"><br>
+                                    <script>fn_IOField_showforTime("TG_TRE_XA_XI", "TG_TRE_XA_XI", 1);</script>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <br>
+                        <fieldset style="border-radius: 5px;">
+                            <legend>Cân nước</legend>
+                            <div class="thongsoCannuoc" style="display: flex; flex-direction: row;">
+                                <div>
+                                    <label for="CUT_NUOC">Cắt nước:</label><br>
+                                    <input type="number" id="CUT_NUOC" tabindex="301"><br>
+                                    <script>fn_IOField_IO_datThongsocan("CUT_NUOC", "CUT_NUOC", 0);</script>
+                                    <label for="EMTY3">Empty:</label><br>
+                                    <input type="number" id="EMTY3" tabindex="303"><br>
+                                    <script>fn_IOField_IO_datThongsocan("EMTY3", "EMTY3", 0);</script>
+                                    <label for="TG_TRE_CAN3">Khởi động:</label><br>
+                                    <input type="number" id="TG_TRE_CAN3" tabindex="305"><br>
+                                    <script>fn_IOField_showforTime("TG_TRE_CAN3", "TG_TRE_CAN3", 1);</script>
+                                </div>
+                                <div>
+                                    <label for="TG_NHAY_NUOC">Nháy nước:</label><br>
+                                    <input type="number" id="TG_NHAY_NUOC" tabindex="302"><br>
+                                    <script>fn_IOField_showforTime("TG_NHAY_NUOC", "TG_NHAY_NUOC", 1);</script>
+                                    <label for="PAUSE3">Ổn đinh cân:</label><br>
+                                    <input type="number" id="PAUSE3" tabindex="304"><br>
+                                    <script>fn_IOField_showforTime("PAUSE3", "PAUSE3", 1);</script>
+                                    <label for="TG_TRE_XANUOC">Trễ xả nước:</label><br>
+                                    <input type="number" id="TG_TRE_XANUOC" tabindex="306"><br>
+                                    <script>fn_IOField_showforTime("TG_TRE_XANUOC", "TG_TRE_XANUOC", 1);</script>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <br>
+                        <fieldset style="border-radius: 5px;">
+                            <legend>Xe skip</legend>
+                            <div class="thongsoXeskip" style="display: flex; flex-direction: row;">
+                                <div>
+                                    <label for="DUNG_SKIP_DT2">Skip đổ liệu:</label><br>
+                                    <input type="number" id="DUNG_SKIP_DT2" tabindex="401"><br>
+                                    <script>fn_IOField_showforTime("DUNG_SKIP_DT2", "DUNG_SKIP_DT2", 1);</script>
+                                    <label for="TG_TRUNGCAP">Trung cấp:</label><br>
+                                    <input type="number" id="TG_TRUNGCAP" tabindex="403"><br>
+                                    <script>fn_IOField_showforTime("TG_TRUNGCAP", "TG_TRUNGCAP", 1);</script>
+                                </div>
+                                <div>
+                                    <label for="DT2_DEN_DT0">DT2 - DT0:</label><br>
+                                    <input type="number" id="DT2_DEN_DT0" tabindex="402"><br>
+                                    <script>fn_IOField_showforTime("DT2_DEN_DT0", "DT2_DEN_DT0", 1);</script>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <br>
+                        <div class="edit_save">
+                            <button id="editThongsocan">SỬA</button>
+                            <button id="saveThongsocan">LƯU</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="khungHieuchinhcan"
+                    style="margin-right:20px; border: 1px solid black; border-radius: 5px; padding: 10px;">
+                    <h2>Thông số cân</h2>
+                    <div class="container-Hieuchinhcan">
+                        <fieldset style="border-radius: 5px;">
+                            <legend>Cân cốt liệu</legend>
+                            <div class="hieuchinhCancotlieu" style="display: flex; flex-direction: row;">
+                                <div>
+                                    <label for="ALALOG1">AI:</label><br>
+                                    <input type="number" id="ALALOG1" tabindex="501"><br>
+                                    <!-- <script>fn_IOField_IO_datThongsocan("ALALOG1", "ALALOG1", 0);</script> -->
+                                </div>
+                                <div>
+                                    <label for="ZEZO1">GT:</label><br>
+                                    <input type="number" id="ZEZO1" tabindex="502"><br>
+                                    <!-- <script>fn_IOField_IO_datThongsocan("ZEZO1", "ZEZO1", 0);</script> -->
+                                </div>
+                                <div>
+                                    <label for="B1">B:</label><br>
+                                    <input type="number" id="B1" tabindex="503">
+                                    <!-- <script>fn_IOField_IO_datThongsocan("B1", "B1", 0);</script> -->
+                                </div>
+                                <div>
+                                    <label for="KL_CAN1">Khối lượng:</label><br>
+                                    <input type="number" id="KL_CAN1" tabindex="504"><br>
+                                    <!-- <script>fn_IOField_IO_datThongsocan("KL_CAN1", "KL_CAN1", 0);</script> -->
+                                </div>
+                            </div>
+                        </fieldset>
+                        <br>
+                        <fieldset style="border-radius: 5px;">
+                            <legend>Cân xi</legend>
+                            <div class="hieuchinhCanxi" style="display: flex; flex-direction: row;">
+                                <div>
+                                    <label for="ALALOG2">AI:</label><br>
+                                    <input type="number" id="ALALOG2" tabindex="505"><br>
+                                </div>
+                                <div>
+                                    <label for="ZEZO2">GT:</label><br>
+                                    <input type="number" id="ZEZO2" tabindex="506"><br>
+                                </div>
+                                <div>
+                                    <label for="B2">B:</label><br>
+                                    <input type="number" id="B2" tabindex="507">
+                                </div>
+                                <div>
+                                    <label for="KL_CAN2">Khối lượng:</label><br>
+                                    <input type="number" id="KL_CAN2" tabindex="508"><br>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <br>
+                        <fieldset style="border-radius: 5px;">
+                            <legend>Cân nước</legend>
+                            <div class="hieuchinhCannuoc" style="display: flex; flex-direction: row;">
+                                <div>
+                                    <label for="ALALOG3">AI:</label><br>
+                                    <input type="number" id="ALALOG3" tabindex="509"><br>
+                                </div>
+                                <div>
+                                    <label for="ZEZO_3">GT:</label><br>
+                                    <input type="number" id="ZEZO_3" tabindex="510"><br>
+                                </div>
+                                <div>
+                                    <label for="B3">B:</label><br>
+                                    <input type="number" id="B3" tabindex="511">
+                                </div>
+                                <div>
+                                    <label for="KL_CAN3">Khối lượng:</label><br>
+                                    <input type="number" id="KL_CAN3" tabindex="512"><br>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <br>
+                        <fieldset style="border-radius: 5px;">
+                            <legend>Nhiệt độ G1</legend>
+                            <div class="hieuchinhNhietdoG1" style="display: flex; flex-direction: row;">
+                                <div>
+                                    <label for="G1_Tem">%:</label><br>
+                                    <input type="number" id="G1_Tem" tabindex="513"><br>
+                                </div>
+                                <div>
+                                    <label for="G1_Feedback">Chỉnh %:</label><br>
+                                    <input type="number" id="G1_Feedback" tabindex="514"><br>
+                                </div>
+                                <div>
+                                    <label for="G1_Real_Tem">Thực tế:</label><br>
+                                    <input type="number" id="G1_Real_Tem" tabindex="515">
+                                </div>
+                                <div>
+                                    <label for="G1_Tem_Display">Hiển thị:</label><br>
+                                    <input type="number" id="G1_Tem_Display" tabindex="516"><br>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <br>
+                        <fieldset style="border-radius: 5px;">
+                            <legend>Nhiệt độ G2</legend>
+                            <div class="hieuchinhNhietdoG2" style="display: flex; flex-direction: row;">
+                                <div>
+                                    <label for="G2_Tem">%:</label><br>
+                                    <input type="number" id="G2_Tem" tabindex="517"><br>
+                                </div>
+                                <div>
+                                    <label for="G2_Feedback">Chỉnh %:</label><br>
+                                    <input type="number" id="G2_Feedback" tabindex="518"><br>
+                                </div>
+                                <div>
+                                    <label for="G2_Real_Tem">Thực tế:</label><br>
+                                    <input type="number" id="G2_Real_Tem" tabindex="519">
+                                </div>
+                                <div>
+                                    <label for="G2_Tem_Display">Hiển thị:</label><br>
+                                    <input type="number" id="G2_Tem_Display" tabindex="520"><br>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <br>
+                        <fieldset style="border-radius: 5px;">
+                            <legend>Nhiệt độ G3</legend>
+                            <div class="hieuchinhNhietdoG3" style="display: flex; flex-direction: row;">
+                                <div>
+                                    <label for="G3_Tem">%:</label><br>
+                                    <input type="number" id="G3_Tem" tabindex="521"><br>
+                                </div>
+                                <div>
+                                    <label for="G3_Feedback">Chỉnh %:</label><br>
+                                    <input type="number" id="G3_Feedback" tabindex="522"><br>
+                                </div>
+                                <div>
+                                    <label for="G3_Real_Tem">Thực tế:</label><br>
+                                    <input type="number" id="G3_Real_Tem" tabindex="523">
+                                </div>
+                                <div>
+                                    <label for="G3_Tem_Display">Hiển thị:</label><br>
+                                    <input type="number" id="G3_Tem_Display" tabindex="524"><br>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <br>
+                        <fieldset style="border-radius: 5px;">
+                            <legend>Nhiệt độ G4</legend>
+                            <div class="hieuchinhNhietdoG4" style="display: flex; flex-direction: row;">
+                                <div>
+                                    <label for="G4_Tem">%:</label><br>
+                                    <input type="number" id="G4_Tem" tabindex="525"><br>
+                                </div>
+                                <div>
+                                    <label for="G4_Feedback">Chỉnh %:</label><br>
+                                    <input type="number" id="G4_Feedback" tabindex="526"><br>
+                                </div>
+                                <div>
+                                    <label for="G4_Real_Tem">Thực tế:</label><br>
+                                    <input type="number" id="G4_Real_Tem" tabindex="527">
+                                </div>
+                                <div>
+                                    <label for="G4_Tem_Display">Hiển thị:</label><br>
+                                    <input type="number" id="G4_Tem_Display" tabindex="528"><br>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <br>
+                        <div class="edit_save">
+                            <button id="editHieuchinhcan">SỬA</button>
+                            <button id="saveHieuchinhcan">LƯU</button>
                         </div>
                     </div>
                 </div>
@@ -321,64 +734,69 @@
         <div id="Screen_Manu">
             <div class="main-container-macBetong">
                 <h2>Tra cứu và cập nhật mác bê tông</h2>
-                <div class="table-container-macBetong">
+                <div class="container-macBetong">
                     <table id="macBetong">
                         <thead>
                             <tr>
                                 <th>STT</th>
-                                <th>TenMacBeTong</th>
+                                <th>Tên Mác Bê Tông</th>
                                 <th>TP1</th>
                                 <th>TP2</th>
                                 <th>TP3</th>
                                 <th>TP4</th>
                                 <th>Xi</th>
-                                <th>Nuoc</th>
+                                <th>Nước</th>
                                 <th>PG1</th>
                                 <th>PG2</th>
-                                <th>DoSutThongKe</th>
+                                <th>Độ Sụt Thống Kê</th>
                             </tr>
                         </thead>
                     </table>
-
                     <!-- Thêm các trường nhập liệu và nút vào đây -->
-                    <div class="form-container-macBetong">
-                        <div>STT: <br>
-                            <input type="text" data-label="STT">
-                        </div>
-                        <div>TenMacBeTong: <br>
-                            <input class="exclude" type="text" data-label="TenMacBeTong">
-                        </div>
-                        <div>TP1: <br>
-                            <input type="text" data-label="TP1">
-                        </div>
-                        <div>TP2: <br>
-                            <input type="text" data-label="TP2">
-                        </div>
-                        <div>TP3: <br>
-                            <input type="text" data-label="TP3">
-                        </div>
-                        <div>TP4: <br>
-                            <input type="text" data-label="TP4">
-                        </div>
-                        <div>Xi: <br>
-                            <input type="text" data-label="Xi">
-                        </div>
-                        <div>Nuoc: <br>
-                            <input type="text" data-label="Nuoc">
-                        </div>
-                        <div>PG1: <br>
-                            <input type="text" data-label="PG1">
-                        </div>
-                        <div>PG2: <br>
-                            <input type="text" data-label="PG2">
-                        </div>
-                        <div>DoSutThongKe: <br>
-                            <input class="exclude" type="text" data-label="DoSutThongKe">
+                    <div>
+                        <div class="form-container-macBetong">
+                            <div class="form-container-macBetong-left">
+                                <div>STT: <br>
+                                    <input type="text" data-label="STT">
+                                </div>
+                                <div>Tên Mác Bê Tông: <br>
+                                    <input class="exclude" type="text" data-label="TenMacBeTong">
+                                </div>
+                                <div>TP1: <br>
+                                    <input type="text" data-label="TP1">
+                                </div>
+                                <div>TP2: <br>
+                                    <input type="text" data-label="TP2">
+                                </div>
+                                <div>TP3: <br>
+                                    <input type="text" data-label="TP3">
+                                </div>
+                                <div>TP4: <br>
+                                    <input type="text" data-label="TP4">
+                                </div>
+                            </div>
+                            <div class="form-container-macBetong-right">
+                                <div>Xi: <br>
+                                    <input type="text" data-label="Xi">
+                                </div>
+                                <div>Nước: <br>
+                                    <input type="text" data-label="Nuoc">
+                                </div>
+                                <div>PG1: <br>
+                                    <input type="text" data-label="PG1">
+                                </div>
+                                <div>PG2: <br>
+                                    <input type="text" data-label="PG2">
+                                </div>
+                                <div>Độ Sụt Thống Kê: <br>
+                                    <input class="exclude" type="text" data-label="DoSutThongKe">
+                                </div>
+                            </div>
+
                         </div>
                         <br>
                         <div class="button-container-macBetong">
-                            <button id="button1" onclick="validateNumberInput()">Nút 1</button><br><br>
-                            <button>Nút 2</button><br><br>
+                            <button id="editMacbetong" onclick="validateNumberInput()">Sửa và Lưu</button>
                         </div>
                     </div>
                 </div>
@@ -387,43 +805,43 @@
             <div class="main-container-macBetong">
                 <h2>Tra cứu và cập nhật dữ liệu khách hàng</h2>
                 <div style="display: flex;">
+                    <!-- New rectangle with a caption: Tra cứu và cập nhật đơn hàng -->
                     <fieldset style="border: 1px solid black; border-radius: 10px; padding: 10px; margin-right: 10px;">
                         <legend>Tra cứu và cập nhật đơn hàng</legend>
                         <div style="display: flex;">
-                            <div class="table-container-datCapphoi" style="margin-right: 10px;">
-                                <table class="class-small-table" id="donhang">
-                                    <thead>
-                                        <tr>
-                                            <th>Cột 1</th>
-                                            <th>Cột 2</th>
-                                        </tr>
-                                    </thead>
-                                </table>
+                            <div class="listbox-container" style="margin-right: 10px;">
+                                <select class="listbox-donhang" size="8">
+                                    <option>Item 1</option>
+                                    <option>Item 2</option>
+                                    <option>Item 3</option>
+                                    <option>Item 4</option>
+                                    <option>Item 5</option>
+                                </select>
                             </div>
                             <div style="border: 1px solid black; border-radius: 10px; padding: 10px;">
                                 <label for="madondathang">Mã đơn đặt hàng:</label>
                                 <input type="text" id="madondathang" name="madondathang"><br><br>
                                 <label for="khachhang">Khách hàng:</label>
-                                <select id="khachhang" name="khachhang">
+                                <select class="listbox-donhang-khachhang" id="donhangkhachhang" name="khachhang">
                                     <option value="">--Chọn khách hàng--</option>
                                     <!-- Các tùy chọn khách hàng -->
-                                </select>
-                                <button>Button</button><br><br>
+                                </select><br><input type="text" id="makhachhang-donhang" readonly
+                                    style="display: none;"><br>
                                 <label for="diachi">Địa chỉ:</label>
-                                <input type="text" id="diachi" name="diachi"><br><br>
+                                <input type="text" id="diachi-donhang" name="diachi" readonly><br><br>
                                 <label for="diachicongtruong">Địa chỉ công trường:</label>
                                 <input type="text" id="diachicongtruong" name="diachicongtruong"><br><br>
                                 <label for="som3dathang">Số m3 đặt hàng:</label>
                                 <input type="text" id="som3dathang" name="som3dathang"><br><br>
                                 <label for="som3dado">Số m3 đã đổ:</label>
-                                <input type="text" id="som3dado" name="som3dado"><br><br>
+                                <input type="text" id="som3dado" name="som3dado"><br>
                             </div><br>
                         </div>
-
-                        <button>Thêm</button>
-                        <button>Sửa</button>
-                        <button>Xóa</button>
-                        <button>Thoát</button>
+                        <br>
+                        <button id="addDonhang">Thêm</button>
+                        <button id="editDonhang">Sửa</button>
+                        <button id="deleteDonhang">Xóa</button>
+                        <button id="saveDonhang" style="display: none;">Lưu</button>
 
                         <style>
                             .listbox-container {
@@ -437,14 +855,13 @@
                         </style>
                     </fieldset>
 
-                    <!-- New rectangle with a caption -->
+                    <!-- New rectangle with a caption: Thông tin khách hàng -->
                     <fieldset style="border: 1px solid black; border-radius: 10px; padding: 10px;">
                         <!-- Add your caption here -->
                         <legend>Thông tin khách hàng</legend>
-
                         <div style="display: flex;">
                             <div class="listbox-container" style="margin-right: 10px;">
-                                <select class="listbox" size="5">
+                                <select class="listbox-khachhang" size="8">
                                     <option>Item 1</option>
                                     <option>Item 2</option>
                                     <option>Item 3</option>
@@ -454,20 +871,19 @@
                             </div>
                             <div style="border: 1px solid black; border-radius: 10px; padding: 10px;">
                                 <label for="makhachhang">Mã Khách hàng:</label>
-                                <input type="text" id="makhachhang" name="makhachhang"><br><br>
+                                <input type="text" id="makhachhang" name="makhachhang" disabled="true"><br><br>
                                 <label for="tenkhachhang">Tên khách hàng:</label>
                                 <input type="text" id="tenkhachhang" name="tenkhachhang"><br><br>
 
                                 <label for="diachi">Địa chỉ:</label>
-                                <input type="text" id="diachi" name="diachi"><br><br>
+                                <input type="text" id="diachi-khachhang" name="diachi"><br><br>
 
                             </div><br>
                         </div>
-
-                        <button>Thêm</button>
-                        <button>Sửa</button>
-                        <button>Xóa</button>
-                        <button>Thoát</button>
+                        <br>
+                        <button id="addKhachhang">Thêm</button>
+                        <button id="editKhachhang">Sửa</button>
+                        <button id="deleteKhachhang">Xóa</button>
 
                         <style>
                             .listbox-container {
@@ -475,19 +891,19 @@
                                 border-radius: 10px;
                             }
 
-                            .listbox {
+                            .listbox-khachhang {
                                 border: none;
                             }
                         </style>
                     </fieldset>
-                    <!-- New rectangle with a caption -->
+                    <!-- New rectangle with a caption: Thông tin xe bồn -->
                     <fieldset style="border: 1px solid black; border-radius: 10px; padding: 10px;">
                         <!-- Add your caption here -->
                         <legend>Thông tin xe bồn</legend>
 
                         <div style="display: flex;">
                             <div class="listbox-container" style="margin-right: 10px;">
-                                <select class="listbox" size="5">
+                                <select class="listbox-xebon" size="5">
                                     <option>Item 1</option>
                                     <option>Item 2</option>
                                     <option>Item 3</option>
@@ -497,18 +913,17 @@
                             </div>
                             <div style="border: 1px solid black; border-radius: 10px; padding: 10px;">
                                 <label for="sttXebon">STT:</label>
-                                <input type="text" id="sttXebon" name="sttXebon"><br><br>
+                                <input type="text" id="sttXebon" name="sttXebon" disabled="true"><br><br>
                                 <label for="bienso">Biển số:</label>
                                 <input type="text" id="bienso" name="bienso"><br><br>
                                 <label for="taixe">Tài xế:</label>
                                 <input type="text" id="taixe" name="taixe"><br><br>
                             </div><br>
                         </div>
-
-                        <button>Thêm</button>
-                        <button>Sửa</button>
-                        <button>Xóa</button>
-                        <button>Thoát</button>
+                        <br>
+                        <button id="addXebon">Thêm</button>
+                        <button id="editXebon">Sửa</button>
+                        <button id="deleteXebon">Xóa</button>
 
                         <style>
                             .listbox-container {
@@ -516,7 +931,7 @@
                                 border-radius: 10px;
                             }
 
-                            .listbox {
+                            .listbox-xebon {
                                 border: none;
                             }
                         </style>
@@ -535,28 +950,28 @@
                     <span>Zone1:</span>
                     <!-- Hiển thị nhiệt độ Zone1 -->
                     <input class="indicator_nhiet_Zone" id="act_Zone1" disabled="disabled" type="text" />
-                    <script>fn_IOFieldDataShow("G1_Real_Tem", "act_Zone1", 1);</script>
+                    <script>fn_IOFieldDataShow("G1_Tem_Display", "act_Zone1", 1);</script>
                     <span> [&#8451]</span>
                 </div>
                 <div>
                     <span>Zone2:</span>
                     <!-- Hiển thị nhiệt độ Zone2 -->
                     <input class="indicator_nhiet_Zone" id="act_Zone2" disabled="disabled" type="text" />
-                    <script>fn_IOFieldDataShow("G2_Real_Tem", "act_Zone2", 1);</script>
+                    <script>fn_IOFieldDataShow("G2_Tem_Display", "act_Zone2", 1);</script>
                     <span> [&#8451]</span>
                 </div>
                 <div>
                     <span>Zone3:</span>
                     <!-- Hiển thị nhiệt độ Zone3 -->
                     <input class="indicator_nhiet_Zone" id="act_Zone3" disabled="disabled" type="text" />
-                    <script>fn_IOFieldDataShow("G3_Real_Tem", "act_Zone3", 1);</script>
+                    <script>fn_IOFieldDataShow("G3_Tem_Display", "act_Zone3", 1);</script>
                     <span> [&#8451]</span>
                 </div>
                 <div>
                     <span>Zone4:</span>
                     <!-- Hiển thị nhiệt độ Zone4 -->
                     <input class="indicator_nhiet_Zone" id="act_Zone4" disabled="disabled" type="text" />
-                    <script>fn_IOFieldDataShow("G4_Real_Tem", "act_Zone4", 1);</script>
+                    <script>fn_IOFieldDataShow("G4_Tem_Display", "act_Zone4", 1);</script>
                     <span> [&#8451]</span>
                 </div>
 
@@ -570,26 +985,32 @@
                     <div style="margin-bottom:5px;">
                         <span>Số &#13221/mẻ:</span>
                         <input id="indicator_m3Me" disabled="disabled" type="text" />
-                        <script>fn_IOFieldDataShow("set_Weight1", "indicator_m3Me", 0);</script>
+                        <!-- <script>fn_IOFieldDataShow("set_Weight1", "indicator_m3Me", 0);</script> -->
                     </div>
                     <div style="margin-bottom:5px;">
                         <span>Số mẻ:</span>
                         <input id="indicator_soMe" disabled="disabled" type="text" />
-                        <script>fn_IOFieldDataShow("set_Weight1", "indicator_soMe", 0);</script>
+                        <!-- <script>fn_IOFieldDataShow("set_Weight1", "indicator_soMe", 0);</script> -->
+                    </div>
+                    <div style="margin-bottom:5px;">
+                        <span>Mác bê tông:</span>
+                    </div>
+                    <div>
+                        <input id="indicator_Macbetong" disabled="disabled" type="text" />
                     </div>
                     <div style="margin-bottom:5px;">
                         <span>Mã phiếu:</span>
                     </div>
                     <div>
                         <input id="indicator_MaPhieu" disabled="disabled" type="text" />
-                        <script>fn_IOFieldDataShow("set_Weight1", "indicator_MaPhieu", 0);</script>
+                        <!-- <script>fn_IOFieldDataShow("set_Weight1", "indicator_MaPhieu", 0);</script> -->
                     </div>
                     <div style="margin-bottom:5px;">
                         <span>Khách hàng:</span>
                     </div>
                     <div>
                         <input id="indicator_KhachHang" disabled="disabled" type="text" />
-                        <script>fn_IOFieldDataShow("set_Weight1", "indicator_KhachHang", 0);</script>
+                        <!-- <script>fn_IOFieldDataShow("set_Weight1", "indicator_KhachHang", 0);</script> -->
                     </div>
                     <div style="margin-bottom:5px;">
                         <span>Đơn hàng:</span>
@@ -597,7 +1018,7 @@
                     </div>
                     <div>
                         <input id="indicator_DonHang" disabled="disabled" type="text" />
-                        <script>fn_IOFieldDataShow("set_Weight1", "indicator_DonHang", 0);</script>
+                        <!-- <script>fn_IOFieldDataShow("set_Weight1", "indicator_DonHang", 0);</script> -->
                     </div>
 
                 </div>

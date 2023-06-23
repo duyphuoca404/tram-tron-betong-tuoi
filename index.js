@@ -1,11 +1,11 @@
-// /////////////////////////++THIẾT LẬP KẾT NỐI VỚI SERVER VỚI PLC/////////////////////////
+// ////////////////////////////////////////////////////////////////////////// ++THIẾT LẬP KẾT NỐI VỚI SERVER VỚI PLC/////////////////////////////////////////////////////////////
 
 // KHỞI TẠO KẾT NỐI PLC
 var nodes7 = require('nodes7');
 var conn_plc = new nodes7; //PLC1
 // Tạo địa chỉ kết nối (slot = 2 nếu là 300/400, slot = 1 nếu là 1200/1500)
 conn_plc.initiateConnection({ port: 102, host: '192.168.0.5', rack: 0, slot: 1 }, PLC_connected);
-// Bảng tag trong Visual studio code
+// Bảng tag trong Visual studio code, chú ý là bảng tag này phải đúng thứ tự nhé, nó phải trùng với thứ tự trong TIA thì phải (check lại điểm này)
 var tags_list = {
     DTO: 'I0.0',
     I01: 'I0.1',
@@ -60,7 +60,7 @@ var tags_list = {
     CAN_COM3: 'M5.0',
     PAUSE_COM3: 'M5.1',
     CHAY_DUNG: 'M20.0',
-    XE_TRON_MOI: 'M21.5',
+    XE_TRON_MOI: 'M5.1',
     EMTY1: 'DB1,REAL0',
     PAUSE1: 'DB1,INT4',
     CUT_COM1: 'DB1,REAL6',
@@ -304,27 +304,40 @@ function PLC_connected(err) {
 
 }
 
-// Đọc dữ liệu từ PLC và đưa vào array tags
+///////////////////////////////////////////////////////////////////////////// Đọc dữ liệu từ PLC và đưa vào array tags /////////////////////////////////////////////////////////////
 var arr_tag_value = []; // Tạo một mảng lưu giá trị tag đọc về
+let valuesKey;
 function valuesReady(anythingBad, values) {
     if (anythingBad) { console.log("Lỗi khi đọc dữ liệu tag"); } // Cảnh báo lỗi
     var lodash = require('lodash'); // Chuyển variable sang array
     arr_tag_value = lodash.map(values, (item) => item);
-    console.log(values); // Hiển thị giá trị để kiểm tra
+    //console.log(values); // Hiển thị giá trị để kiểm tra
 
+    valuesKey = values;
+
+    // console.log('=============================================');
+    // console.log('values: ', valuesKey); // Hiển thị giá trị để kiểm tra
+    // console.log('=============================================');
 }
-
+///////////////////////////////////////////////////////////////////////////// Đọc dữ liệu từ PLC và đưa vào array tags /////////////////////////////////////////////////////////////
 // Hàm chức năng scan giá trị
 function fn_read_data_scan() {
     conn_plc.readAllItems(valuesReady);
 }
-// Time cập nhật mỗi 1s
-setInterval(
-    () => fn_read_data_scan(),
-    1000 // 1s = 1000ms
-);
+// Time cập nhật mỗi 1s=1000ms
+setInterval(() => {
+    fn_read_data_scan();
+    // console.log('=============================================');
+    // console.log('values: ', valuesKey); // Hiển thị giá trị để kiểm tra
+    // console.log('=============================================');
+    if (arr_tag_value.length !== 0) {
+        getDataChinhCanFromPLC();
 
-// /////////////////////////++THIẾT LẬP KẾT NỐI VỚI TRÌNH DUYỆT PHÍA CLIENT/////////////////////////
+    }
+
+}, 1000);
+
+// ///////////////////////////////////////////////////////////////////////////////////////++THIẾT LẬP KẾT NỐI VỚI TRÌNH DUYỆT PHÍA CLIENT/////////////////////////
 var express = require("express");
 var app = express();
 app.use(express.static("public"));
@@ -338,7 +351,7 @@ app.get("/", function (req, res) {
     res.render("home")
 });
 //
-// ///////////LẬP BẢNG TAG ĐỂ GỬI QUA CLIENT (TRÌNH DUYỆT)///////////
+// //////////////////////////////////////////////////////////////////////////////////LẬP BẢNG TAG ĐỂ GỬI QUA CLIENT (TRÌNH DUYỆT)///////////
 function fn_tag() {
     io.sockets.emit("DTO", arr_tag_value[0]);
     io.sockets.emit("I01", arr_tag_value[1]);
@@ -483,34 +496,386 @@ function fn_tag() {
     io.sockets.emit("CountDownXaBON", arr_tag_value[140]);
     io.sockets.emit("CountDownTronBON", arr_tag_value[141]);
 }
+function getDataChinhCanFromPLC() {
+    // Khi nhận được sự kiện 'getDataChinhCanFromPLC' từ client
+    // Đọc dữ liệu từ PLC
+    let dataFromPLC = {};
+    for (let key in tags_list) {
+        dataFromPLC[key] = valuesKey[key];
+    }
 
-// ///////////GỬI DỮ LIỆU BẢNG TAG ĐẾN CLIENT (TRÌNH DUYỆT)///////////
+
+    // Gửi dữ liệu đọc được từ PLC về cho client
+    io.sockets.emit('updateDataChinhCanFromPLC', dataFromPLC);
+    //console.log('Dữ liệu hiệu chỉnh cân được gửi đi: ', dataFromPLC)
+}
+
+// ////////////////////////////////////////////////////////////////////////////////////// GỬI DỮ LIỆU BẢNG TAG ĐẾN CLIENT (TRÌNH DUYỆT)///////////
 io.on("connection", function (socket) {
     socket.on("Client-send-data", function (data) {
         fn_tag();
+        // Khi nhận được tin nhắn "Client-send-data", thì server sẽ gửi dữ liệu là fn_tag(), trong này sẽ chứa những tin nhắn mà client cần nhận cho các ứng dụng cụ thể
+        // Ví dụ: io.sockets.emit("TGTRON", arr_tag_value[94]); đây là lệnh gửi đi tin nhắn TGTRON và dữ liệu là arr_tag_value[94], nó chính là 305 đọc từ PLC, vậy thì qua bên client sẽ nhận được TGTRON: 305
+        // Nghĩa là, nếu dùng câu lệnh socket.on(tag, function (data){} , nếu tag là TGTRON thì giá trị nhận được sẽ là 305
     });
-    fn_SQLSearch(); // Hàm tìm kiếm SQL
+
+    // Đoạn lệnh này sẽ nhận lệnh SET bit, sau đó nó sẽ gửi tin báo done lên client kèm với data chính là true mà phía client đã gửi trươc đó,
+    // phía client sẽ kiểm tra nếu data phía server gửi lên là true (mà thực tế đây là true mà, vì cũng là data nó gửi từ đâu), vậy nên chương trình này chưa ổn
+    socket.on("nhannutTest", function (data) {
+        conn_plc.writeItems('XE_TRON_MOI', data, function (err) {
+            if (err) {
+                console.log("Error writing to PLC: ", err);
+                socket.emit("error", "Error writing to PLC");
+            } else {
+                console.log('Trạng thái bit XE_TRON_MOI: ', data);
+                socket.emit("done", data);
+            }
+        });
+    });
+
+    // Chương trình này cải tiến hơn ở chỗ nó sẽ đọc lại trạng thái của bit mới vừa được SET, sau đó nó sẽ gửi trạng thái này tới client, phía client vẫn giữ chương trình cũ
+    // nó sẽ thực hiện kiểm tra bit data mà server gửi lên, nếu nó là True thì client sẽ gửi yêu cầu reset trạng thái bít này về 0
+    // socket.on("nhannutTest", function (data) {
+    //     conn_plc.writeItems('XE_TRON_MOI', data, function (err) {
+    //         if (err) {
+    //             console.log("Error writing to PLC: ", err);
+    //             socket.emit("error", "Error writing to PLC");
+    //         } else {
+    //             conn_plc.readAllItems(function (err, values) {
+    //                 if (err) {
+    //                     console.log("Error reading from PLC: ", err);
+    //                     socket.emit("error", "Error reading from PLC");
+    //                 } else {
+    //                     console.log('Trạng thái bit XE_TRON_MOI: ', values['XE_TRON_MOI']);
+    //                     socket.emit("done", values['XE_TRON_MOI']);
+    //                 }
+    //             });
+    //         }
+    //     });
+    // });
+
+
 
     socket.on('updateDatabase', (data) => {
         // Cập nhật hàng trong bảng macbetong với dữ liệu từ máy khách
-        // Thay thế 'your_connection' bằng đối tượng kết nối MySQL của bạn
-        // Thay thế 'your_row_id' bằng ID của hàng bạn muốn cập nhật
         console.log('Received updateDatabase event from client with data:', data);
         sqlcon.query(
             'UPDATE macbetong SET STT = ?, TenMacBeTong = ?, TP1 = ?, TP2 = ?, TP3 = ?, TP4 = ?, Xi = ?, Nuoc = ?, PG1 = ?, PG2 = ?, DoSutThongKe = ? WHERE STT = ?',
-            [data.field1, data.field2, data.field3, data.field4, data.field5, data.field6, data.field7, data.field8, data.field9, data.field10, data.field11, data.field1],
-            function (error, results, fields) {
+            [data.STT, data.TenMacBeTong, data.TP1, data.TP2, data.TP3, data.TP4, data.Xi, data.Nuoc, data.PG1, data.PG2, data.DoSutThongKe, data.STT], function (error, results, fields) {
                 if (error) throw error;
                 // Cập nhật thành công
-                // Gọi lại hàm fn_SQLSearch() để truy vấn và hiển thị dữ liệu mới nhất
-                fn_SQLSearch();
+                socket.emit('updateDataMacbetongSuccess');
             }
         );
+    });
+    socket.on("msg_SQL_Show", function (data) {
+        var sqltable_Name = "macbetong";
+        var queryy1 = "SELECT * FROM " + sqltable_Name + ";"
+        sqlcon.query(queryy1, function (err, results, fields) {
+            if (err) {
+                console.log(err);
+            } else {
+                const objectifyRawPacket = row => ({ ...row });
+                const convertedResponse = results.map(objectifyRawPacket);
+                socket.emit('SQL_Show', convertedResponse);
+                console.log("Gửi dữ liệu qua client bằng bức điện SQL_Show");
+            }
+        });
+    });
+    socket.on('getDataKhachhang', function () {
+        sqlcon.query('SELECT MaKhachHang, TenKhachHang, DiaChi FROM khachhang', function (error, results, fields) {
+            if (error) throw error;
+            socket.emit('updateDataKhachhang', results);
+            //console.log('Received tenkhachhang event from client with data:', results);
+        });
+    });
+    socket.on('getDataDonhangKhachhang', function () {
+        sqlcon.query('SELECT MaKhachHang, TenKhachHang, DiaChi FROM khachhang', function (error, results, fields) {
+            if (error) throw error;
+            socket.emit('updateDataDonhangKhachhang', results);
+            console.log('Dữ liệu Khách hàng của đơn hàng gửi qua trình duyệt là:', results);
+        });
+    });
+    socket.on('getDataXebon', function () {
+        sqlcon.query('SELECT STT, BienSoXe, TenLaiXe FROM xebon', function (error, results, fields) {
+            if (error) throw error;
+            socket.emit('updateDataXebon', results);
+            //console.log('Received Xebon event from client with data:', results);
+        });
+    });
+    socket.on('scr_Auto_getDataXebon', function () {
+        sqlcon.query('SELECT STT, BienSoXe, TenLaiXe FROM xebon', function (error, results, fields) {
+            if (error) throw error;
+            socket.emit('scr_Auto_updateDataXebon', results);
+            console.log('Received Xebon event from client with data:', results);
+        });
+    });
+    socket.on('addData', function (data) {
+        var query = 'INSERT INTO khachhang (TenKhachHang, DiaChi) VALUES (?, ?)';
+        sqlcon.query(query, [data.TenKhachHang, data.DiaChi], function (error, results, fields) {
+            if (error) throw error;
+            // Gửi thông báo thành công về cho máy khách
+            socket.emit('addDataSuccess');
+        });
+    });
+
+    socket.on('editDataKhachhang', function (data) {
+        var query = 'UPDATE khachhang SET TenKhachHang = ?, DiaChi = ? WHERE MaKhachHang = ?';
+        sqlcon.query(query, [data.TenKhachHang, data.DiaChi, data.MaKhachHang], function (error, results, fields) {
+            if (error) throw error;
+            // Gửi thông báo thành công về cho máy khách
+            socket.emit('updateDataSuccess');
+        });
+    });
+    socket.on('deleteDataKhachhang', function (data) {
+        var maKhachHang = data.MaKhachHang;
+        var query = 'DELETE FROM khachhang WHERE MaKhachHang = ?';
+        sqlcon.query(query, [maKhachHang], function (error, results, fields) {
+            if (error) throw error;
+            // Xử lý kết quả xóa dữ liệu tại đây
+        });
+    });
+    socket.on('addDataXebon', function (data) {
+        var query = 'INSERT INTO xebon (BienSoXe, TenlaiXe) VALUES (?, ?)';
+        sqlcon.query(query, [data.BienSoXe, data.TenLaiXe], function (error, results, fields) {
+            if (error) throw error;
+            // Gửi thông báo thành công về cho máy khách
+            socket.emit('addDataXebonSuccess');
+        });
+    });
+
+    socket.on('editDataXebon', function (data) {
+        var query = 'UPDATE xebon SET BienSoXe = ?, TenLaiXe = ? WHERE STT = ?';
+        sqlcon.query(query, [data.BienSoXe, data.TenLaiXe, data.STT], function (error, results, fields) {
+            if (error) throw error;
+            // Gửi thông báo thành công về cho máy khách
+            socket.emit('updateDataXebonSuccess');
+            //console.log('Received Xebon event from client with data:', results);
+        });
+    });
+    socket.on('deleteXebon', function (data) {
+        var STT = data.STT;
+        var query = 'DELETE FROM xebon WHERE STT = ?';
+        sqlcon.query(query, [STT], function (error, results, fields) {
+            if (error) throw error;
+            // Xử lý kết quả xóa dữ liệu tại đây
+        });
+    });
+    socket.on('getDataDonhang', function () {
+        var query = 'SELECT dondathang.MaDonDatHang, dondathang.DiaChiCongTruong, dondathang.SoM3Dat, dondathang.SoM3DaDo, khachhang.MaKhachHang, khachhang.TenKhachHang, khachhang.DiaChi FROM dondathang INNER JOIN khachhang ON dondathang.MaKhachHang = khachhang.MaKhachHang';
+        sqlcon.query(query, function (error, results, fields) {
+            if (error) throw error;
+            socket.emit('updateDataDonhang', results);
+            console.log('Dữ liệu Đơn hàng gửi qua trình duyệt là:', results);
+        });
+    });
+    socket.on('addDataDonhang', function (data) {
+        var query = 'INSERT INTO dondathang (MaDonDatHang, MaKhachHang, DiaChiCongTruong, SoM3Dat, SoM3DaDo) VALUES (?, ?, ?, ?, ?)';
+        sqlcon.query(query, [data.MaDonDatHang, data.MaKhachHang, data.DiaChiCongTruong, data.SoM3Dat, data.SoM3DaDo], function (error, results, fields) {
+            if (error) throw error;
+            // Gửi thông báo thành công về cho máy khách
+            socket.emit('addDataDonhangSuccess');
+        });
+    });
+    socket.on('editDataDonhang', function (data) {
+        console.log('Dữ liệu đơn hàng được gửi từ trình duyệt để cập nhật vào SQL:', data);
+        var query = 'UPDATE dondathang SET MaKhachHang = ?, DiaChiCongTruong = ?, SoM3Dat = ?, SoM3DaDo = ? WHERE MaDonDatHang = ?';
+        sqlcon.query(query, [data.MaKhachHang, data.DiaChiCongTruong, data.SoM3Dat, data.SoM3DaDo, data.MaDonDatHang], function (error, results, fields) {
+            console.log('Executed query with results:', results);
+            if (error) throw error;
+            // Gửi thông báo thành công về cho máy khách
+            socket.emit('updateDataDonhangSuccess');
+        });
+    });
+    socket.on('deleteDonhang', function (data) {
+        var STT = data.STT;
+        var query = 'DELETE FROM dondathang WHERE MaDonDatHang = ?';
+        sqlcon.query(query, [MaDonDatHang], function (error, results, fields) {
+            if (error) throw error;
+            // Xử lý kết quả xóa dữ liệu tại đây
+        });
+    });
+    socket.on('getDataDatcapphoiKhachhang', function () {
+        sqlcon.query('SELECT MaKhachHang, TenKhachHang, DiaChi FROM khachhang', function (error, results, fields) {
+            if (error) throw error;
+            socket.emit('updateDataDatcaphoiKhachhang', results);
+            console.log('Server gửi data về khách hàng cho Thông tin cấp phối:', results);
+        });
+    });
+    socket.on('getDataDatcapphoiDonHang', function (maKhachHang) {
+        // Thực hiện truy vấn cơ sở dữ liệu để lấy thông tin đơn đặt hàng
+        var query = 'SELECT MaDonDatHang, DiaChiCongTruong FROM dondathang WHERE MaKhachHang = ?';
+        sqlcon.query(query, [maKhachHang], function (error, results) {
+            if (error) throw error;
+            // Kiểm tra xem có kết quả nào được trả về không
+            if (results.length === 0) {
+                // Gửi thông báo lỗi đến máy khách
+                socket.emit('error', 'Khách hàng này hiện tại chưa có đơn hàng nào trên hệ thống');
+            } else {
+                // Gửi kết quả truy vấn đến máy khách
+                socket.emit('updateDataDatcapphoiDonhang', results);
+                console.log('Server gửi data về các Đơn hàng của Khách hàng có MaKhachHang: ' + maKhachHang + ' va các Đơn hàng ' + results);
+            }
+        });
+    });
+    socket.on('getLatestPhieucanValues', () => {
+        sqlcon.query('SELECT * FROM phieucan ORDER BY MaPhieuCan DESC LIMIT 1', (error, results) => {
+            // if (error) throw error;
+            if (error) {
+                // Xử lý lỗi ở đây, ví dụ như thông báo lên client
+                // Gửi thông báo lỗi đến máy khách
+                socket.emit('error', 'Đã có lỗi khi xử lý dữ liệu Phiếu Cân gần nhất');
+            } else {
+                // Lấy kết quả truy vấn
+                let data = results[0];
+                // Phát ra sự kiện latestPhieucanValues với dữ liệu đính kèm
+                socket.emit('latestPhieucanValues', data);
+                console.log('Server gửi data của phiếu cần gần nhất: ', data);
+            }
+        });
+    });
+    // Hàm đọc mã phiếu cân để điền vào Số phiếu ở đạt cấp phối
+    socket.on('getPhieucanData', () => {
+        sqlcon.query('SELECT COUNT(*) FROM phieucan', (error, results) => {
+            if (error) {
+                // Xử lý lỗi ở đây, ví dụ như thông báo lên client
+                // Gửi thông báo lỗi đến máy khách
+                socket.emit('error', 'Đã có lỗi khi xử lý dữ liệu Phiếu Cân');
+            } else {
+                let count = results[0]['COUNT(*)'];
+
+                if (count > 0) {
+                    // Nếu có bản ghi thì tiếp tục kiểm tra xem MaPhieuCan ở bản ghi cuối cùng có phải là giá trị null không
+                    sqlcon.query('SELECT MaPhieuCan FROM phieucan ORDER BY MaPhieuCan DESC LIMIT 1', (error, results) => {
+                        if (error) {
+                            // Xử lý lỗi ở đây, ví dụ như thông báo lên client
+                            // Gửi thông báo lỗi đến máy khách
+                            socket.emit('error', 'Đã có lỗi khi xử lý dữ liệu Phiếu Cân');
+                        } else {
+                            let last_maphieucan = results[0]['MaPhieuCan'];
+
+                            // Phát ra sự kiện phieucanData với dữ liệu đính kèm
+                            socket.emit('phieucanData', { count: count, last_maphieucan: last_maphieucan });
+                        }
+                    });
+                } else {
+                    // // Trong trường hợp không có bản ghi nào tồn tại thì gán DocMaPhieuCan bằng 1
+                    // docmaphieucan = 1; // không cần thiết thực hiện việc gán này
+
+                    // Phát ra sự kiện phieucanData với dữ liệu đính kèm
+                    socket.emit('phieucanData', { count: count });
+                }
+            }
+        });
+    });
+
+    socket.on('getCuaVatLieu', () => {
+        getCuaVatLieu(function (result) {
+            socket.emit('cuaVatLieuData', result);
+        });
+    });
+    socket.on('saveDataCuavatlieu', function (data) {
+        let CuaVatLieu = data.CuaVatLieu;
+        let query = 'SELECT * FROM cuavatlieu';
+        sqlcon.query(query, function (error, results, fields) {
+            if (error) {
+                socket.emit('saveDataCuavatlieuError', { message: 'Có lỗi xảy ra khi truy vấn dữ liệu từ bảng cuavatlieu' });
+                throw error;
+            }
+            if (results.length === 0) {
+                // Chưa có bản ghi nào trong bảng cuavatlieu
+                // Tạo thêm một bản ghi và ghi dữ liệu mới vào
+                let query = 'INSERT INTO cuavatlieu (Can1, Can2, Can3, Can4, Xi, PG1, PG2, ThuThapPG) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+                sqlcon.query(query, [CuaVatLieu.Cua[0], CuaVatLieu.Cua[1], CuaVatLieu.Cua[2], CuaVatLieu.Cua[3], CuaVatLieu.Xi, CuaVatLieu.PG[0], CuaVatLieu.PG[1], CuaVatLieu.ThuThapPG], function (error, results, fields) {
+                    if (error) {
+                        socket.emit('saveDataCuavatlieuError', { message: 'Có lỗi xảy ra khi thêm dữ liệu mới vào bảng cuavatlieu' });
+                        throw error;
+                    }
+                    socket.emit('saveDataCuavatlieuSuccess', { message: 'Đã thêm dữ liệu mới vào bảng cuavatlieu' });
+                });
+            } else {
+                // Đã có bản ghi trong bảng cuavatlieu
+                // Tiến hành cập nhật dữ liệu cũ bằng dữ liệu mới
+                let query = 'UPDATE cuavatlieu SET Can1 = ?, Can2 = ?, Can3 = ?, Can4 = ?, Xi = ?, PG1 = ?, PG2 = ?, ThuThapPG = ?';
+                sqlcon.query(query, [CuaVatLieu.Cua[0], CuaVatLieu.Cua[1], CuaVatLieu.Cua[2], CuaVatLieu.Cua[3], CuaVatLieu.Xi, CuaVatLieu.PG[0], CuaVatLieu.PG[1], CuaVatLieu.ThuThapPG], function (error, results, fields) {
+                    if (error) {
+                        socket.emit('saveDataCuavatlieuError', { message: 'Có lỗi xảy ra khi cập nhật dữ liệu trong bảng cuavatlieu' });
+                        throw error;
+                    }
+                    socket.emit('saveDataCuavatlieuSuccess', { message: 'Đã cập nhật dữ liệu trong bảng cuavatlieu' });
+                });
+            }
+        });
     });
 
 });
 
-// Khởi tạo SQL
+// setupSocketListeners(); có thể tạo một hàm và trong đó gọi sự kiện lắng nghe io.on hoặc io.emit để lắng nghe sự kiên cient kết nối với server, 
+// sau đó sử dụng hàm lắng nghe sự kiện socket.on và socket.emit để nhận và gửi các bức điện qua lại giữa client và server nhằm thực hiện các yêu cầu khác nhau của dự án
+// setupSocketListeners(); là một ví dụ, bên dưới là một cách viết khác, trong cách này chúng ta không cần tạo hàm như trên mà sử dụng trực tiếp io.on()
+// io.on("connection", function (socket) {
+//     // This event listener is called when a new client connects to the server
+
+//     socket.on('event1', function (data) {
+//         // This event listener is called when the connected client emits the 'event1' event
+//         // ...
+//     });
+
+//     socket.on('event2', function (data) {
+//         // This event listener is called when the connected client emits the 'event2' event
+//         // ...
+//     });
+
+//     socket.on('event3', function (data) {
+//         // This event listener is called when the connected client emits the 'event3' event
+//         // ...
+//     });
+// });
+function getCuaVatLieu(callback) {
+    let CuaVatLieu = {
+        Cua: ['', '', '', ''],
+        Xi: '',
+        PG: ['', ''],
+        ThuThapPG: false
+    };
+    sqlcon.query('SELECT * FROM cuavatlieu', function (error, results, fields) {
+        if (error) throw error;
+        console.log('Kết quả đọc từ bảng cuavatlieu: ', results);
+        console.log('Chiều dài mảng dữ liệu đọc từ bảng cuavatlieu là: ', results.length);
+
+        if (results.length > 0) {
+            console.log('Bảng cửa vật liệu có bản ghi từ trước, nên CuaVatLieu sẽ là: ');
+            for (let i = 0; i < 4; i++) {
+                CuaVatLieu.Cua[i] = results[0][`Can${i + 1}`] || `TP${i + 1}`;
+                console.log('Cửa liệu' + (i + 1) + ': ' + CuaVatLieu.Cua[i]);
+            }
+            for (let i = 0; i < 2; i++) {
+                CuaVatLieu.PG[i] = results[0][`PG${i + 1}`] || `PG${i + 1}`;
+                console.log('Cửa PG' + (i + 1) + ': ' + CuaVatLieu.PG[i]);
+            }
+            CuaVatLieu.Xi = results[0].Xi || 'Xi';
+            //CuaVatLieu.PG = results[0].PG1 || 'PG1';
+            CuaVatLieu.ThuThapPG = results[0].ThuThapPG || true;
+        } else {
+            console.log('Bảng cửa vật liệu chưa có bản ghi, nên CuaVatLieu sẽ là: ');
+            for (let i = 0; i < 4; i++) {
+                CuaVatLieu.Cua[i] = `TP${i + 1}`;
+                console.log('Cửa liệu' + (i + 1) + ': ' + CuaVatLieu.Cua[i]);
+
+            }
+            for (let i = 0; i < 2; i++) {
+                CuaVatLieu.PG[i] = `PG${i + 1}`;
+                console.log('Cửa PG' + (i + 1) + ': ' + CuaVatLieu.PG[i]);
+            }
+            CuaVatLieu.Xi = 'Xi';
+            //CuaVatLieu.PG = 'PG';
+            CuaVatLieu.ThuThapPG = true;
+        }
+        callback(CuaVatLieu);
+    });
+}
+
+///////////////////////////////////////////////////////////////////////////// Khởi tạo SQL //////////////////////////////////////////////////////////////////////////////////
 var mysql = require('mysql');
 var sqlcon = mysql.createConnection({
     host: "localhost",
@@ -519,43 +884,36 @@ var sqlcon = mysql.createConnection({
     database: "sql_plc",
     dateStrings: true // Hiển thị không có T và Z
 });
-// Đọc dữ liệu từ SQL
-function fn_SQLSearch() {
-    io.on("connection", function (socket) {
-        socket.on("msg_SQL_Show", function (data) {
-            var sqltable_Name = "macbetong";
-            var queryy1 = "SELECT * FROM " + sqltable_Name + ";"
-            sqlcon.query(queryy1, function (err, results, fields) {
-                if (err) {
-                    console.log(err);
-                } else {
-                    const objectifyRawPacket = row => ({ ...row });
-                    const convertedResponse = results.map(objectifyRawPacket);
-                    socket.emit('SQL_Show', convertedResponse);
-                    console.log(convertedResponse);
-                }
-            });
-        });
-    });
-}
 
 
-// ///////////HÀM GHI DỮ LIỆU XUỐNG PLC//////////
+// //////////////////////////////////////////////////////////////////////// Hàm callback khi ghi dữ liệu xuống PLC ///////////////////////////////////////////////////////////
 function valuesWritten(anythingBad) {
     if (anythingBad) { console.log("SOMETHING WENT WRONG WRITING VALUES!!!!"); }
     console.log("Done writing.");
 }
 
-// ///////////// Nhận các bức điện được gửi từ trình duyệt//////////
+// ////////////////////////////////////////////////////////////////// Nhận các bức điện được gửi từ trình duyệt//////////
 io.on("connection", function (socket) {
+    // Không nên gọi thêm socket, nên tôi đã di chuyển vào trong một io.on duy nhất (duyphuoc)
+    // ////////////////////////////////////////////////////////////////// Nhận các bức điện được gửi từ trình duyệt//////////
     ///////////// Nhận các bức điện được gửi từ trình duyệt ở chế độ TỰ ĐỘNG
     // Nút nhấn chọn chế độ tự động
-    socket.on("cmd_XeTronMoi", function (data) {
-        conn_plc.writeItems('XE_TRON_MOI', data, valuesWritten);
+    socket.on("PAUSE_COM3", function (data) {
+        conn_plc.writeItems('PAUSE_COM3', data, valuesWritten);
+        console.log('Trạng thái bit PAUSE_COM3: ', data)
+    });
+    socket.on("cmd_XeTronMoi_setON", () => {
+        conn_plc.writeItems('Q17', true, valuesWritten);
+        console.log('Đã Set bit Xe_Tron_Moi')
+    });
+    socket.on("cmd_XeTronMoi_resetOFF", () => {
+        conn_plc.writeItems('Q17', false, valuesWritten);
+        console.log('Đã Reset bit Xe_Tron_Moi')
     });
     // Nút nhấn chọn chế độ bằng tay
-    socket.on("cmd_Chay", function (data) {
-        conn_plc.writeItems('btt_Manu', data, valuesWritten);
+    socket.on("CHAY_DUNG", function (data) {
+        conn_plc.writeItems('Q12', data, valuesWritten);
+        console.log('Trạng thái bit CHAY_DUNG: ', data)
     });
     // Nút nhấn xác nhận chế độ
     socket.on("cmd_Confirm", function (data) {
@@ -597,9 +955,87 @@ io.on("connection", function (socket) {
     ///////////// Đoạn lệnh nhận các bức điện cmd khi cần Edit từ trình duyệt và ghi xuống PLC ///////////////
     // Ghi dữ liệu từ IO field
     socket.on("cmd_scrAuto_Edit_Data", function (data) {
-        conn_plc.writeItems([
-            'TG_XA', 'TGTRON', 'NUOC_THEM'],
-            [data[0], data[1], data[2]
-            ], valuesWritten);
+        conn_plc.writeItems(['TG_XA', 'TGTRON', 'NUOC_THEM'], [data[0], data[1], data[2]], valuesWritten);
+    });
+    socket.on('senDataDatcapphoi_Dinhmuc', data => {
+        // Xử lý dữ liệu được gửi từ client
+        console.log('Dữ liệu cấp phối định mức sẽ đươc truyền bào PLC: ', data);
+        // Ghi dữ liệu vào PLC
+        conn_plc.writeItems(['COM1', 'COM2', 'COM3', 'COM4', 'XI_MANG1', 'NUOC_DM', 'SO_ME_DM'],
+            [data[0], data[1], data[2], data[3], data[4], data[5], data[6]], valuesWritten);
+        // conn_plc.writeItems(['COM1', 'COM2'],
+        //     [data[0], data[1]], valuesWritten);
+    });
+
+    socket.on('saveDataThongsocan', data => {
+        // Xử lý dữ liệu được gửi từ client
+        console.log(data);
+
+        // So sánh dữ liệu mới với dữ liệu cũ
+        // Tạo một mảng để lưu trữ các thẻ và giá trị cần ghi vào PLC
+        let tagsToWrite = [];
+        let valuesToWrite = [];
+
+        // Duyệt qua các thuộc tính của đối tượng data
+        for (let key in data) {
+            //console.log('Các key trong data gửi qua server: ', key)
+            // Kiểm tra xem giá trị của thuộc tính có khác với giá trị tương ứng trên PLC hay không
+            if (data[key] != valuesKey[key]) {
+                // console.log('Key đang được so sánh: ', key)
+                // console.log('Data key đang được so sánh: ', data[key])
+                // console.log('values[key] đang được so sánh: ', valuesKey[key])
+                // console.log('----------------------------------------------------')
+                // Nếu có, thêm thẻ và giá trị vào mảng
+                tagsToWrite.push(key);
+                valuesToWrite.push(data[key]);
+                //console.log('tagsToWrite: ', tagsToWrite)
+                //console.log('valuesToWrite: ', valuesToWrite)
+            }
+        }
+        console.log('tagsToWrite: ', tagsToWrite)
+        console.log('valuesToWrite: ', valuesToWrite)
+        // Ghi dữ liệu vào PLC
+        if (tagsToWrite.length !== 0) {
+            conn_plc.writeItems(tagsToWrite, valuesToWrite, valuesWritten);
+            socket.emit('saveDataSuccess', { message: 'Đã cập nhật dữ liệu thông số cân' });
+        } else console.log('Không có giá trị nào cần thay đổi so với giá trị trong PLC')
+
+    });
+    socket.on('saveDataHieuchinhcan', data => {
+        // Xử lý dữ liệu được gửi từ client
+        console.log(data);
+
+        // So sánh dữ liệu mới với dữ liệu cũ
+        // Tạo một mảng để lưu trữ các thẻ và giá trị cần ghi vào PLC
+        let tagsToWrite = [];
+        let valuesToWrite = [];
+
+        // Duyệt qua các thuộc tính của đối tượng data
+        for (let key in data) {
+            //console.log('Các key trong data gửi qua server: ', key)
+            // Kiểm tra xem giá trị của thuộc tính có khác với giá trị tương ứng trên PLC hay không
+            if (Number(data[key]) != Number(valuesKey[key]).toFixed(1)) {
+                console.log('Key đang được so sánh: ', key)
+                console.log('Data key đang được so sánh: ', data[key])
+                console.log('values[key] đang được so sánh: ', valuesKey[key])
+                console.log('----------------------------------------------------')
+                console.log('Kiểu dữ liệu của data[key]:', typeof data[key]);
+                console.log('Kiểu dữ liệu của valuesKey[key]:', typeof valuesKey[key]);
+                console.log('*********************************************************************')
+                // Nếu có, thêm thẻ và giá trị vào mảng
+                tagsToWrite.push(key);
+                valuesToWrite.push(data[key]);
+                //console.log('tagsToWrite: ', tagsToWrite)
+                //console.log('valuesToWrite: ', valuesToWrite)
+            }
+        }
+        console.log('tagsToWrite: ', tagsToWrite)
+        console.log('valuesToWrite: ', valuesToWrite)
+        // Ghi dữ liệu vào PLC
+        if (tagsToWrite.length !== 0) {
+            conn_plc.writeItems(tagsToWrite, valuesToWrite, valuesWritten);
+            socket.emit('saveDataSuccess', { message: 'Đã cập nhật dữ liệu thông số cân' });
+        } else console.log('Không có giá trị nào cần thay đổi so với giá trị trong PLC')
+
     });
 });

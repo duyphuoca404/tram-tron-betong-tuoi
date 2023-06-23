@@ -27,8 +27,9 @@
     padding: 10px;
 }
 
-.table-container-macBetong {
+.container-macBetong {
     display: flex;
+    flex-direction: row;
 }
 
 /*Bảng mác bê tông, dành cho id #macBetong*/
@@ -38,7 +39,7 @@
     overflow-y: scroll;
     overflow: auto;
     border-collapse: collapse;
-    width: 100%;
+    width: 1000px;
 }
 
 #macBetong tr {
@@ -74,27 +75,44 @@ td {
     margin-bottom: 1px;
 }
 
+.form-container-macBetong,
 .button-container-macBetong {
     display: flex;
+    flex-direction: row;
+    margin-left: 20px;
+}
+
+.form-container-macBetong-right {
+    margin-left: 20px;
 }
 
 .button-container-macBetong button {
     margin-right: 10px;
+    width: 100px;
 }
 
-.table-container-macBetong,
+.container-macBetong,
 .form-container-macBetong {
-    border-radius: 5px;
+    border-radius: 10px;
 }
 
-/*Khu vực cho Đặt cáp phối*/
+/*/////////////////////////////////////////////////////////////////////////////////////Khu vực cho Đặt cáp phối////////////////////////////////////////////////////////////////////////*/
 .main-container-datCapphoi {
     border: 1px solid black;
     padding: 10px;
 }
 
-.table-container-datCapphoi {
+.container-datCapphoi,
+.container-Hieuchinhcan,
+.container-datThongsocan {
     display: flex;
+    flex-direction: column;
+}
+
+.container-datCapphoi input,
+.container-Hieuchinhcan input,
+.container-datThongsocan input[type="number"] {
+    width: 60px;
 }
 
 /*Bảng datCapphoi, dành cho id #datCapphoi*/
@@ -147,21 +165,60 @@ td {
     margin-right: 10px;
 }
 
-.table-container-datCapphoi,
-.form-container-datCapphoi {
-    border-radius: 5px;
+.container-datCapphoi,
+.form-container-datCapphoi,
+.container-datThongsocan,
+.container-Hieuchinhcan {
+    border-radius: 10px;
 }
 
-/* Highlight dòng trong bảng nếu nó được chọn */
+/*/////////////////////////////Fieldset Thông tin mẻ/////////////////////////////////////*/
+.thongtinme-datCapphoi,
+.thongtinphieu-datCapphoi {
+    display: flex;
+    flex-direction: row;
+    border: 1px solid black;
+    border-radius: 10px;
+    padding: 10px;
+    margin-right: 10px;
+}
+
+.thongtinme-datCapphoit,
+.thongtinphieu-datCapphoi input[type="text"] {
+    margin-left: 10px;
+    margin-right: 20px;
+}
+
+/*/////////////// Highlight dòng trong bảng nếu nó được chọn ///////////////////////////*/
 .selected {
     background-color: yellow;
 }
 
+/*///////////////////////////// Kích thước ô input trong datCaphoi, chỉ mỗi khung đặt cấp phối thôi nhé /////////////////////////////////////*/
 .form-container-datCapphoi input[type="text"] {
     width: 90px;
 }
 
-/*Code css cho nút nhấn ở chế độ Manu*/
+/*/////////////////////////////////////////////////////CSS cho các ô của phần thiết lập thông số /////////////////////////////////////////////////////////////////*/
+.thongsoCancotlieu>div,
+.thongsoCanxi>div,
+.thongsoCannuoc>div,
+.thongsoXeskip>div {
+    margin: 0 10px 0 0;
+}
+
+/*/////////////////////////////////////////////////////CSS cho các ô của phần hiệu chỉnh cân/////////////////////////////////////////////////////////////////*/
+.hieuchinhCancotlieu>div,
+.hieuchinhCanxi>div,
+.hieuchinhCannuoc>div,
+.hieuchinhNhietdoG1>div,
+.hieuchinhNhietdoG2>div,
+.hieuchinhNhietdoG3>div,
+.hieuchinhNhietdoG4>div {
+    margin-right: 10px;
+}
+
+/*////////////////////////////////////Code css cho nút nhấn ở chế độ Manu//////////////////////////////////////*/
 #bttManu_AutoMode {
     border: none;
     background-color: rgb(72, 255, 0);
@@ -192,35 +249,4 @@ td {
     height: 40px;
     left: 150px;
     top: 100px;
-}
-
-/*Bảng thông tin small*/
-.class-small-table {
-    display: block;
-    height: 400px;
-    overflow-y: scroll;
-    overflow: auto;
-    border-collapse: collapse;
-}
-
-.class-small-table tr {
-    cursor: pointer;
-}
-
-.class-small-table tr:hover {
-    background-color: #ddd;
-}
-
-.class-small-table thead th {
-    position: sticky;
-    top: 0;
-}
-
-.class-small-table th,
-td {
-    padding: 28px 16px;
-}
-
-.class-small-table th {
-    background: transparent;
 }
