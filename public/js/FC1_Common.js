@@ -232,11 +232,11 @@ function fn_SymbolStatus(ObjectID, SymName, Tag) {
 }
 
 // Chương trình con chuyển trang
-function fn_ScreenChange(scr_1, scr_2, scr_3) {
+function fn_ScreenChange(scr_1, scr_2, scr_3, scr_4) {
     document.getElementById(scr_1).style.visibility = 'visible';   // Hiển thị trang được chọn
     document.getElementById(scr_2).style.visibility = 'hidden';    // Ẩn trang 1
     document.getElementById(scr_3).style.visibility = 'hidden';
-    // document.getElementById(scr_4).style.visibility = 'hidden';
+    document.getElementById(scr_4).style.visibility = 'hidden';
 }
 
 // function fn_ShowOrHideDiv(showDivButton, div) {

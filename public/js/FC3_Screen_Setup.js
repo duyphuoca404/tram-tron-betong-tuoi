@@ -90,6 +90,12 @@ function fn_Table02_SQL_Show() {
     socket.emit('getCuaVatLieu');
 
 }
+// Chương trình con đọc dữ liệu SQL để show lên bảng report, nhấn nút Báo Cáo
+function fn_Table03_SQL_Show() {
+    socket.emit("msg_report_Show", "true");
+    console.log('Gửi sms yêu cầu server cập nhật dữ liệu bảng Chi tiết phiếu cân');
+
+}
 // Chương trình con hiển thị SQL ra bảng
 function fn_table_01(data) {
     if (data) {
@@ -139,6 +145,34 @@ function fn_table_02(data) {
         }
     }
 }
+// Chương trình con hiển thị SQL ra bảng
+function fn_table_03(data) {
+    if (data) {
+        $("#reportPhieucan tbody").empty();
+        var len = data.length;
+        var txt = "<tbody>";
+        if (len > 0) {
+            for (var i = 0; i < len; i++) {
+                txt += "<tr><td>" + data[i].MaPhieuCan
+                    + "</td><td>" + data[i].Gio
+                    + "</td><td>" + data[i].STTMe
+                    + "</td><td>" + data[i].TP1
+                    + "</td><td>" + data[i].TP2
+                    + "</td><td>" + data[i].TP3
+                    + "</td><td>" + data[i].TP4
+                    + "</td><td>" + data[i].Xi
+                    + "</td><td>" + data[i].Nuoc
+                    + "</td><td>" + data[i].PG1
+                    + "</td><td>" + data[i].PG2
+                    + "</td></tr>";
+            }
+            if (txt != "") {
+                txt += "</tbody>";
+                $("#reportPhieucan").append(txt);
+            }
+        }
+    }
+}
 // Hàm lắng nghe sự kiện, khi có một bức điện "SQL_Show" sẽ thực hiện việc gì
 socket.on('SQL_Show', function (data) {
     fn_table_01(data);
@@ -146,10 +180,28 @@ socket.on('SQL_Show', function (data) {
     console.log('Nhận bức điện SQL_Show từ server để gọi hàm show lên bảng 01 và 02');
 });
 
+// Hàm lắng nghe sự kiện, khi có một bức điện "report_Show" sẽ thực hiện việc gì
+socket.on('report_Show', function (data) {
+    fn_table_03(data);
+    console.log('Nhận bức điện report_Show từ server để gọi hàm show lên bảng 03');
+});
+
 socket.on('updateDataMacbetongSuccess', function () {
     // Xử lý thông báo thành công từ server
     alert("Đã cập nhật thành công Mác bê tông " + "!");
 });
+
+// Tìm kiếm SQL theo khoảng thời gian
+function fn_SQL_By_Time() {
+    var val = [document.getElementById('dtpk_Search_Start').value,
+    document.getElementById('dtpk_Search_End').value];
+    socket.emit('msg_SQL_ByTime', val);
+    socket.on('SQL_ByTime', function (data) {
+        fn_table_03(data); // Show sdata
+    });
+}
+
+
 
 //////////////Hàm hiển thị nội dung các input sau khi một dòng của table được chọn (chỉ hiển thị, chưa tính toán) ////////////////////////////
 function addRowClickListener(tableSelector, inputSelector) {
@@ -1123,6 +1175,146 @@ function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyể
     console.log('Phiếu cân tại thời điểm kết thúc hàm XeTronMoi: ', PhieuCan)
 }
 
+// Lắng nghe sự kiện nhấn phím Enter
+document.querySelector('[data-label="MaPhieuCan"]').addEventListener('keyup', function (event) {
+    if (event.key === 'Enter') {
+        // Lấy giá trị MaPhieuCan từ input field
+        let MaPhieuCan = this.value;
+
+        // Gửi giá trị MaPhieuCan đến server
+        socket.emit('get_data', MaPhieuCan);
+    }
+});
+
+// Nhận dữ liệu từ server và hiển thị lên trang web
+socket.on('data', function (data) {
+    // Hiển thị dữ liệu lên các input field
+    document.querySelector('[data-label="TenKhachHang"]').value = data.phieucan.TenKhachHang;
+    document.querySelector('[data-label="BienSoXe"]').value = data.phieucan.BienSoXe;
+    document.querySelector('[data-label="SoM3"]').value = data.phieucan.Som3Me;
+    document.querySelector('[data-label="MacBeTong"]').value = data.phieucan.MacBeTong;
+    document.querySelector('[data-label="Ngay"]').value = data.phieucan.Ngay;
+    document.querySelector('[data-label="GioXong"]').value = data.phieucan.GioXong;
+    document.querySelector('[data-label="DoSut"]').value = data.phieucan.DoSut;
+
+    // Hiển thị dữ liệu lên bảng
+    let table = document.getElementById('reportTablePhieuCanMaPhieuCan');
+    let thead = table.getElementsByTagName('thead')[0];
+    let tbody = table.getElementsByTagName('tbody')[0];
+    let rows = tbody.getElementsByTagName('tr');
+
+    // Điền dữ liệu vào title của bảng
+    let titleRow = thead.getElementsByTagName('tr')[0];
+    titleRow.cells[2].innerHTML = data.phieucan.TenTP1;
+    titleRow.cells[3].innerHTML = data.phieucan.TenTP2;
+    titleRow.cells[4].innerHTML = data.phieucan.TenTP3;
+    titleRow.cells[5].innerHTML = data.phieucan.TenTP4;
+    titleRow.cells[6].innerHTML = data.phieucan.TenXiMang;
+    titleRow.cells[8].innerHTML = data.phieucan.TenPG1;
+    titleRow.cells[9].innerHTML = data.phieucan.TenPG2;
+
+    console.log('Số dòng lúc đầu: ', rows.length)
+    // Xóa dữ liệu cũ trong bảng
+    for (let i = rows.length - 1; i >= 1; i--) {
+        tbody.deleteRow(i);
+        console.log('Số dòng hiện tại: ', rows.length)
+    }
+    console.log('Số dòng còn lại: ', rows.length)
+
+    // Điền dữ liệu vào bảng
+    for (let i = 0; i < data.chitietphieucan.length; i++) {
+        let chitietphieucan = data.chitietphieucan[i];
+
+        // Tạo một hàng mới
+        let row = tbody.insertRow(-1);
+
+        // Điền dữ liệu vào các ô
+        row.insertCell(-1).innerHTML = '';
+        row.insertCell(-1).innerHTML = chitietphieucan.STTMe;
+        row.insertCell(-1).innerHTML = chitietphieucan.TP1;
+        row.insertCell(-1).innerHTML = chitietphieucan.TP2;
+        row.insertCell(-1).innerHTML = chitietphieucan.TP3;
+        row.insertCell(-1).innerHTML = chitietphieucan.TP4;
+        row.insertCell(-1).innerHTML = chitietphieucan.Xi;
+        row.insertCell(-1).innerHTML = chitietphieucan.Nuoc;
+        row.insertCell(-1).innerHTML = chitietphieucan.PG1;
+        row.insertCell(-1).innerHTML = chitietphieucan.PG2;
+    }
+
+    // // Tạo hàng Định Mức
+    // let dinhmucRow = tbody.insertRow(1);
+    // dinhmucRow.insertCell(-1).innerHTML = 'Định Mức 00';
+    // dinhmucRow.insertCell(-1).innerHTML = '';
+    // dinhmucRow.insertCell(-1).innerHTML = data.phieucan.DMTP1;
+    // dinhmucRow.insertCell(-1).innerHTML = data.phieucan.DMTP2;
+    // dinhmucRow.insertCell(-1).innerHTML = data.phieucan.DMTP3;
+    // dinhmucRow.insertCell(-1).innerHTML = data.phieucan.DMTP4;
+    // dinhmucRow.insertCell(-1).innerHTML = data.phieucan.DMXi;
+    // dinhmucRow.insertCell(-1).innerHTML = data.phieucan.DMNuoc;
+    // dinhmucRow.insertCell(-1).innerHTML = data.phieucan.DMPG1;
+    // dinhmucRow.insertCell(-1).innerHTML = data.phieucan.DMPG2;
+
+    // // Xóa dữ liệu cũ trong bảng
+    // for (let i = rows.length - 1; i >= 2; i--) {
+    //     tbody.deleteRow(i);
+    // }
+
+    // Tạo hàng Định Mức
+    let dinhmucRow = rows[0];
+    dinhmucRow.cells[0].innerHTML = 'Định Mức';
+    dinhmucRow.cells[1].innerHTML = '';
+    dinhmucRow.cells[2].innerHTML = data.phieucan.DMTP1;
+    dinhmucRow.cells[3].innerHTML = data.phieucan.DMTP2;
+    dinhmucRow.cells[4].innerHTML = data.phieucan.DMTP3;
+    dinhmucRow.cells[5].innerHTML = data.phieucan.DMTP4;
+    dinhmucRow.cells[6].innerHTML = data.phieucan.DMXi;
+    dinhmucRow.cells[7].innerHTML = data.phieucan.DMNuoc;
+    dinhmucRow.cells[8].innerHTML = data.phieucan.DMPG1;
+    dinhmucRow.cells[9].innerHTML = data.phieucan.DMPG2;
+
+    // Tạo hàng Tổng mới
+    let tongRow = tbody.insertRow(-1);
+    tongRow.insertCell(-1).innerHTML = 'Tổng';
+    tongRow.insertCell(-1).innerHTML = ''; // Ô trống ngay sau ô chứa chữ "Tổng"
+    for (let i = 2; i < 10; i++) {
+        let sum = 0;
+        for (let j = 2; j < rows.length - 1; j++) {
+            let cell = rows[j].cells[i];
+            if (cell) {
+                sum += Number(cell.innerHTML);
+            }
+        }
+        tongRow.insertCell(-1).innerHTML = sum.toFixed(1);
+    }
+
+});
+
+// Hàm in bảng thành file PDF
+document.getElementById('PrintOut').onclick = function () {
+    var doc = new jsPDF();
+    var elementHTML = $('.reportPhieuCantheoMaPhieuCan').html();
+    var specialElementHandlers = {
+        '#elementH': function (element, renderer) {
+            return true;
+        }
+    };
+    doc.fromHTML(elementHTML, 15, 15, {
+        'width': 170,
+        'elementHandlers': specialElementHandlers
+    });
+
+    // Save the PDF
+    doc.save('sample-document.pdf');
+};
+
+
+
+
+
+
+
+
+
 //Lắng nghe sự kiện tải lại trang và gọi hàm khi có sự kiện Click
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Gọi hàm lắng nghe sự kiện HTML đã tải song cú pháp');
@@ -1165,4 +1357,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // socket.on('error', function (msg) {
     //     console.log(msg);
     // });
+
 });

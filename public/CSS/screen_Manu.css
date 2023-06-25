@@ -1,5 +1,6 @@
 /*Màn hình MAN*/
-#Screen_Manu {
+#Screen_Manu,
+#Screen_report {
     position: absolute;
     left: 215px;
     top: 11px;
@@ -27,7 +28,8 @@
     padding: 10px;
 }
 
-.container-macBetong {
+.container-macBetong,
+.container-reportPhieucan {
     display: flex;
     flex-direction: row;
 }
@@ -42,25 +44,40 @@
     width: 1000px;
 }
 
-#macBetong tr {
+#reportPhieucan {
+    display: block;
+    height: 800px;
+    overflow-y: scroll;
+    overflow: auto;
+    border-collapse: collapse;
+    /* width: 1000px; */
+}
+
+#macBetong tr,
+#reportPhieucan tr {
     cursor: pointer;
 }
 
-#macBetong tr:hover {
+#macBetong tr:hover,
+#reportPhieucan tr:hover {
     background-color: #ddd;
 }
 
-#macBetong thead th {
+#macBetong thead th,
+#reportPhieucan thead th {
     position: sticky;
     top: 0;
 }
 
 #macBetong th,
+td,
+#reportPhieucan th,
 td {
     padding: 8px 16px;
 }
 
-#macBetong th {
+#macBetong th,
+#reportPhieucan th {
     background: #eee;
 }
 
@@ -76,7 +93,8 @@ td {
 }
 
 .form-container-macBetong,
-.button-container-macBetong {
+.button-container-macBetong,
+.reportPhieuCantheoMaPhieuCan {
     display: flex;
     flex-direction: row;
     margin-left: 20px;
@@ -92,7 +110,8 @@ td {
 }
 
 .container-macBetong,
-.form-container-macBetong {
+.form-container-macBetong,
+.container-reportPhieucan {
     border-radius: 10px;
 }
 
@@ -218,6 +237,47 @@ td {
     margin-right: 10px;
 }
 
+
+/*///////////////////////////////////////////////////////reportTablePhieuCanMaPhieuCan/////////////////////////////////////////////////////*/
+/*Bảng datCapphoi, dành cho id #datCapphoi*/
+#reportTablePhieuCanMaPhieuCan {
+    display: block;
+    height: 400px;
+    overflow-y: scroll;
+    overflow: auto;
+    border-collapse: collapse;
+}
+
+#reportTablePhieuCanMaPhieuCan tr {
+    cursor: pointer;
+}
+
+#reportTablePhieuCanMaPhieuCan tr:hover {
+    background-color: #ddd;
+}
+
+#reportTablePhieuCanMaPhieuCan thead th {
+    position: sticky;
+    top: 0;
+}
+
+#reportTablePhieuCanMaPhieuCan th,
+td {
+    padding: 8px 16px;
+}
+
+#reportTablePhieuCanMaPhieuCan th {
+    background: #eee;
+}
+
+
+
+
+
+
+
+
+
 /*////////////////////////////////////Code css cho nút nhấn ở chế độ Manu//////////////////////////////////////*/
 #bttManu_AutoMode {
     border: none;
@@ -249,4 +309,21 @@ td {
     height: 40px;
     left: 150px;
     top: 100px;
+}
+
+/*Nút Xuaast Excel*/
+#btt_Excel {
+    border: none;
+    background-color: rgb(14, 199, 153);
+    color: rgb(255, 255, 255);
+    text-align: center;
+    display: inline-block;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    /* position: absolute; */
+    width: 105px;
+    height: 30px;
+    /* left: 250px;
+    top: 110px; */
 }

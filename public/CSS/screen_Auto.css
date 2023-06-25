@@ -469,8 +469,64 @@ img {
 }
 
 .trangthaime td,
-.trangthaime th {
+th {
     padding: 3px;
     border: 1px solid #ccc;
     text-align: center;
 }
+
+/*//////////////TRƯỜNG TÌM KIẾM DỮ LIỆU/////////////////*/
+/*Lable tìm kiếm từ*/
+#lb_Search_Start {
+    color: rgb(26, 24, 24);
+    font-size: 14px;
+    font-weight: normal;
+    /* position: absolute;
+    left: 15px;
+    top: 5px; */
+}
+
+/*Chọn ngày tháng bắt đầu*/
+#dtpk_Search_Start {
+    text-align: left;
+    /* position: absolute;
+    left: 15px;
+    top: 25px; */
+}
+
+/*Lable tìm kiếm đến*/
+#lb_Search_End {
+    color: rgb(26, 24, 24);
+    font-size: 14px;
+    font-weight: normal;
+    /* position: absolute;
+    left: 15px;
+    top: 55px; */
+}
+
+/*Chọn ngày tháng kết thúc*/
+#dtpk_Search_End {
+    text-align: left;
+    /* position: absolute;
+    left: 15px;
+    top: 75px; */
+}
+
+/*Nút tìm kiếm*/
+#btt_Search {
+    border: none;
+    background-color: DodgerBlue;
+    color: rgb(255, 255, 255);
+    text-align: center;
+    display: inline-block;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    /* position: absolute; */
+    width: 105px;
+    height: 30px;
+    /* left: 127px;
+    top: 110px; */
+}
+
+/*//////////////TRƯỜNG TÌM KIẾM DỮ LIỆU - END/////////////////*/

@@ -182,7 +182,8 @@ document.addEventListener("DOMContentLoaded", function () {
         // Hàm gửi yêu cầu server get Cửa vật liệu
         socket.emit('getCuaVatLieu');
 
-        fn_ScreenChange('Screen_Auto', 'Screen_Manu', 'Screen_datCapphoi'); fn_ShowByClass('bang_Phieubetong');
+        fn_ScreenChange('Screen_Auto', 'Screen_Manu', 'Screen_datCapphoi', 'Screen_report');
+        fn_ShowByClass('bang_Phieubetong');
         // Vì sau khi đặt cấp phối PhieuCan không cập nhật mới vào khung hiển thị nên gọi hàm này khi nhấn HOME mục đích là để hiển thị lên khung popup
         showPhieucanHientai();
         // Chú ý: Đặt log ở đây sẽ không in được MaPhieuCan sau khi nhấn nút Auto, vì lúc này PhieuCan chưa được đọc (chưa đc lưu), 
@@ -194,7 +195,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Hàm xử lý khi có sự kiện click lên nút nhấn btt_Screen_Manu
     $('#btt_Screen_Manu').on('click', function () { // Hàm này sử dụng cú pháp của Query, còn một cách khác sử dụng javascript
-        fn_ScreenChange('Screen_Manu', 'Screen_Auto', 'Screen_datCapphoi'); fn_ShowById('Screen_Manu'); fn_HideByClass('bang_Phieubetong'); fn_Table01_SQL_Show();
+        fn_ScreenChange('Screen_Manu', 'Screen_Auto', 'Screen_datCapphoi', 'Screen_report');
+        fn_ShowById('Screen_Manu');
+        fn_HideByClass('bang_Phieubetong');
+        fn_Table01_SQL_Show();
         // Khi chọn menu quản lý Mac bê tông thì
         ThongTinCapPhoi.DangDatCapPhoi = false;
 
@@ -202,11 +206,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Hàm xử lý khi có sự kiện click lên nút nhấn btt_Screen_datCapphoi
     $('#btt_Screen_datCapphoi').on('click', function () { // Hàm này sử dụng cú pháp của Query, còn một cách khác sử dụng javascript, phải đảm bảo query được gọi trước khi gọi js này
-        fn_ScreenChange('Screen_datCapphoi', 'Screen_Manu', 'Screen_Auto'); fn_ShowById('Screen_datCapphoi'); fn_HideByClass('bang_Phieubetong'); fn_Table02_SQL_Show();
+        fn_ScreenChange('Screen_datCapphoi', 'Screen_Manu', 'Screen_Auto', 'Screen_report');
+        fn_ShowById('Screen_datCapphoi');
+        fn_HideByClass('bang_Phieubetong');
+        fn_Table02_SQL_Show();
         // Khi tiến hành chọ đạt cấp phối thì
         mnuThiHanhDatCapPhoi_Click();
     });
-
+    // Hàm xử lý khi có sự kiện click lên nút nhấn btt_Screen_report
+    $('#btt_Screen_report').on('click', function () { // Hàm này sử dụng cú pháp của Query, còn một cách khác sử dụng javascript, phải đảm bảo query được gọi trước khi gọi js này
+        fn_ScreenChange('Screen_report', 'Screen_Manu', 'Screen_Auto', 'Screen_datCapphoi');
+        fn_ShowById('Screen_report');
+        fn_HideByClass('bang_Phieubetong');
+        fn_Table03_SQL_Show();
+        // Khi tiến hành chọ đạt cấp phối thì
+        // mnuThiHanhDatCapPhoi_Click();
+    });
     // Phải đưa hàm thay đổi sự kiện này vào trong hàm lắng nghe event, vì file js chứa hàm này nó được gọi trước khi HTML load xong, vậy nên khi nhấn vào listbox nó ko work,
     // chỉ khi mình đưa vào hàm lắng nghe này thì nó mới hoạt động, do khi đó khung HTML đã được gọi xong, vậy nên chọn list nó mới chạy hàm được
     $('.scr_Auto_listbox-xebon').on('change', function () { // Phải đảm bảo query đã được gọi trước khi file js này được gọi, duyphuoc

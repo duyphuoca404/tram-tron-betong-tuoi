@@ -14,12 +14,10 @@
     </script>
     <script src="js/FC2_Screen_Auto.js"></script>
     <script src="js/FC1_Common.js"></script>
-    <!-- Sử dụng thư viện jQuery để áp dụng widget selectmenu của jQuery UI cho tất cả các thẻ select trên trang  -->
-    <!-- <script>
-        $(function () {
-            $("select").selectmenu();
-        });
-    </script> -->
+    <script src="js/FC3_Excel_Export.js"></script>
+    <script src="js/jspdf.min.js"></script>
+    <script src="js/html2canvas.min.js"></script>
+    <script src="js/FileSaver.js"></script>
 
 
     <!-- ////////////// GỌI CÁC CSS //////////////  -->
@@ -32,13 +30,6 @@
 <!-- Phần thân của website -->
 
 <body class="bodyBackground">
-    <!-- <script>
-        // Chương trình con load lại trang
-        window.addEventListener('load', function () {
-            fn_ScreenChange('Screen_Auto', 'Screen_Manu');
-        });
-
-    </script> -->
     <div class="main-div">
         <!-- ////////////// Code cho slidebar////////////// -->
         <div id="slidebar">
@@ -48,6 +39,8 @@
             <button id="btt_Screen_Manu" onclick="">QUẢN LÝ CHUNG</button>
             <!--Nút chọn màn hình 1-->
             <button id="btt_Screen_datCapphoi" onclick="">THIẾT LẬP CẤU HÌNH</button>
+            <!--Nút nhấn báo cáo-->
+            <button id="btt_Screen_report" onclick="">BÁO CÁO</button>
         </div>
         <!-- //////////////Code cho màn hình chính////////////// -->
         <div id="Screen_Auto">
@@ -939,7 +932,126 @@
                 </div>
             </div>
         </div>
+        <!-- //////////////Code cho màn hình Manual////////////// -->
+        <div id="Screen_report">
+            <div class="main-container-macBetong">
+                <h2>Lịch sử phiếu cân</h2>
+                <div class="container-reportPhieucan">
+                    <table id="reportPhieucan">
+                        <thead>
+                            <tr>
+                                <th>Mã PC</th>
+                                <th>Giờ</th>
+                                <th>STTMe</th>
+                                <th>TP1</th>
+                                <th>TP2</th>
+                                <th>TP3</th>
+                                <th>TP4</th>
+                                <th>Xi</th>
+                                <th>Nước</th>
+                                <th>PG1</th>
+                                <th>PG2</th>
+                            </tr>
+                        </thead>
+                    </table>
+                    <!-- Thêm các trường nhập liệu và nút vào đây -->
+                    <div>
+                        <div class="form-container-macBetong">
+                            <div class="form-container-macBetong-left">
+                                <div>Mã Phiếu Xuất: <br>
+                                    <input type="text" data-label="MaPhieuCan">
+                                </div>
+                                <div>Tên Khách Hàng: <br>
+                                    <input class="exclude" type="text" data-label="TenKhachHang" disabled="true">
+                                </div>
+                                <div>Biển Số Xe: <br>
+                                    <input type="text" data-label="BienSoXe" disabled="true">
+                                </div>
+                                <div>Số M3: <br>
+                                    <input type="text" data-label="SoM3" disabled="true">
+                                </div>
+                                <div>Mác Bê Tông: <br>
+                                    <input type="text" data-label="MacBeTong" disabled="true">
+                                </div>
+                            </div>
+                            <div class="form-container-macBetong-right">
+                                <!--Date time piker-->
+                                <label id="lb_Search_Start">Từ:</label><br>
+                                <input id="dtpk_Search_Start" type="datetime-local"> <br>
+                                <label id="lb_Search_End">Đến:</label><br>
+                                <input id="dtpk_Search_End" type="datetime-local"> <br>
+                                <!--Nút tìm kiếm-->
+                                <button id="btt_Search" class="btn" onclick="fn_SQL_By_Time();"></i> TÌM KIẾM</button>
+                            </div>
+                            <div class="form-container-macBetong-right">
+                                <div>Ngày: <br>
+                                    <input type="text" data-label="Ngay" disabled="true">
+                                </div>
+                                <div>Giờ Xong: <br>
+                                    <input type="text" data-label="GioXong" disabled="true">
+                                </div>
+                                <div>Độ Sụt Thống Kê: <br>
+                                    <input type="text" data-label="DoSut" disabled="true">
+                                </div>
+                            </div>
 
+                        </div>
+                        <br>
+                        <div class="button-container-macBetong">
+                            <button id="PrintOut">Print Out</button>
+                        </div>
+                        <div class="reportPhieuCantheoMaPhieuCan">
+                            <table class="reportTablePhieuCanMaPhieuCan" id="reportTablePhieuCanMaPhieuCan">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>STT Mẻ</th>
+                                        <th>TP 1</th>
+                                        <th>TP 2</th>
+                                        <th>TP 3</th>
+                                        <th>TP 4</th>
+                                        <th>Xi Măng</th>
+                                        <th>Nước</th>
+                                        <th>PG 1</th>
+                                        <th>PG 2</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Định mức</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tổng</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div>
+                            <!--Nút Xuất Excel-->
+                            <button id="btt_Excel" class="btn" onclick="fn_excel();"></i> BÁO CÁO</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="right-sidebar">
             <!-- Hiển thị nhiệt độ hiện tại của các vùng -->
             <div class="bang_Nhietdohientai">

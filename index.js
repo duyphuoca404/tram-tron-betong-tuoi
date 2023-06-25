@@ -510,7 +510,7 @@ function getDataChinhCanFromPLC() {
     //console.log('Dữ liệu hiệu chỉnh cân được gửi đi: ', dataFromPLC)
 }
 
-// ////////////////////////////////////////////////////////////////////////////////////// GỬI DỮ LIỆU BẢNG TAG ĐẾN CLIENT (TRÌNH DUYỆT)///////////
+// //////////////////////////////////////////////////////////////////// GỬI NHẬN DỮ LIỆU VỚI CLIENT (TRÌNH DUYỆT)//////////////////////////////////////////////////
 io.on("connection", function (socket) {
     socket.on("Client-send-data", function (data) {
         fn_tag();
@@ -579,6 +579,22 @@ io.on("connection", function (socket) {
                 const convertedResponse = results.map(objectifyRawPacket);
                 socket.emit('SQL_Show', convertedResponse);
                 console.log("Gửi dữ liệu qua client bằng bức điện SQL_Show");
+            }
+        });
+    });
+    socket.on("msg_report_Show", function (data) {
+        var sqltable_Name = "chitietphieucan";
+        var queryy1 = "SELECT * FROM " + sqltable_Name + ";"
+        sqlcon.query(queryy1, function (err, results, fields) {
+            if (err) {
+                console.log(err);
+                socket.emit('error', 'Đã có lỗi khi xử lý dữ liệu Chi tiết phiếu cân');
+                throw err; // Bỏ qua lỗi
+            } else {
+                const objectifyRawPacket = row => ({ ...row });
+                const convertedResponse = results.map(objectifyRawPacket);
+                socket.emit('report_Show', convertedResponse);
+                console.log("Gửi dữ liệu qua client bằng bức điện report_Show");
             }
         });
     });
@@ -807,9 +823,100 @@ io.on("connection", function (socket) {
             }
         });
     });
+    // Đọc dữ liệu SQL theo thời gian
+    socket.on("msg_SQL_ByTime", function (data) {
+        console.log('Dữ liệu tìm kiếm theo thời gian của Phiếu cân', data);
+        var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset time Việt Nam (GMT7+)
+        // Lấy thời gian tìm kiếm từ date time piker
+        var timeS = new Date(data[0]); // Thời gian bắt đầu
+        var timeE = new Date(data[1]); // Thời gian kết thúc
+        // Quy đổi thời gian ra định dạng cua MySQL
+        var timeS1 = "'" + (new Date(timeS - tzoffset)).toISOString().slice(0, -1).replace("T", " ") + "'";
+        var timeE1 = "'" + (new Date(timeE - tzoffset)).toISOString().slice(0, -1).replace("T", " ") + "'";
+        var timeR = timeS1 + "AND" + timeE1; // Khoảng thời gian tìm kiếm (Time Range)
+
+        var sqltable_Name = "chitietphieucan"; // Tên bảng
+        var dt_col_Name = "Gio";  // Tên cột thời gian
+
+        var Query1 = "SELECT * FROM " + sqltable_Name + " WHERE " + dt_col_Name + " BETWEEN ";
+        var Query = Query1 + timeR + ";";
+
+        sqlcon.query(Query, function (err, results, fields) {
+            if (err) {
+                console.log(err);
+            } else {
+                const objectifyRawPacket = row => ({ ...row });
+                const convertedResponse = results.map(objectifyRawPacket);
+                SQL_Excel = convertedResponse; // Xuất báo cáo Excel
+                console.log('Dữ liệu SQL_Excel: ',SQL_Excel)
+                socket.emit('SQL_ByTime', convertedResponse);
+            }
+        });
+    });
+    // Đọc dữ liệu SQL theo MaPhieuCan
+    // socket.on('getDetails', function (MaPhieuCan) {
+    //     sqlcon.query(
+    //         `SELECT chitietphieucan.STTMe, phieucan.TenTP1, phieucan.TenTP2, phieucan.TenTP3, phieucan.TenTP4, phieucan.TenXiMang, chitietphieucan.Nuoc, phieucan.TenPG1, phieucan.TenPG2 FROM chitietphieucan INNER JOIN phieucan ON chitietphieucan.MaPhieuCan=phieucan.MaPhieuCan WHERE chitietphieucan.MaPhieuCan=?`,
+    //         [MaPhieuCan],
+    //         function (error, chitietphieucanResults, fields) {
+    //             if (error) throw error;
+
+    //             sqlcon.query(
+    //                 `SELECT TenKhachHang, BienSoXe, Som3Me, SoMe, MacBeTong, Ngay, GioXong, DoSut FROM phieucan WHERE MaPhieuCan=?`,
+    //                 [MaPhieuCan],
+    //                 function (error, phieucanResults, fields) {
+    //                     if (error) throw error;
+
+    //                     socket.emit('displayDetails', {
+    //                         chitietphieucan: chitietphieucanResults,
+    //                         phieucan: phieucanResults[0]
+    //                     });
+    //                     console.log('Chi tiết phiếu cân: ', chitietphieucanResults)
+    //                     console.log('Phiếu cân: ', phieucanResults[0])
+    //                 }
+    //             );
+    //         }
+    //     );
+    // });
+
+
+    // Nhận giá trị MaPhieuCan từ client
+    socket.on('get_data', function (MaPhieuCan) {
+        // Truy vấn dữ liệu từ cơ sở dữ liệu MySQL
+        let query = `SELECT * FROM phieucan WHERE MaPhieuCan=${MaPhieuCan}`;
+        sqlcon.query(query, function (err, result) {
+            if (err) throw err;
+
+            // Lấy dữ liệu từ bảng phieucan
+            let phieucan = result[0];
+
+            // Truy vấn dữ liệu từ bảng chitietphieucan
+            query = `SELECT * FROM chitietphieucan WHERE MaPhieuCan=${MaPhieuCan}`;
+            sqlcon.query(query, function (err, result) {
+                if (err) throw err;
+
+                // Lấy dữ liệu từ bảng chitietphieucan
+                let chitietphieucan = result;
+
+                // Gửi dữ liệu đến client
+                socket.emit('data', { phieucan: phieucan, chitietphieucan: chitietphieucan });
+                console.log('Chi tiết phiếu cân: ', chitietphieucan)
+                console.log('Phiếu cân: ', phieucan)
+            });
+        });
+    });
+    // Hàm nhận lệnh xuất dữ liệu ra excel
+    socket.on("msg_Excel_Report", function (data) {
+        console.log('Nhận được yêu cầu xuất report')
+        const [SaveAslink1, Bookname] = fn_excelExport();
+        var data = [SaveAslink1, Bookname];
+        socket.emit('send_Excel_Report', data);
+        console.log('Gửi report qua client')
+    });
 
 });
 
+// // Hàm đọc tên cửa vật liệu sau đó gửi qua trình duyệt
 // setupSocketListeners(); có thể tạo một hàm và trong đó gọi sự kiện lắng nghe io.on hoặc io.emit để lắng nghe sự kiên cient kết nối với server, 
 // sau đó sử dụng hàm lắng nghe sự kiện socket.on và socket.emit để nhận và gửi các bức điện qua lại giữa client và server nhằm thực hiện các yêu cầu khác nhau của dự án
 // setupSocketListeners(); là một ví dụ, bên dưới là một cách viết khác, trong cách này chúng ta không cần tạo hàm như trên mà sử dụng trực tiếp io.on()
@@ -831,6 +938,7 @@ io.on("connection", function (socket) {
 //         // ...
 //     });
 // });
+// // Hàm đọc tên cửa vật liệu sau đó gửi qua trình duyệt
 function getCuaVatLieu(callback) {
     let CuaVatLieu = {
         Cua: ['', '', '', ''],
@@ -1039,3 +1147,217 @@ io.on("connection", function (socket) {
 
     });
 });
+
+// /////////////////////////////// BÁO CÁO EXCEL ///////////////////////////////
+const Excel = require('exceljs');
+// Mảng xuất dữ liệu report Excel
+var SQL_Excel = [];  // Dữ liệu nhập kho
+const { CONNREFUSED } = require('dns');
+function fn_excelExport() {
+    // =====================CÁC THUỘC TÍNH CHUNG=====================
+    // Lấy ngày tháng hiện tại
+    let date_ob = new Date();
+    let date = ("0" + date_ob.getDate()).slice(-2);
+    let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
+    let year = date_ob.getFullYear();
+    let hours = date_ob.getHours();
+    let minutes = date_ob.getMinutes();
+    let seconds = date_ob.getSeconds();
+    let day = date_ob.getDay();
+    var dayName = '';
+    if (day == 0) { dayName = 'Chủ nhật,' }
+    else if (day == 1) { dayName = 'Thứ hai,' }
+    else if (day == 2) { dayName = 'Thứ ba,' }
+    else if (day == 3) { dayName = 'Thứ tư,' }
+    else if (day == 4) { dayName = 'Thứ năm,' }
+    else if (day == 5) { dayName = 'Thứ sáu,' }
+    else if (day == 6) { dayName = 'Thứ bảy,' }
+    else { };
+    // Tạo và khai báo Excel
+    let workbook = new Excel.Workbook()
+    let worksheet = workbook.addWorksheet('Báo cáo sản xuất', {
+        pageSetup: { paperSize: 9, orientation: 'landscape' },
+        properties: { tabColor: { argb: 'FFC0000' } },
+    });
+    // Page setup (cài đặt trang)
+    worksheet.properties.defaultRowHeight = 20;
+    worksheet.pageSetup.margins = {
+        left: 0.3, right: 0.25,
+        top: 0.75, bottom: 0.75,
+        header: 0.3, footer: 0.3
+    };
+    // =====================THẾT KẾ HEADER=====================
+    // Logo công ty
+    const imageId1 = workbook.addImage({
+        filename: 'public/images/Logo.png',
+        extension: 'png',
+    });
+    worksheet.addImage(imageId1, 'A1:A3');
+    // Thông tin công ty
+    worksheet.getCell('B1').value = 'Huỳnh Duy Phước';
+    worksheet.getCell('B1').style = { font: { name: 'Times New Roman', bold: true, size: 11 }, alignment: { horizontal: 'left', vertical: 'middle' } };
+    worksheet.getCell('B2').value = 'Địa chỉ:  KĐT Vinhomes Grand Park, Long Thạnh Mỹ, Tp. Thủ Đức, Tp. Hồ Chí Minh';
+    worksheet.getCell('B3').value = 'Cellphone: (+84)904998714';
+    // Tên báo cáo
+    worksheet.getCell('A5').value = 'BÁO CÁO SẢN XUẤT';
+    worksheet.mergeCells('A5:L5');
+    worksheet.getCell('A5').style = { font: { name: 'Times New Roman', bold: true, size: 16 }, alignment: { horizontal: 'center', vertical: 'middle' } };
+    // Ngày in phiếu
+    worksheet.getCell('L6').value = "Ngày in phiếu: " + dayName + date + "/" + month + "/" + year + " " + hours + ":" + minutes + ":" + seconds;
+    worksheet.getCell('L6').style = { font: { bold: false, italic: true }, alignment: { horizontal: 'right', vertical: 'bottom', wrapText: false } };
+
+    // Tên nhãn các cột
+    var rowpos = 7;
+    // var collumName = ["STT", "Thời gian", "Dữ liệu Bool", "Dữ liệu Byte", "Dữ liệu Integer", "Dữ liệu Số thực", "Dữ liệu String", "Ghi chú"]
+    var collumName = ["STT", "Thời gian", "STT MẺ", "TP1", "TP2", "TP3", "TP4", "Xi", "Nước", "PG1", "PG2", "Ghi chú"]
+    worksheet.spliceRows(rowpos, 1, collumName);
+
+
+    // =====================XUẤT DỮ LIỆU EXCEL SQL=====================
+    // Dump all the data into Excel
+    var rowIndex = 0;
+    SQL_Excel.forEach((e, index) => {
+    // row 1 is the header.
+    rowIndex =  index + rowpos;
+    // worksheet1 collum
+    worksheet.columns = [
+        {key: 'STT'},
+        {key: 'MaPhieuCan'},
+        {key: 'Gio'},
+        {key: 'STTMe'},
+        {key: 'TP1'},
+        {key: 'TP2'},
+        {key: 'TP3'},
+        {key: 'TP4'},
+        {key: 'Xi'},
+        {key: 'Nuoc'},
+        {key: 'PG1'},
+        {key: 'PG2'}
+        ]
+    worksheet.addRow({
+        STT: {
+            formula: index + 1
+        },
+        ...e
+        })
+    })
+    console.log('worksheet.columns: ',  worksheet.columns)
+
+    // Lấy tổng số hàng
+    const totalNumberOfRows = worksheet.rowCount;
+    // Tính tổng
+    // worksheet.addRow([
+    //     'Tổng cộng:',
+    //     '',
+    //     '',
+    // {formula: `=sum(D${rowpos + 1}:D${totalNumberOfRows})`},
+    // {formula: `=sum(E${rowpos + 1}:E${totalNumberOfRows})`},
+    // {formula: `=sum(F${rowpos + 1}:F${totalNumberOfRows})`},
+    // ])
+    // Style cho hàng total (Tổng cộng)
+    worksheet.getCell(`A${totalNumberOfRows+1}`).style = { font:{bold: true,size: 12},alignment: {horizontal:'center',}} ;
+    // Tô màu cho hàng total (Tổng cộng)
+    const total_row = ['A','B', 'C', 'D', 'E','F','G','H']
+    total_row.forEach((v) => {
+        worksheet.getCell(`${v}${totalNumberOfRows+1}`).fill = {type: 'pattern',pattern:'solid',fgColor:{ argb:'f2ff00' }}
+    })
+
+    
+    // Style các cột
+    const HeaderStyle = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L']
+    HeaderStyle.forEach((v) => {
+        worksheet.getCell(`${v}${rowpos}`).style = { font: { bold: true }, alignment: { horizontal: 'center', vertical: 'middle', wrapText: true } };
+        worksheet.getCell(`${v}${rowpos}`).border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' }
+        }
+    })
+    // Cài đặt độ rộng cột
+    worksheet.columns.forEach((column, index) => {
+        column.width = 10;
+    })
+    // Set width header
+    worksheet.getColumn(1).width = 8;
+    worksheet.getColumn(2).width = 20;
+    worksheet.getColumn(3).width = 8;
+    worksheet.getColumn(12).width = 20;
+
+
+        // ++++++++++++Style cho các hàng dữ liệu++++++++++++
+    worksheet.eachRow({ includeEmpty: true }, function (row, rowNumber) {
+        var datastartrow = rowpos;
+        var rowindex = rowNumber + datastartrow;
+        const rowlength = datastartrow + SQL_Excel.length
+        if(rowindex >= rowlength+1){rowindex = rowlength+1}
+        const insideColumns = ['A','B', 'C', 'D', 'E','F','G','H','I','J','K','L']
+    // Tạo border
+        insideColumns.forEach((v) => {
+            // Border
+        worksheet.getCell(`${v}${rowindex}`).border = {
+            top: {style: 'thin'},
+            bottom: {style: 'thin'},
+            left: {style: 'thin'},
+            right: {style: 'thin'}
+        },
+        // Alignment
+        worksheet.getCell(`${v}${rowindex}`).alignment = {horizontal:'center',vertical: 'middle',wrapText: true}
+        })
+    })
+    
+    
+    // =====================THẾT KẾ FOOTER=====================
+    worksheet.getCell(`H${totalNumberOfRows+2}`).value = 'Ngày …………tháng ……………năm 20………';
+    worksheet.getCell(`H${totalNumberOfRows+2}`).style = { font:{bold: true, italic: false},alignment: {horizontal:'right',vertical: 'middle',wrapText: false}} ;
+    
+    worksheet.getCell(`A${totalNumberOfRows+3}`).value = 'Giám đốc';
+    worksheet.getCell(`A${totalNumberOfRows+4}`).value = '(Ký, ghi rõ họ tên)';
+    worksheet.getCell(`A${totalNumberOfRows+3}`).style = { font:{bold: true, italic: false},alignment: {horizontal:'center',vertical: 'bottom',wrapText: false}} ;
+    worksheet.getCell(`A${totalNumberOfRows+4}`).style = { font:{bold: false, italic: true},alignment: {horizontal:'center',vertical: 'top',wrapText: false}} ;
+    
+    worksheet.getCell(`E${totalNumberOfRows+3}`).value = 'Trưởng ca';
+    worksheet.getCell(`E${totalNumberOfRows+4}`).value = '(Ký, ghi rõ họ tên)';
+    worksheet.getCell(`E${totalNumberOfRows+3}`).style = { font:{bold: true, italic: false},alignment: {horizontal:'center',vertical: 'bottom',wrapText: false}} ;
+    worksheet.getCell(`E${totalNumberOfRows+4}`).style = { font:{bold: false, italic: true},alignment: {horizontal:'center',vertical: 'top',wrapText: false}} ;
+    
+    worksheet.getCell(`H${totalNumberOfRows+3}`).value = 'Người in biểu';
+    worksheet.getCell(`H${totalNumberOfRows+4}`).value = '(Ký, ghi rõ họ tên)';
+    worksheet.getCell(`H${totalNumberOfRows+3}`).style = { font:{bold: true, italic: false},alignment: {horizontal:'center',vertical: 'bottom',wrapText: false}} ;
+    worksheet.getCell(`H${totalNumberOfRows+4}`).style = { font:{bold: false, italic: true},alignment: {horizontal:'center',vertical: 'top',wrapText: false}} ;
+  
+
+
+
+
+    // =====================THỰC HIỆN XUẤT DỮ LIỆU EXCEL=====================
+    // Export Link
+    var currentTime = year + "_" + month + "_" + date + "_" + hours + "h" + minutes + "m" + seconds + "s";
+    var saveasDirect = "Report/Report_" + currentTime + ".xlsx";
+    SaveAslink = saveasDirect; // Send to client
+    var booknameLink = "public/" + saveasDirect;
+
+    var Bookname = "Report_" + currentTime + ".xlsx";
+    // Write book name
+    workbook.xlsx.writeFile(booknameLink)
+
+    // Return
+    return [SaveAslink, Bookname]
+
+} // Đóng fn_excelExport
+
+
+// // =====================TRUYỀN NHẬN DỮ LIỆU VỚI TRÌNH DUYỆT=====================
+// // Hàm chức năng truyền nhận dữ liệu với trình duyệt
+// function fn_Require_ExcelExport() {
+//     io.on("connection", function (socket) {
+//         socket.on("msg_Excel_Report", function (data) {
+//             const [SaveAslink1, Bookname] = fn_excelExport();
+//             var data = [SaveAslink1, Bookname];
+//             socket.emit('send_Excel_Report', data);
+//         });
+//     });
+// }
+// Chú ý: //////// Nếu sử dụng cách tạo một hàm chưa socket.on và socket.emit hoặc có thể có một trong 2 như thế này, sau đó gọi nó trong một sự kiện lắng nghe io.on
+          //////// thì hậu quả là việc gửi lệnh/ nhận lệnh sẽ bị lặp lại, vì mỗi lần gọi hàm nó sẽ tạo ra một hàm callback, và đến khi nó nhận lệnh socket.on nó sẽ 
+          //////// gọi đúng bằng số lần hàm callback được tạo ra, có thể hỏi Bing để rõ hơn
