@@ -144,15 +144,18 @@ let ThongTinCapPhoi = {
     DoAm: [0.0, 0.0, 0.0],
     DangDatCapPhoi: false
 };
+
 // Khai báo một số biến toàn cục
 var anable_edditting_datThongsocan = false;
 var anable_edditting_khungHieuchinhcan = false;
 PhieuCan.DaChonPhieuCan = false;
+
 ////////////// YÊU CẦU DỮ LIỆU TỪ SERVER- REQUEST DATA //////////////
 var myVar = setInterval(myTimer, 100);
 function myTimer() {
     socket.emit("Client-send-data", "Request data client");
 }
+
 ////////////// CÁC KHỐI CHƯƠNG TRÌNH CON ///////////////////////////
 // Chương trình con đọc dữ liệu lên IO Field
 function fn_IOFieldDataShow(tag, IOField, tofix) {
@@ -382,7 +385,7 @@ function fn_ShowSoMe(tag1, tag2, IOField) {
     });
 }
 
-// Xử lý các dự kiện, chức năng cho khung cài đặt Thông số cân
+// Xử lý các sự kiện, chức năng cho khung cài đặt Thông số cân
 function initSocketForm(containerClass, editButtonId, saveButtonId, eventName) {
     // Khởi tạo kết nối socket với server
     // const socket = io();
@@ -588,7 +591,9 @@ function initSocketFormHieuchinhcan(containerClass, editButtonId, saveButtonId, 
 // Lằng nghe sự kiện sau khi đã tải xong html
 // Xử lý sự kiện DOMContentLoaded của đối tượng document
 document.addEventListener('DOMContentLoaded', () => {
-    // Gọi hàm initSocketForm
+    console.log('Vào hàm xử lý sự kiện hoàn thành tải trang HTML ở FC1_Common')
+    // Gọi hàm initSocketForm, xử lý sự kiện, chức năng cho khung cài đặt Thông số cân
     initSocketForm('container-datThongsocan', 'editThongsocan', 'saveThongsocan', 'saveDataThongsocan');
+    // Gọi hàm initSocketForm, xử lý sự kiện, chức năng nhập liệu cho form Hiệu chỉnh cân
     initSocketFormHieuchinhcan('container-Hieuchinhcan', 'editHieuchinhcan', 'saveHieuchinhcan', 'saveDataHieuchinhcan');
 });

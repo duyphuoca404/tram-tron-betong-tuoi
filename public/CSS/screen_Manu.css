@@ -41,7 +41,7 @@
     overflow-y: scroll;
     overflow: auto;
     border-collapse: collapse;
-    width: 1000px;
+    /* width: 1000px; */
 }
 
 #reportPhieucan {

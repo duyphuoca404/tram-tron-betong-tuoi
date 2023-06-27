@@ -93,7 +93,7 @@ function fn_Table02_SQL_Show() {
 // Chương trình con đọc dữ liệu SQL để show lên bảng report, nhấn nút Báo Cáo
 function fn_Table03_SQL_Show() {
     socket.emit("msg_report_Show", "true");
-    console.log('Gửi sms yêu cầu server cập nhật dữ liệu bảng Chi tiết phiếu cân');
+    console.log('Gửi sms yêu cầu server gửi qua lịch sử của Chi tiết phiếu cân');
 
 }
 // Chương trình con hiển thị SQL ra bảng
@@ -183,7 +183,7 @@ socket.on('SQL_Show', function (data) {
 // Hàm lắng nghe sự kiện, khi có một bức điện "report_Show" sẽ thực hiện việc gì
 socket.on('report_Show', function (data) {
     fn_table_03(data);
-    console.log('Nhận bức điện report_Show từ server để gọi hàm show lên bảng 03');
+    console.log('Nhận bức điện report_Show từ server để gọi hàm show lên bảng 03 Lịch sử phiếu cân');
 });
 
 socket.on('updateDataMacbetongSuccess', function () {
@@ -193,8 +193,7 @@ socket.on('updateDataMacbetongSuccess', function () {
 
 // Tìm kiếm SQL theo khoảng thời gian
 function fn_SQL_By_Time() {
-    var val = [document.getElementById('dtpk_Search_Start').value,
-    document.getElementById('dtpk_Search_End').value];
+    var val = [document.getElementById('dtpk_Search_Start').value, document.getElementById('dtpk_Search_End').value];
     socket.emit('msg_SQL_ByTime', val);
     socket.on('SQL_ByTime', function (data) {
         fn_table_03(data); // Show sdata
@@ -713,7 +712,7 @@ socket.on('error', function (message) {
 
 // Đọc giá trị của phiếu cân gần nhất trong bảng PhieuCan
 function LatestPhieucanValues(socket, callback) {
-    console.log('bạn đang gọi hàm để lấy Phiếu cân gần nhất');
+    console.log('Vào hàm LatestPhieucanValues để lấy Phiếu cân gần nhất');
     // Emit a socket event to request the most recent MaPhieuCan, Som3Me, and SoMe values from the phieucan table
     socket.emit('getLatestPhieucanValues');
 
@@ -735,6 +734,7 @@ function LatestPhieucanValues(socket, callback) {
             PhieuCan.dondathang.MaDonDatHang = data.MaDonDatHang;
             PhieuCan.dondathang.khachhang.TenKhachHang = data.TenKhachHang;
             PhieuCan.DaChonXe = false;
+            PhieuCan.XeBon.BienSoXe = data.BienSoXe;
             PhieuCan.TenXiMang = data.TenXiMang;
             PhieuCan.TenTP[0] = data.TenTP1;
             PhieuCan.TenTP[1] = data.TenTP2;
@@ -768,6 +768,7 @@ function LatestPhieucanValues(socket, callback) {
         // Call the callback function after data has been processed
         callback();
     });
+    console.log('Thoát hàm LatestPhieucanValues để lấy Phiếu cân gần nhất');
 }
 
 // Đọc mã phiếu cân từ bảng Phiếu Cân
@@ -804,6 +805,7 @@ function getDocMaPhieuCan(socket, callback) {
 
 
 function sendDataDatcapphoi(emptyValue) {
+    console.log('Vào hàm truyền Cấp phối')
     emptyValue = emptyValue.trim();
     var sttValue = document.querySelector('[data-label="STT"]').value.trim();
     var khachhangListbox = document.querySelector('#datcapphoikhachhang');
@@ -859,9 +861,27 @@ function sendDataDatcapphoi(emptyValue) {
         socket.emit('senDataDatcapphoi_Dinhmuc', data_edit_array_dinhmuc);
         // alert('Dữ liệu đã được lưu!');
         console.log("Dữ liệu cấp phối truyền qua server để ghi vào PLC: ", data_edit_array_dinhmuc);
+
         // Bật bit xe trộn mới lên 1, phaỉ đặt bên dưới mảng địa chỉ cần ghi senDataDatcapphoi_Dinhmuc
-        socket.emit('cmd_XeTronMoi_setON');
+        //socket.emit('XE_TRON_MOI');
         //socket.emit('cmd_XeTronMoi_resetOFF');
+        // Bật bit xe trộn mới lên 1, SAU ĐÓ RESET
+        socket.emit('XE_TRON_MOI', true);
+        // socket.emit('XE_TRON_MOI',false);
+        console.log('XE_TRON_MOI được set lên 1 khi truyền Cấp phối')
+        // // Đọc tin done, sau đó nó đợi **(s) mới tiếp tục gửi lệnh reset đi
+        // socket.on('done', function (data) {
+        //     if (data) {
+        //         setTimeout(function () {
+        //             socket.emit('XE_TRON_MOI', false);
+        //             console.log('Gửi lệnh yêu cầu reset bit XE_TRON_MOI')
+        //         }, 1000);
+        //     }
+        // });
+        // socket.on('error', function (msg) {
+        //     console.log(msg);
+        // });
+        console.log("Thoát hàm sendDataDatcapphoi và thông tin phiếu cân trước khi thoát hàm sendDataDatcapphoi: ", PhieuCan);
     }
 }
 
@@ -869,7 +889,7 @@ document.querySelector('#sendDatcapphoi').addEventListener('click', function () 
     sendDataDatcapphoi("Vui lòng chọn ...............");
 });
 ////////////////////////////////////////////// Các hàm chức năng liên quan đến việc xử lý Cửa vật liệu và cuavatlieu của PhieuCan ///////////////////////////////
-// Hàm nhận dữ liệu Cửa vật liệu được gửi từ server và lưu vào object PhieuCan
+// Hàm nhận dữ liệu Cửa vật liệu được gửi từ server và lưu vào object PhieuCan, này lưu thử thôi chứ chưa có sử dụng
 socket.on('cuaVatLieuData', (data) => {
     PhieuCan.TenXiMang = data.Xi;
     for (let i = 0; i < 4; i++) {
@@ -883,7 +903,7 @@ socket.on('cuaVatLieuData', (data) => {
     }
     // console.log('PhieuCan.TenXiMang' + ' : ' + PhieuCan.TenXiMang);
 });
-// Hàm nhận dữ liệu Cửa vật liệu được gửi từ server và lưu vào object CuaVatLieu
+// Hàm nhận dữ liệu Cửa vật liệu được gửi từ server và lưu vào object CuaVatLieu, cuối cùng là hiển thị lên màn hình chính
 socket.on('cuaVatLieuData', (data) => {
     CuaVatLieu.Xi = data.Xi;
     for (let i = 0; i < 4; i++) {
@@ -986,7 +1006,7 @@ tenPG2.addEventListener('keyup', function (event) {
 // for (let key in tmpCuaVatLieu) {
 //     CuaVatLieu[key] = tmpCuaVatLieu[key];
 // }
-
+// Ghi thông tin các phễu cân xuống Mysql
 function saveDataCuavatlieu() {
     if (confirm('Bạn có muốn cập nhật tên cho các cửa liệu không?')) {
         // Lấy dữ liệu từ các phần tử input và lưu vào object CuaVatLieu
@@ -1068,12 +1088,43 @@ socket.on('updateDataChinhCanFromPLC', data => {
 });
 //////////////////////////////////////// Xử lý chức năng điều khiển trên màn hình chính //////////////////////////////////////////////////////
 // Lấy tham chiếu đến các điều khiển, này là khai báo chung, nên ở các file js khác có thể sử dụng hai biến này
+// const cmdChay = document.getElementById('bttAuto_Chay');
+// const cmdXeTronMoi = document.getElementById('bttAuto_XeTronMoi');
+// // // Vô hiệu hóa nút cmdChay
+// // cmdChay.disabled = true;
+// // Định nghĩa hàm xử lý sự kiện nhấp chuột vào nút cmdXeTronMoi
+// function cmdXeTronMoi_Click() { // tạm thời đã đủ yêu cầu, đã chuyển xong
+//     // Kích hoạt điều khiển cmdChay
+//     cmdChay.disabled = false;
+
+//     // Đặt thuộc tính DaChonPhieuCan của đối tượng PhieuCan thành true
+//     PhieuCan.DaChonPhieuCan = true;
+
+//     // Gọi hàm XeTronMoi
+//     XeTronMoi();
+// }
+
+// function cmdChay_Click() {
+//     document.body.style.cursor = 'wait';
+//     if (cmdChay.textContent === "CHẠY") {
+//         // GhiGiaTri(MangDieuKhien[2], 1);
+//         // GhiGiaTri(MangDieuKhien[8], 1);
+//         // socket.emit('CHAY_DUNG', true);
+//         // socket.emit('PAUSE_COM3', true);
+//         cmdChay.textContent = "DỪNG";
+//     } else {
+//         // GhiGiaTri(MangDieuKhien[2], 0);
+//         // socket.emit('CHAY_DUNG', false);
+//         cmdChay.textContent = "CHẠY";
+//     }
+//     document.body.style.cursor = 'default';
+// }
+
 const cmdChay = document.getElementById('bttAuto_Chay');
 const cmdXeTronMoi = document.getElementById('bttAuto_XeTronMoi');
-// // Vô hiệu hóa nút cmdChay
-// cmdChay.disabled = true;
+
 // Định nghĩa hàm xử lý sự kiện nhấp chuột vào nút cmdXeTronMoi
-function cmdXeTronMoi_Click() { // tạm thời đã đủ yêu cầu, đã chuyển xong
+function cmdXeTronMoi_Click() {
     // Kích hoạt điều khiển cmdChay
     cmdChay.disabled = false;
 
@@ -1086,30 +1137,52 @@ function cmdXeTronMoi_Click() { // tạm thời đã đủ yêu cầu, đã 
 
 function cmdChay_Click() {
     document.body.style.cursor = 'wait';
-    if (cmdChay.textContent === "Chạy") {
-        // GhiGiaTri(MangDieuKhien[2], 1);
-        // GhiGiaTri(MangDieuKhien[8], 1);
-        socket.emit('CHAY_DUNG', true);
-        socket.emit('PAUSE_COM3', true);
-        cmdChay.textContent = "Dừng";
-    } else {
-        // GhiGiaTri(MangDieuKhien[2], 0);
-        socket.emit('CHAY_DUNG', false);
-        cmdChay.textContent = "Chạy";
-    }
+
+    // Gửi sự kiện socket lên máy chủ với tên là "cmdChay_Click" và dữ liệu là giá trị hiện tại của thuộc tính textContent của nút bttAuto_Chay
+    socket.emit("cmdChay_Click", cmdChay.textContent);
+
     document.body.style.cursor = 'default';
 }
+
+// Đăng ký trình xử lý sự kiện cho sự kiện socket "bttAuto_Chay_Caption"
+socket.on("bttAuto_Chay_Caption", function (data) {
+    // Cập nhật thuộc tính textContent của nút bttAuto_Chay thành giá trị mới
+    cmdChay.textContent = data;
+});
+
 
 
 
 function XeTronMoi() { // Hàm này cớ bản đã chuyển xong
     // Bật bit xe trộn mới lên 1, SAU ĐÓ RESET
-    socket.emit('cmd_XeTronMoi_setON');
-    //socket.emit('cmd_XeTronMoi_resetOFF');
+    socket.emit('XE_TRON_MOI', true);
+    // socket.emit('XE_TRON_MOI',false);
+    console.log('XE_TRON_MOI đã được nhấn để gọi hàm XeTronMoi')
+    // // Đọc tin done, sau đó nó đợi **(s) mới tiếp tục gửi lệnh reset đi
+    // socket.on('done', function (data) {
+    //     if (data) {
+    //         setTimeout(function () {
+    //             socket.emit('XE_TRON_MOI', false);
+    //             console.log('Gửi lệnh yêu cầu reset bit XE_TRON_MOI')
+    //         }, 1000);
+    //     }
+    // });
+    // socket.on('error', function (msg) {
+    //     console.log(msg);
+    // });
+
+    // Gọi hàm DatCacThongSoPhieuCanBanDau để nếu:
+    // Không có MaDonDatHang nào được lưu trong PhieuCan.dondathang.MaDonDatHang thì gọi hàm LatestPhieucanValues để đọc lên các giá trị của Phiếu cân gần nhất
+    // Ngược lại thì sẽ gọi hàm DocMaPhieuCan để trả về mã phiếu cân của phiếu cần gần nhất và + thêm 1
+    // Cũng đọc các giá trị của thời gian trộn, thời gian xả, thêm nước, ... (một vài thông tin đã luôn được đọc ở màn hình chính)
+    // Hiển thị tiêu đề bảng hiển thị trong màn hình chính, ghi Số Mẻ vào bảng
+    // Đồng thời sẽ reset (hay ghi 0) vào bảng hiển thị trong màn hình chính
     DatCacThongSoPhieuCanBanDau();
 }
 function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyển xong
+    console.log('Bắt đầu vào hàm DatCacThongSoPhieuCanBanDau')
     // Không chọn phiếu cân trước
+    console.log('Mã đơn đặt hàng hiện tại là: ', PhieuCan.dondathang.MaDonDatHang)
     if (PhieuCan.dondathang.MaDonDatHang == "") {
         // Call LatestPhieucanValues and pass showPhieucanHientai as the callback function
         LatestPhieucanValues(socket, showPhieucanHientai);
@@ -1120,8 +1193,9 @@ function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyể
         PhieuCan.MaPhieuCan = docmaphieucan;
     });
     console.log('DaChonXe: ', PhieuCan.DaChonXe)
+    console.log('PhieuCan.XeBon.BienSoXe: ', PhieuCan.XeBon.BienSoXe)
     if (PhieuCan.DaChonXe) {
-        document.querySelector('#xebon_recently').textContent = PhieuCan.XeBon.BienSoXe;
+        document.querySelector('#xebon_recently').value = PhieuCan.XeBon.BienSoXe;
         document.querySelector('.scr_Auto_listbox-xebon').value = PhieuCan.XeBon.BienSoXe;
     }
     PhieuCan.DaGhiGioXong = false;
@@ -1132,6 +1206,7 @@ function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyể
     // Các giá trị thời gian trộn - thời gian xả - thêm nước ... để hiển thị lên các ô chức năng
     // DocGiaTriBanDau(); // Yêu cầu nãy đã được thược hiện khi trang web đươc load
     console.log('Phiếu cân tại thời điểm gọi hàm XeTronMoi: ', PhieuCan)
+
     const flexData = document.querySelector('#responsive-table-input-matrix');
     //  HienThiLaiTieuDeBangSoLieu(); // đã đươc thực hiện, đó chính là chức năng hiển thị các giá trị lên tiêu đề bảng trong trang chính ở dòng đầu tiên (chỉ số dòng là 0), 
     // xem ở phần cửa vật liệu, updateTableHeaders
@@ -1140,24 +1215,72 @@ function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyể
     // Thông tin ở dòng thứ 4 (row=3) sẽ là sai số của các mục, tính từ mục đầu tiên là cột Định mức (cột = 1), giá trị của tất cả đều là ""
 
     // Hiển thị số mẻ ĐM
+    console.log('Hiển thị số Mẻ ĐM của Phiếu cân gần nhất mới đọc lên: ', PhieuCan.CapPhoi.SoMe)
     flexData.rows[1].cells[1].textContent = PhieuCan.CapPhoi.SoMe.toString();
 
+    // // Hiển thi các thành phần định mức, ĐMXi, Nuoc, PG
+    // console.log('Ghi giá trị định mức của các TP')
+    // for (let i = 0; i <= 3; i++) {
+    //     flexData.rows[1].cells[i + 2].textContent = PhieuCan.CapPhoi.DMTP[i].toFixed(0);
+
+    //     console.log('Kiểu dữ liệu của các DMTP lấy từ object PhieuCan: ', typeof PhieuCan.CapPhoi.DMTP[i])
+    //     console.log('Giá trị ĐMTP hiển thị lên bảng: ', PhieuCan.CapPhoi.DMTP[i].toFixed(0))
+    // }
+    // console.log('Ghi giá trị định mức của Xi, Nước')
+    // flexData.rows[1].cells[6].textContent = PhieuCan.CapPhoi.DMXI.toFixed(1);
+
+    // flexData.rows[1].cells[7].textContent = PhieuCan.CapPhoi.DMNUOC.toFixed(1);
+
+    // // flexData.rows[1].cells[8].textContent = PhieuCan.CapPhoi.DMPG.toFixed(2);
+    // console.log('Ghi giá trị định mức của Phụ Gia')
+    // for (let i = 0; i <= 1; i++) {
+    //     flexData.rows[1].cells[i + 8].textContent = PhieuCan.CapPhoi.DMPG[i].toFixed(0);
+    // }
+
     // Hiển thi các thành phần định mức, ĐMXi, Nuoc, PG
+    console.log('Ghi giá trị định mức của các TP')
     for (let i = 0; i <= 3; i++) {
-        flexData.rows[1].cells[i + 2].textContent = PhieuCan.CapPhoi.DMTP[i].toFixed(0);
-        console.log('Giá trị ĐMTP hiển thị lên bảng: ', PhieuCan.CapPhoi.DMTP[i].toFixed(0))
+        let value = Number(PhieuCan.CapPhoi.DMTP[i]);
+        if (!isNaN(value)) {
+            flexData.rows[1].cells[i + 2].textContent = value.toFixed(0);
+        } else {
+            // Handle the case where PhieuCan.CapPhoi.DMTP[i] cannot be converted to a number
+            console.log('Cannot be converted to a number')
+        }
+        console.log('Kiểu dữ liệu của các DMTP lấy từ object PhieuCan: ', typeof PhieuCan.CapPhoi.DMTP[i])
+        console.log('Giá trị ĐMTP hiển thị lên bảng: ', value.toFixed(0))
     }
 
-    flexData.rows[1].cells[6].textContent = PhieuCan.CapPhoi.DMXI.toFixed(1);
+    console.log('Ghi giá trị định mức của Xi, Nước')
+    let valueDMXI = Number(PhieuCan.CapPhoi.DMXI);
+    if (!isNaN(valueDMXI)) {
+        flexData.rows[1].cells[6].textContent = valueDMXI.toFixed(1);
+    } else {
+        // Handle the case where PhieuCan.CapPhoi.DMXI cannot be converted to a number
+        console.log('Cannot be converted to a number')
+    }
 
-    flexData.rows[1].cells[7].textContent = PhieuCan.CapPhoi.DMNUOC.toFixed(1);
+    let valueDMNUOC = Number(PhieuCan.CapPhoi.DMNUOC);
+    if (!isNaN(valueDMNUOC)) {
+        flexData.rows[1].cells[7].textContent = valueDMNUOC.toFixed(1);
+    } else {
+        // Handle the case where PhieuCan.CapPhoi.DMNUOC cannot be converted to a number
+        console.log('Cannot be converted to a number')
+    }
 
     // flexData.rows[1].cells[8].textContent = PhieuCan.CapPhoi.DMPG.toFixed(2);
-
+    console.log('Ghi giá trị định mức của Phụ Gia')
     for (let i = 0; i <= 1; i++) {
-        flexData.rows[1].cells[i + 8].textContent = PhieuCan.CapPhoi.DMPG[i].toFixed(0);
+        let value = Number(PhieuCan.CapPhoi.DMPG[i]);
+        if (!isNaN(value)) {
+            flexData.rows[1].cells[i + 8].textContent = value.toFixed(0);
+        } else {
+            // Handle the case where PhieuCan.CapPhoi.DMPG[i] cannot be converted to a number
+            console.log('Cannot be converted to a number')
+        }
     }
 
+    console.log('Đưa các giá trị thực tế về 0')
     for (let i = 0; i <= 3; i++) {
         flexData.rows[2].cells[i + 2].textContent = '0';
     }
@@ -1173,6 +1296,7 @@ function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyể
         flexData.rows[3].cells[i].textContent = '';
     }
     console.log('Phiếu cân tại thời điểm kết thúc hàm XeTronMoi: ', PhieuCan)
+    console.log('Thoát hàm DatCacThongSoPhieuCanBanDau')
 }
 
 // Lắng nghe sự kiện nhấn phím Enter
@@ -1289,42 +1413,16 @@ socket.on('data', function (data) {
 
 });
 
-// Hàm in bảng thành file PDF
-document.getElementById('PrintOut').onclick = function () {
-    var doc = new jsPDF();
-    var elementHTML = $('.reportPhieuCantheoMaPhieuCan').html();
-    var specialElementHandlers = {
-        '#elementH': function (element, renderer) {
-            return true;
-        }
-    };
-    doc.fromHTML(elementHTML, 15, 15, {
-        'width': 170,
-        'elementHandlers': specialElementHandlers
-    });
-
-    // Save the PDF
-    doc.save('sample-document.pdf');
-};
-
-
-
-
-
-
-
-
-
 //Lắng nghe sự kiện tải lại trang và gọi hàm khi có sự kiện Click
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Gọi hàm lắng nghe sự kiện HTML đã tải song cú pháp');
+    console.log('Gọi hàm lắng nghe sự kiện HTML đã tải song cú pháp ở file Setup js');
     addRowClickListener(`#macBetong`, `.form-container-macBetong input`);
     addRowClickListener(`#datCapphoi`, `.form-container-datCapphoi input`);
     updateInputsOnRowClick('#datCapphoi', '.form-container-datCapphoi input');
     // Đăng ký hàm xử lý sự kiện nhấp chuột vào nút cmdXeTronMoi
     cmdXeTronMoi.addEventListener('click', cmdXeTronMoi_Click);
     // Đăng ký hàm xử lý sự kiện nhấp chuột vào nút cmdChay
-    cmdXeTronMoi.addEventListener('click', cmdChay_Click);
+    cmdChay.addEventListener('click', cmdChay_Click);
     console.log('Bít đã chọn xe đang là: ', PhieuCan.DaChonXe);
     console.log('Trạng thái bít disable Xe Tron Moi: ', cmdXeTronMoi.disabled);
 
@@ -1333,13 +1431,14 @@ document.addEventListener('DOMContentLoaded', () => {
         socket.emit('nhannutTest', true);
         console.log('Test đã được nhấn')
     });
-    // Đọi tin done, sau đó nó đợi 3s mới tiếp tục gửi lệnh reset đi
+    // Đọc tin done, sau đó nó đợi 3s mới tiếp tục gửi lệnh reset đi
+    /////////////////////////////////////////////////////////////// HÀM NÀY LÀ HÀM CHUNG, NÓ CHỈ CẦN LẮNG NGHE VÀ YÊU CẦU SERVER THỰC HIỆN LỆNH RESET///////////////////
     socket.on('done', function (data) {
         if (data) {
             setTimeout(function () {
                 socket.emit('nhannutTest', false);
                 console.log('Gửi lệnh yêu cầu reset bit')
-            }, 3000);
+            }, 1000);
         }
     });
     socket.on('error', function (msg) {

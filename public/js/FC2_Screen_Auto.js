@@ -76,7 +76,7 @@ function updateTableHeaders(CuaVatLieu) {
         tableHeaders[i + 8].textContent = CuaVatLieu.PG[i];
         // console.log('table header_PG_' + (i + 8) + ' _ ' + tableHeaders[i + 8].textContent)
     }
-    console.log('Đã cập nhật xong tên các CuaVatLieu')
+    console.log('Đã cập nhật xong tên các CuaVatLieu từ bảng cuavatlieu')
 }
 
 // Sử dụng hàm updateTableHeaders để cập nhật nội dung của bảng
@@ -87,6 +87,9 @@ function updateTableHeaders(CuaVatLieu) {
 //     ThuThapPG: false
 // };
 
+// Hàm nhận dữ liệu XeBon từ PhieuCan được server gửi lên, 
+// hàm này chỉ là nhận và hiển thị trong listbox thôi nhé, về việc xử lý khi click chọn Xebon thì tìm hàm  $('.scr_Auto_listbox-xebon').on('change', function ()
+// Code VB6 cho chức năng này là cboXeBon_Click()
 socket.on('scr_Auto_updateDataXebon', function (data) {
     console.log('Dữ liệu xe bồn được gửi từ server và hiện trong listbox ở mà hình Auto là: ', data)
     // Cập nhật listbox-donhang-khachhang
@@ -115,6 +118,7 @@ function mnuThiHanhDatCapPhoi_Click() {
     if (PhieuCan.DaChonPhieuCan === true) {
         DatCacThongSoPhieuCanBanDau();
     }
+    // Lệnh này sẽ tắt tính năng disable (hay nó sẽ được enable) nút Xe Trộn Mới, đồng nghĩa việc phải chọn vào nút THIẾT LẬP CẤU HÌNH thì mới enable nút Xe Trộn Mới được
     cmdXeTronMoi.disabled = false;
 }
 
@@ -132,6 +136,7 @@ function showPhieucanHientai() {
     document.querySelector('#indicator_soMe').value = PhieuCan.CapPhoi.SoMe;
     document.querySelector('#indicator_DonHang').value = PhieuCan.dondathang.MaDonDatHang;
     document.querySelector('#indicator_KhachHang').value = PhieuCan.dondathang.khachhang.TenKhachHang;
+    console.log("-------------------------showPhieucanHientai lên popup------------------------------------");
     console.log('Thông tin mẻ hiện tại: ', PhieuCan.MaPhieuCan);
     console.log('Thông tin mẻ hiện tại: ', PhieuCan.CapPhoi.TenMacBeTong);
     console.log('Thông tin mẻ hiện tại: ', PhieuCan.CapPhoi.Som3Me);
@@ -139,19 +144,17 @@ function showPhieucanHientai() {
     console.log('Thông tin mẻ hiện tại: ', PhieuCan.dondathang.MaDonDatHang);
     console.log('Thông tin mẻ hiện tại: ', PhieuCan.dondathang.khachhang.TenKhachHang);
     console.log('Thông tin mẻ hiện tại: ', PhieuCan);
-    console.log("---------------------------------------------------------------------------------------");
+    console.log("-------------------------showPhieucanHientai lên popup---------------------------------");
     // this.txtMacBeTong = PhieuCan.CapPhoi.TenMacBeTong;
     // this.txtDoSut = PhieuCan.CapPhoi.DoSutThongKe;
     let maPhieuElement = document.querySelector('#indicator_MaPhieu');
     if (maPhieuElement) {
         maPhieuElement.value = PhieuCan.MaPhieuCan;
-        console.log('Thông tin mẻ hiện tại: ', PhieuCan.MaPhieuCan);
+        console.log('Thông tin mã Phiếu cân của mẻ hiện tại: ', PhieuCan.MaPhieuCan);
     } else {
         console.log('Element with id "indicator_MaPhieu" not found');
     }
 }
-
-
 
 // ///////////////////////////////////////////////////////// Hàm lắng nghe sự kiện HTML đã tải xong cấu trúc, chưa tải xong video, ảnh, ... ///////////////////////////////////////////////////////
 document.addEventListener("DOMContentLoaded", function () {
@@ -159,6 +162,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Tiến hành thực hiện một số khởi tạo sau khi load xong
     ///////////////////////////////////////////////////// Hàm gửi yêu cầu server get Cửa vật liệu //////////////////////////////////////////////////////////////
     socket.emit('getCuaVatLieu');
+
     // Gọi hàm đọc Phiếu cân gần nhất để có dữ liệu đã cân trước đó
     // Call LatestPhieucanValues and pass showPhieucanHientai as the callback function
     LatestPhieucanValues(socket, showPhieucanHientai);
@@ -167,11 +171,9 @@ document.addEventListener("DOMContentLoaded", function () {
     ThuThap.CoMeDangTron = false;
     ThuThap.ChonVitMacDinh = false;
     ThuThap.SoLanLoiTinHieu = 0
-    // Tạm thời disable nút Xe Tron Moi
-    cmdXeTronMoi.disabled = true;
 
-
-
+    // Tạm thời disable nút Xe Tron Moi sau khi reload lại trang web
+    // cmdXeTronMoi.disabled = true;
 
     // Hàm gửi yêu cầu server get data Xe bon, đặt ở đây thì không cần click vào nút AUTO, chỉ cần Refresh là đc
     socket.emit('scr_Auto_getDataXebon');
@@ -243,6 +245,10 @@ document.addEventListener("DOMContentLoaded", function () {
             PhieuCan.DaChonXe = true;
 
             // Chỗ này theo VB code là sẽ cần ghi dữ liệu xe bồn của pHiếu Cân, tìm ở cboXeBon_Click()
+            // Nhiệm vụ của đoạn này là tìm record có MaPhieuCan trung với PhieuCan.MaPhieuCan, 
+            // sau đó cập nhật trường MaXe với PhieuCan.XeBon.STT, trường BienSoXe với PhieuCan.XeBon.BienSoXe
+            // Hãy kiểm tra xem có chỗ nào khác đã thực hiện việc này trong chương trình của mình chưa
+
 
         } else {
             PhieuCan.DaChonXe = false;

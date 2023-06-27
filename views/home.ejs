@@ -977,9 +977,9 @@
                             <div class="form-container-macBetong-right">
                                 <!--Date time piker-->
                                 <label id="lb_Search_Start">Từ:</label><br>
-                                <input id="dtpk_Search_Start" type="datetime-local"> <br>
+                                <input id="dtpk_Search_Start" type="date"> <br>
                                 <label id="lb_Search_End">Đến:</label><br>
-                                <input id="dtpk_Search_End" type="datetime-local"> <br>
+                                <input id="dtpk_Search_End" type="date"> <br><br>
                                 <!--Nút tìm kiếm-->
                                 <button id="btt_Search" class="btn" onclick="fn_SQL_By_Time();"></i> TÌM KIẾM</button>
                             </div>
@@ -998,8 +998,9 @@
                         </div>
                         <br>
                         <div class="button-container-macBetong">
-                            <button id="PrintOut">Print Out</button>
+                            <button id="PrintOut" class="btn">Print Out</button>
                         </div>
+                        <br>
                         <div class="reportPhieuCantheoMaPhieuCan">
                             <table class="reportTablePhieuCanMaPhieuCan" id="reportTablePhieuCanMaPhieuCan">
                                 <thead>
@@ -1046,7 +1047,8 @@
                         </div>
                         <div>
                             <!--Nút Xuất Excel-->
-                            <button id="btt_Excel" class="btn" onclick="fn_excel();"></i> BÁO CÁO</button>
+                            <button id="btt_Excel" class="btn" onclick="fn_excel();" style="margin-left: 20px;"></i> BÁO
+                                CÁO</button>
                         </div>
                     </div>
                 </div>
