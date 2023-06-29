@@ -145,9 +145,6 @@ let ThongTinCapPhoi = {
     DangDatCapPhoi: false
 };
 
-
-
-
 // ////////////////////////////////////////////////////////////////////////// ++THIẾT LẬP KẾT NỐI VỚI SERVER VỚI PLC/////////////////////////////////////////////////////////////
 
 // KHỞI TẠO KẾT NỐI PLC
@@ -461,7 +458,8 @@ function valuesReady(anythingBad, values) {
     if (anythingBad) { console.log("Lỗi khi đọc dữ liệu tag"); } // Cảnh báo lỗi
     var lodash = require('lodash'); // Chuyển variable sang array
     arr_tag_value = lodash.map(values, (item) => item);
-    //console.log(values); // Hiển thị giá trị để kiểm tra
+    // console.log('Gia tri của values', values); // Hiển thị giá trị để kiểm tra
+    // console.log('Giá trị của mảng arr_tag_value', arr_tag_value); // Hiển thị giá trị của mảng, mảng này chỉ chứa giá trị, không chứa các thuộc tính của object giống như values
 
     valuesKey = values;
 
@@ -482,7 +480,8 @@ setInterval(() => {
     // console.log('=============================================');
     if (arr_tag_value.length !== 0) {
         getDataChinhCanFromPLC();
-
+        DocMangThuThap(valuesKey);
+        //console.log('valuesKey: ', valuesKey);
     }
 
 }, 1000);
@@ -667,6 +666,27 @@ io.on("connection", function (socket) {
         // Khi nhận được tin nhắn "Client-send-data", thì server sẽ gửi dữ liệu là fn_tag(), trong này sẽ chứa những tin nhắn mà client cần nhận cho các ứng dụng cụ thể
         // Ví dụ: io.sockets.emit("TGTRON", arr_tag_value[94]); đây là lệnh gửi đi tin nhắn TGTRON và dữ liệu là arr_tag_value[94], nó chính là 305 đọc từ PLC, vậy thì qua bên client sẽ nhận được TGTRON: 305
         // Nghĩa là, nếu dùng câu lệnh socket.on(tag, function (data){} , nếu tag là TGTRON thì giá trị nhận được sẽ là 305
+    });
+
+    // emit the data to the client when they first connect
+    socket.emit('syncData', { CapPhoi, KhachHang, DonDatHang, XeBon, PhieuGiaoBeTong, PhieuCan, DaCanXong, ThongKe, ThuThap, CuaVatLieu, ThongTinCapPhoi });
+
+    // listen for changes from the client and update the server data accordingly
+    socket.on('updateData', (data) => {
+        CapPhoi = data.CapPhoi;
+        KhachHang = data.KhachHang;
+        DonDatHang = data.DonDatHang;
+        XeBon = data.XeBon;
+        PhieuGiaoBeTong = data.PhieuGiaoBeTong;
+        PhieuCan = data.PhieuCan;
+        DaCanXong = data.DaCanXong;
+        ThongKe = data.ThongKe;
+        ThuThap = data.ThuThap;
+        CuaVatLieu = data.CuaVatLieu;
+        ThongTinCapPhoi = data.ThongTinCapPhoi;
+
+        // emit the updated data to all connected clients
+        io.emit('syncData', { CapPhoi, KhachHang, DonDatHang, XeBon, PhieuGiaoBeTong, PhieuCan, DaCanXong, ThongKe, ThuThap, CuaVatLieu, ThongTinCapPhoi });
     });
 
     // Đoạn lệnh này sẽ nhận lệnh SET bit, sau đó nó sẽ gửi tin báo done lên client kèm với data chính là true mà phía client đã gửi trươc đó,
@@ -1564,4 +1584,44 @@ function convertDateFormat(dateString) {
     var dateParts = dateString.split("/");
     return dateParts[2] + "-" + dateParts[1] + "-" + dateParts[0];
 }
+
+function DocMangThuThap(values) {
+    // Luu giu vao trong object thu thap
+    // can cot lieu VB5054 VB5055
+    ThuThap.TrangThaiCanCotLieu = String.fromCharCode(values.VB5054) + String.fromCharCode(values.VB5055);
+    ThuThap.SoMeHienTaiCotLieu = values.SO_ME_HT1;
+    console.log('ThuThap.TrangThaiCanCotLieu ', ThuThap.TrangThaiCanCotLieu)
+    console.log('ThuThap.SoMeHienTaiCotLieu ', ThuThap.SoMeHienTaiCotLieu)
+    // can xi
+    ThuThap.TrangThaiCanXi = String.fromCharCode(values.VB4154) + String.fromCharCode(values.VB4155);
+    ThuThap.SoMeHienTaiXi = values.SO_ME_HT2;
+    console.log('ThuThap.TrangThaiCanXi ', ThuThap.TrangThaiCanXi)
+    console.log('ThuThap.SoMeHienTaiXi ', ThuThap.SoMeHienTaiXi)
+
+    // can nuoc
+    ThuThap.TrangThaiCanNuoc = String.fromCharCode(values.VB4155) + String.fromCharCode(values.VB4255);
+    ThuThap.SoMeHienTaiNuoc = values.SOME_HT3;
+    console.log('ThuThap.TrangThaiCanNuoc ', ThuThap.TrangThaiCanNuoc)
+    console.log('ThuThap.SoMeHienTaiNuoc ', ThuThap.SoMeHienTaiNuoc)
+
+    // can PG
+    // ThuThap.TrangThaiCanPG = GiaTriTrangThai(CStr(Chr(result(31)) & Chr(result(32))))
+    // ThuThap.SoMeHienTaiPG = CInt(result(33))
+
+    ThuThap.KhoiLuongCotLieu[0] = values.Sym_VD66;
+    ThuThap.KhoiLuongCotLieu[1] = values.Sym_VD366;
+    ThuThap.KhoiLuongCotLieu[2] = values.Sym_VD566;
+
+    ThuThap.KhoiLuongXi = values.Sym_VD1066
+    ThuThap.KhoiLuongNuoc = values.Sym_VD2066
+    // ThuThap.KhoiLuongPG[0] = result(43)
+    // ThuThap.KhoiLuongPG[1] = result(44)
+    console.log('ThuThap.KhoiLuongXi ', ThuThap.KhoiLuongXi)
+    console.log('ThuThap.KhoiLuongNuoc ', ThuThap.KhoiLuongNuoc)
+    console.log('ThuThap.KhoiLuongCotLieu[0]', ThuThap.KhoiLuongCotLieu[0])
+    console.log('ThuThap.KhoiLuongCotLieu[1]', ThuThap.KhoiLuongCotLieu[1])
+    console.log('ThuThap.KhoiLuongCotLieu[2]', ThuThap.KhoiLuongCotLieu[2])
+}
+
+
 console.log('Đã đến cuối chương trình index.js')

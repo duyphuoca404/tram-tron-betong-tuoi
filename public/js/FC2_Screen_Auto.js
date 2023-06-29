@@ -123,6 +123,7 @@ function mnuThiHanhDatCapPhoi_Click() {
 }
 
 function showPhieucanHientai() {
+    // Nếu muốn hiển thị chi tiết thông tin của Macbetong thì sửa đoạn code bên dưới cho đúng
     // for (let i = 0; i <= 3; i++) {
     //     this.txtDMTP[i] = PhieuCan.CapPhoi.DMTP[i];
     //     this.cboDoAmTP[i] = PhieuCan.CapPhoi.DoAmTP[i];
@@ -159,6 +160,22 @@ function showPhieucanHientai() {
 // ///////////////////////////////////////////////////////// Hàm lắng nghe sự kiện HTML đã tải xong cấu trúc, chưa tải xong video, ảnh, ... ///////////////////////////////////////////////////////
 document.addEventListener("DOMContentLoaded", function () {
     console.log("Đây là hàm lắng nghe sự kiện DOM ở màn hình Auto");
+    // update objects with the data received from the server
+    socket.on('syncData', (data) => {
+        // update your objects with the data received from the server
+        CapPhoi = data.CapPhoi;
+        KhachHang = data.KhachHang;
+        DonDatHang = data.DonDatHang;
+        XeBon = data.XeBon;
+        PhieuGiaoBeTong = data.PhieuGiaoBeTong;
+        PhieuCan = data.PhieuCan;
+        DaCanXong = data.DaCanXong;
+        ThongKe = data.ThongKe;
+        ThuThap = data.ThuThap;
+        CuaVatLieu = data.CuaVatLieu;
+        ThongTinCapPhoi = data.ThongTinCapPhoi;
+    });
+    console.log('updated objects with the data received from the server');
     // Tiến hành thực hiện một số khởi tạo sau khi load xong
     ///////////////////////////////////////////////////// Hàm gửi yêu cầu server get Cửa vật liệu //////////////////////////////////////////////////////////////
     socket.emit('getCuaVatLieu');

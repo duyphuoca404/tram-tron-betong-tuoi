@@ -890,7 +890,38 @@ document.querySelector('#sendDatcapphoi').addEventListener('click', function () 
 });
 ////////////////////////////////////////////// Các hàm chức năng liên quan đến việc xử lý Cửa vật liệu và cuavatlieu của PhieuCan ///////////////////////////////
 // Hàm nhận dữ liệu Cửa vật liệu được gửi từ server và lưu vào object PhieuCan, này lưu thử thôi chứ chưa có sử dụng
+// socket.on('cuaVatLieuData', (data) => {
+//     PhieuCan.TenXiMang = data.Xi;
+//     for (let i = 0; i < 4; i++) {
+//         PhieuCan.TenTP[i] = data.Cua[i];
+//         // console.log('PhieuCan.TenTP' + i + ' : ' + PhieuCan.TenTP[i]);
+//     }
+//     for (let i = 0; i < 2; i++) {
+//         PhieuCan.TenPG[i] = data.PG[i];
+//         // console.log('PhieuCan.TenPG' + (i + 1) + ' : ' + PhieuCan.TenPG[i]);
+//         //console.log('Tên PG' + i + ':' + ' - ' + PhieuCan.TenPGi); //gọi thuộc tính theo cách này vẫn được
+//     }
+//     // console.log('PhieuCan.TenXiMang' + ' : ' + PhieuCan.TenXiMang);
+// });
+// // Hàm nhận dữ liệu Cửa vật liệu được gửi từ server và lưu vào object CuaVatLieu, cuối cùng là hiển thị lên màn hình chính
+// socket.on('cuaVatLieuData', (data) => {
+//     CuaVatLieu.Xi = data.Xi;
+//     for (let i = 0; i < 4; i++) {
+//         CuaVatLieu.Cua[i] = data.Cua[i];
+//         // console.log('CuaVatLieu.Cua' + (i + 1) + ' - ' + CuaVatLieu.Cua[i]);
+//     }
+//     for (let i = 0; i < 2; i++) {
+//         CuaVatLieu.PG[i] = data.PG[i];
+//         // console.log('CuaVatLieu.PG' + (i + 1) + ' - ' + CuaVatLieu.PG[i]);
+//         //console.log('Tên PG' + i + ':' + ' - ' + CuaVatLieu.PGi);
+//     }
+//     // console.log('CuaVatLieu.Xi' + ' - ' + CuaVatLieu.Xi);
+
+//     updateTableHeaders(CuaVatLieu);
+// });
+
 socket.on('cuaVatLieuData', (data) => {
+    // Update PhieuCan object
     PhieuCan.TenXiMang = data.Xi;
     for (let i = 0; i < 4; i++) {
         PhieuCan.TenTP[i] = data.Cua[i];
@@ -899,12 +930,10 @@ socket.on('cuaVatLieuData', (data) => {
     for (let i = 0; i < 2; i++) {
         PhieuCan.TenPG[i] = data.PG[i];
         // console.log('PhieuCan.TenPG' + (i + 1) + ' : ' + PhieuCan.TenPG[i]);
-        //console.log('Tên PG' + i + ':' + ' - ' + PhieuCan.TenPGi); //gọi thuộc tính theo cách này vẫn được
+        // console.log('Tên PG' + i + ':' + ' - ' + PhieuCan.TenPGi); //gọi thuộc tính theo cách này vẫn được
     }
-    // console.log('PhieuCan.TenXiMang' + ' : ' + PhieuCan.TenXiMang);
-});
-// Hàm nhận dữ liệu Cửa vật liệu được gửi từ server và lưu vào object CuaVatLieu, cuối cùng là hiển thị lên màn hình chính
-socket.on('cuaVatLieuData', (data) => {
+
+    // Update CuaVatLieu object
     CuaVatLieu.Xi = data.Xi;
     for (let i = 0; i < 4; i++) {
         CuaVatLieu.Cua[i] = data.Cua[i];
@@ -917,8 +946,12 @@ socket.on('cuaVatLieuData', (data) => {
     }
     // console.log('CuaVatLieu.Xi' + ' - ' + CuaVatLieu.Xi);
 
+    // Update table headers
     updateTableHeaders(CuaVatLieu);
+    // Đồng bộ dữ liệu với server
+    updateDataOnServer();
 });
+
 
 // Cập nhật tên cửa liệu, Xi, PG vào các list box trong option của form đặt lại tên cửa vật liệu
 let tmpCuaVatLieu = Object.create(CuaVatLieu);
@@ -1413,9 +1446,15 @@ socket.on('data', function (data) {
 
 });
 
+// When you make changes to the objects on the client side, you can emit an 'updateData' event to update the server and other clients
+function updateDataOnServer() {
+    socket.emit('updateData', { CapPhoi, KhachHang, DonDatHang, XeBon, PhieuGiaoBeTong, PhieuCan, DaCanXong, ThongKe, ThuThap, CuaVatLieu, ThongTinCapPhoi });
+}
+
 //Lắng nghe sự kiện tải lại trang và gọi hàm khi có sự kiện Click
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Gọi hàm lắng nghe sự kiện HTML đã tải song cú pháp ở file Setup js');
+
     addRowClickListener(`#macBetong`, `.form-container-macBetong input`);
     addRowClickListener(`#datCapphoi`, `.form-container-datCapphoi input`);
     updateInputsOnRowClick('#datCapphoi', '.form-container-datCapphoi input');

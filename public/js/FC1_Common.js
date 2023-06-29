@@ -352,7 +352,7 @@ function fn_ShowStatus(tag1, tag2, IOField) {
     });
 }
 
-// Chương trình con hien thi Trang thai can
+// Chương trình con hien thi Số mẻ cân
 function fn_ShowSoMe(tag1, tag2, IOField) {
     let string0;
     let string1;
