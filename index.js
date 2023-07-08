@@ -478,13 +478,61 @@ setInterval(() => {
     // console.log('=============================================');
     // console.log('values: ', valuesKey); // Hiển thị giá trị để kiểm tra
     // console.log('=============================================');
-    if (arr_tag_value.length !== 0) {
+    if (arr_tag_value.length !== 0) { // Phải sử dụng hàm này để đảm bảo lúc đó server đã đọc được danh sách tag, nếu không nó sẽ báo lỗi
         getDataChinhCanFromPLC();
-        DocMangThuThap(valuesKey);
+        //DocMangThuThap(valuesKey);  // Nếu đã gọi hàm TmrDocPLC_timer() thì không cần gọi hàm này vì TmrDocPLC_timer() đã chứa hành động Đọc mảng thu thập rồi
         //console.log('valuesKey: ', valuesKey);
+        TmrDocPLC_timer();
     }
 
-}, 1000);
+    // console.log('/////////////////////////////////////////////////////////////////////////////////////////////////////////////');
+    // console.log('CapPhoi: ', CapPhoi);
+    // console.log('KhachHang: ', KhachHang);
+    // console.log('DonDatHang: ', DonDatHang);
+    // console.log('XeBon: ', XeBon);
+    // console.log('PhieuGiaoBeTong: ', PhieuGiaoBeTong);
+    // console.log('PhieuCan: ', PhieuCan);
+    // console.log('DaCanXong: ', DaCanXong);
+    // console.log('ThongKe: ', ThongKe);
+    // console.log('ThuThap: ', ThuThap);
+    // console.log('CuaVatLieu: ', CuaVatLieu);
+    // console.log('ThongTinCapPhoi: ', ThongTinCapPhoi);
+    // console.log('/////////////////////////////////////////////////////////////////////////////////////////////////////////////');
+
+
+}, 500);
+
+setInterval(() => {
+    //fn_read_data_scan();
+    // console.log('=============================================');
+    // console.log('values: ', valuesKey); // Hiển thị giá trị để kiểm tra
+    // console.log('=============================================');
+    // if (arr_tag_value.length !== 0) { // Phải sử dụng hàm này để đảm bảo lúc đó server đã đọc được danh sách tag, nếu không nó sẽ báo lỗi
+    //     //getDataChinhCanFromPLC();
+    //     //DocMangThuThap(valuesKey);  // Nếu đã gọi hàm TmrDocPLC_timer() thì không cần gọi hàm này vì TmrDocPLC_timer() đã chứa hành động Đọc mảng thu thập rồi
+    //     //console.log('valuesKey: ', valuesKey);
+    //     TmrDocPLC_timer();
+    // }
+    console.log('/////////////////////////////////////////////////////////////////////////////////////////////////////////////');
+    // console.log('CapPhoi: ', CapPhoi);
+    // console.log('KhachHang: ', KhachHang);
+    // console.log('DonDatHang: ', DonDatHang);
+    // console.log('XeBon: ', XeBon);
+    // console.log('PhieuGiaoBeTong: ', PhieuGiaoBeTong);
+    console.log('PhieuCan: ', PhieuCan);
+    // console.log('DaCanXong: ', DaCanXong);
+    // console.log('ThongKe: ', ThongKe);
+    console.log('ThuThap: ', ThuThap);
+    console.log('CuaVatLieu: ', CuaVatLieu);
+    // console.log('ThongTinCapPhoi: ', ThongTinCapPhoi);
+    console.log('/////////////////////////////////////////////////////////////////////////////////////////////////////////////');
+    // Cách gọi hàm DocMaPhieuCan để lấy MaPhieuCan dưới mysql
+    DocMaPhieuCan(function (result) {
+        // Xử lý kết quả trả về tại đây
+        let tmp = result;
+        console.log('Mã Phiếu Cân ở dưới server là khi hàm DocMaPhieuCan được gọi: ', tmp)
+    });
+}, 10000);
 
 // ///////////////////////////////////////////////////////////////////////////////////////++THIẾT LẬP KẾT NỐI VỚI TRÌNH DUYỆT PHÍA CLIENT/////////////////////////
 var express = require("express");
@@ -499,6 +547,7 @@ server.listen(3000);
 app.get("/", function (req, res) {
     res.render("home")
 });
+
 //
 // //////////////////////////////////////////////////////////////////////////////////LẬP BẢNG TAG ĐỂ GỬI QUA CLIENT (TRÌNH DUYỆT)///////////
 function fn_tag() {
@@ -661,6 +710,9 @@ function getDataChinhCanFromPLC() {
 
 // //////////////////////////////////////////////////////////////////// GỬI NHẬN DỮ LIỆU VỚI CLIENT (TRÌNH DUYỆT)//////////////////////////////////////////////////
 io.on("connection", function (socket) {
+    console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+    console.log('a user connected');
+    console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
     socket.on("Client-send-data", function (data) {
         fn_tag();
         // Khi nhận được tin nhắn "Client-send-data", thì server sẽ gửi dữ liệu là fn_tag(), trong này sẽ chứa những tin nhắn mà client cần nhận cho các ứng dụng cụ thể
@@ -684,7 +736,6 @@ io.on("connection", function (socket) {
         ThuThap = data.ThuThap;
         CuaVatLieu = data.CuaVatLieu;
         ThongTinCapPhoi = data.ThongTinCapPhoi;
-
         // emit the updated data to all connected clients
         io.emit('syncData', { CapPhoi, KhachHang, DonDatHang, XeBon, PhieuGiaoBeTong, PhieuCan, DaCanXong, ThongKe, ThuThap, CuaVatLieu, ThongTinCapPhoi });
     });
@@ -713,7 +764,90 @@ io.on("connection", function (socket) {
                 socket.emit("done", data);
             }
         });
+        // console.log('\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ Cần Cho hệ thống Dừng')
+        // conn_plc.writeItems('CHAY_DUNG', false, function (err) {
+        //     if (err) {
+        //         console.log("Error writing to PLC: ", err);
+        //         socket.emit("error", "Error writing to PLC");
+        //     } else {
+        //         console.log('Trạng thái bit CHAY_DUNG: ' + valuesKey.CHAY_DUNG);
+        //         socket.emit("CHAY_DUNG_Status", valuesKey.CHAY_DUNG);
+        //     }
+        // });
+        // newTextContent = "CHẠY";
+        // // Gửi lại dữ liệu xuống tất cả các client khác
+        // io.emit("bttAuto_Chay_Caption", newTextContent);
     });
+
+    // Đăng ký trình xử lý sự kiện cho sự kiện socket "cmdChay_Click"
+    socket.on("cmdChay_Click", function (data) {
+        let newTextContent;
+        if (data === "CHẠY") {
+            // GhiGiaTri(MangDieuKhien[2], 1);
+            // GhiGiaTri(MangDieuKhien[8], 1);
+            // socket.emit('CHAY_DUNG', true);
+            // socket.emit('PAUSE_COM3', true);
+
+            // Lệnh SET trạng thái bit XE_TRON_MOI
+            conn_plc.writeItems(['CHAY_DUNG', 'PAUSE_COM3'], [true, true], function (err) {
+                if (err) {
+                    console.log("Error writing to PLC: ", err);
+                    socket.emit("error", "Error writing to PLC");
+                } else {
+                    console.log('Trạng thái bit CHAY_DUNG, PAUSE_COM3: ' + valuesKey.CHAY_DUNG + valuesKey.PAUSE_COM3);
+                    socket.emit("CHAY_DUNG_Status", valuesKey.CHAY_DUNG);
+                }
+            });
+            newTextContent = "DỪNG";
+        } else {
+            // GhiGiaTri(MangDieuKhien[2], 0);
+            // socket.emit('CHAY_DUNG', false);
+            // Lệnh RESET trạng thái bit XE_TRON_MOI
+            conn_plc.writeItems('CHAY_DUNG', false, function (err) {
+                if (err) {
+                    console.log("Error writing to PLC: ", err);
+                    socket.emit("error", "Error writing to PLC");
+                } else {
+                    console.log('Trạng thái bit CHAY_DUNG: ' + valuesKey.CHAY_DUNG);
+                    socket.emit("CHAY_DUNG_Status", valuesKey.CHAY_DUNG);
+                }
+            });
+            newTextContent = "CHẠY";
+        }
+
+        // Gửi lại dữ liệu xuống tất cả các client khác
+        io.sockets.emit("bttAuto_Chay_Caption", newTextContent);
+    });
+
+    console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+    console.log('Client connected:', socket.id);
+    console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+    // Listen for the 'confirmResult' event from this client
+    socket.on('confirmResult', function (data) {
+        if (data === 'update') {
+            // Handle update
+            sqlcon.query(updateSql, [...values[0].slice(1), values[0][0]], function (err) {
+                if (err) {
+                    console.log('Error updating record:', err);
+                    throw err;
+                }
+                console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Record updated");
+            });
+        } else if (data === 'insert') {
+            // Handle insert
+            values[0][0]++;
+            sqlcon.query(insertSql, [values], function (err) {
+                if (err) throw err;
+                console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Record inserted");
+            });
+        } else {
+            // Handle cancel
+        }
+    });
+
+
+
+
 
     // Chương trình này cải tiến hơn ở chỗ nó sẽ đọc lại trạng thái của bit mới vừa được SET, sau đó nó sẽ gửi trạng thái này tới client, phía client vẫn giữ chương trình cũ
     // nó sẽ thực hiện kiểm tra bit data mà server gửi lên, nếu nó là True thì client sẽ gửi yêu cầu reset trạng thái bít này về 0
@@ -750,6 +884,7 @@ io.on("connection", function (socket) {
             }
         );
     });
+    // Gửi dữ liệu qua client bằng bức điện SQL_Show để hiển thị các Macbetong
     socket.on("msg_SQL_Show", function (data) {
         var sqltable_Name = "macbetong";
         var queryy1 = "SELECT * FROM " + sqltable_Name + ";"
@@ -885,6 +1020,13 @@ io.on("connection", function (socket) {
             console.log('Server gửi data về khách hàng cho Thông tin cấp phối:', results);
         });
     });
+    socket.on('getDataReportKhachhang', function () {
+        sqlcon.query('SELECT MaKhachHang, TenKhachHang, DiaChi FROM khachhang', function (error, results, fields) {
+            if (error) throw error;
+            socket.emit('updateDataReportKhachhang', results);
+            console.log('Server gửi data về khách hàng cho Thông tin cấp phối:', results);
+        });
+    });
     socket.on('getDataDatcapphoiDonHang', function (maKhachHang) {
         // Thực hiện truy vấn cơ sở dữ liệu để lấy thông tin đơn đặt hàng
         var query = 'SELECT MaDonDatHang, DiaChiCongTruong FROM dondathang WHERE MaKhachHang = ?';
@@ -897,6 +1039,22 @@ io.on("connection", function (socket) {
             } else {
                 // Gửi kết quả truy vấn đến máy khách
                 socket.emit('updateDataDatcapphoiDonhang', results);
+                console.log('Server gửi data về các Đơn hàng của Khách hàng có MaKhachHang: ' + maKhachHang + ' va các Đơn hàng ' + results);
+            }
+        });
+    });
+    socket.on('getDataReportDonHang', function (maKhachHang) {
+        // Thực hiện truy vấn cơ sở dữ liệu để lấy thông tin đơn đặt hàng
+        var query = 'SELECT MaDonDatHang, DiaChiCongTruong FROM dondathang WHERE MaKhachHang = ?';
+        sqlcon.query(query, [maKhachHang], function (error, results) {
+            if (error) throw error;
+            // Kiểm tra xem có kết quả nào được trả về không
+            if (results.length === 0) {
+                // Gửi thông báo lỗi đến máy khách
+                socket.emit('error', 'Khách hàng này hiện tại chưa có đơn hàng nào trên hệ thống');
+            } else {
+                // Gửi kết quả truy vấn đến máy khách
+                socket.emit('updateDataReportDonhang', results);
                 console.log('Server gửi data về các Đơn hàng của Khách hàng có MaKhachHang: ' + maKhachHang + ' va các Đơn hàng ' + results);
             }
         });
@@ -1019,25 +1177,76 @@ io.on("connection", function (socket) {
         // var timeE1 = "'" + (new Date(timeE - tzoffset)).toISOString().slice(0, -1).replace("T", " ") + "'";
 
 
-        var timeS = new Date(convertDateFormat(data[0])); // Thời gian bắt đầu
-        var timeE = new Date(convertDateFormat(data[1])); // Thời gian kết thúc
+        // var timeS = new Date(convertDateFormat(data[0])); // Thời gian bắt đầu
+        // var timeE = new Date(convertDateFormat(data[1])); // Thời gian kết thúc
 
-        var timeS1 = "'" + (new Date(timeS - tzoffset)).toISOString().slice(0, 10) + "'";
-        var timeE1 = "'" + (new Date(timeE - tzoffset)).toISOString().slice(0, 10) + "'";
+        // var timeS1 = "'" + (new Date(timeS - tzoffset)).toISOString().slice(0, 10) + "'";
+        // var timeE1 = "'" + (new Date(timeE - tzoffset)).toISOString().slice(0, 10) + "'";
 
-        if (isNaN(timeS) || isNaN(timeE)) {
-            console.log('Giá trị ngày tháng không hợp lệ:', data[0], data[1]);
-            return;
-        }
+        // if (isNaN(timeS) || isNaN(timeE)) {
+        //     console.log('Giá trị ngày tháng không hợp lệ:', data[0], data[1]);
+        //     return;
+        // }
 
 
         var timeR = timeS1 + "AND" + timeE1; // Khoảng thời gian tìm kiếm (Time Range)
 
-        var sqltable_Name = "chitietphieucan"; // Tên bảng
-        var dt_col_Name = "Gio";  // Tên cột thời gian
+        // var sqltable_Name = "chitietphieucan"; // Tên bảng
+        // var dt_col_Name = "Gio";  // Tên cột thời gian
 
-        var Query1 = "SELECT * FROM " + sqltable_Name + " WHERE " + dt_col_Name + " BETWEEN ";
-        var Query = Query1 + timeR + ";";
+        // var Query1 = "SELECT * FROM " + sqltable_Name + " WHERE " + dt_col_Name + " BETWEEN ";
+        // var Query = Query1 + timeR + ";";
+
+        var maDonDatHang = data[2]; // Mã đơn đặt hàng
+        var tenKhachHang = data[3]; // Tên khách hàng
+        var maPhieuCan = data[4]; // Mã phiếu cân
+        var bienSoXe = data[5]; // Biển số xe
+        var macBeTong = data[6]; // Mác bê tông
+
+        var phieucan_table_Name = "phieucan"; // Tên bảng phieucan
+        var chitietphieucan_table_Name = "chitietphieucan"; // Tên bảng chitietphieucan
+        var dt_col_Name = "Ngay";  // Tên cột thời gian trong bảng phieucan
+        var maDonDatHang_col_Name = "MaDonDatHang"; // Tên cột mã đơn đặt hàng trong bảng phieucan
+        var tenKhachHang_col_Name = "TenKhachHang"; // Tên cột tên khách hàng trong bảng phieucan
+        var maPhieuCan_col_Name = "MaPhieuCan"; // Tên cột mã phiếu cân trong bảng phieucan
+        var bienSoXe_col_Name = "BienSoXe"; // Tên cột biển số xe trong bảng phieucan
+        var macBeTong_col_Name = "MacBeTong"; // Tên cột mác bê tông trong bảng phieucan
+
+        if (data[0] === "" || data[1] === "") {
+            // Không có thời gian bắt đầu và kết thúc
+            var Query1 = "SELECT * FROM " + phieucan_table_Name + " JOIN " + chitietphieucan_table_Name + " ON ";
+            var Query2 = Query1 + phieucan_table_Name + ".MaPhieuCan = " + chitietphieucan_table_Name + ".MaPhieuCan WHERE ";
+            var Query3 = Query2 + (maDonDatHang ? (phieucan_table_Name + "." + maDonDatHang_col_Name + " = '" + maDonDatHang + "'") : "1=1");
+            var Query4 = Query3 + (tenKhachHang ? (" AND " + phieucan_table_Name + "." + tenKhachHang_col_Name + " = '" + tenKhachHang + "'") : "");
+            var Query5 = Query4 + (maPhieuCan ? (" AND " + phieucan_table_Name + "." + maPhieuCan_col_Name + " = '" + maPhieuCan + "'") : "");
+            var Query6 = Query5 + (bienSoXe ? (" AND " + phieucan_table_Name + "." + bienSoXe_col_Name + " = '" + bienSoXe + "'") : "");
+            var Query7 = Query6 + (macBeTong ? (" AND " + phieucan_table_Name + "." + macBeTong_col_Name + "='" + macBeTong + "'") : "");
+            var Query = Query7 + ";";
+        } else {
+            // Có thời gian bắt đầu và kết thúc
+            var timeS = new Date(convertDateFormat(data[0])); // Thời gian bắt đầu
+            var timeE = new Date(convertDateFormat(data[1])); // Thời gian kết thúc
+
+            if (isNaN(timeS) || isNaN(timeE)) {
+                console.log('Giá trị ngày tháng không hợp lệ:', data[0], data[1]);
+                return;
+            }
+
+            var timeS1 = "'" + (new Date(timeS - tzoffset)).toISOString().slice(0, 10) + "'";
+            var timeE1 = "'" + (new Date(timeE - tzoffset)).toISOString().slice(0, 10) + "'";
+            var timeR = timeS1 + "AND" + timeE1; // Khoảng thời gian tìm kiếm (Time Range)
+
+            var Query1 = "SELECT * FROM " + phieucan_table_Name + " JOIN " + chitietphieucan_table_Name + " ON ";
+            var Query2 = Query1 + phieucan_table_Name + ".MaPhieuCan = " + chitietphieucan_table_Name + ".MaPhieuCan WHERE ";
+            var Query3 = Query2 + phieucan_table_Name + "." + dt_col_Name + " BETWEEN ";
+            var Query4 = Query3 + timeR + (maDonDatHang ? (" AND " + phieucan_table_Name + "." + maDonDatHang_col_Name + "='" + maDonDatHang + "'") : "");
+            var Query5 = Query4 + (tenKhachHang ? (" AND " + phieucan_table_Name + "." + tenKhachHang_col_Name + "='" + tenKhachHang + "'") : "");
+            var Query6 = Query5 + (maPhieuCan ? (" AND " + phieucan_table_Name + "." + maPhieuCan_col_Name + "='" + maPhieuCan + "'") : "");
+            var Query7 = Query6 + (bienSoXe ? (" AND " + phieucan_table_Name + "." + bienSoXe_col_Name + "='" + bienSoXe + "'") : "");
+            var Query8 = Query7 + (macBeTong ? (" AND " + phieucan_table_Name + "." + macBeTong_col_Name + "='" + macBeTong + "'") : "");
+            var Query = Query8 + ";";
+        }
+
 
         sqlcon.query(Query, function (err, results, fields) {
             if (err) {
@@ -1048,6 +1257,7 @@ io.on("connection", function (socket) {
                 // Đây là chỗ quan trọng, mảng SQL_Excel này sẽ lưu lại dữ liệu và gửi qua hàm xuất ra excel
                 SQL_Excel = convertedResponse; // Xuất báo cáo Excel
                 console.log('Dữ liệu SQL_Excel: ', SQL_Excel)
+                console.log('Cấu trúc câu truy vẫn là: ', Query)
                 socket.emit('SQL_ByTime', convertedResponse);
             }
         });
@@ -1104,6 +1314,31 @@ io.on("connection", function (socket) {
             });
         });
     });
+    // Nhận giá trị MaPhieuCan từ client
+    socket.on('get_data_popup', function (MaPhieuCan) {
+        // Truy vấn dữ liệu từ cơ sở dữ liệu MySQL
+        let query = `SELECT * FROM phieucan WHERE MaPhieuCan=${MaPhieuCan}`;
+        sqlcon.query(query, function (err, result) {
+            if (err) throw err;
+
+            // Lấy dữ liệu từ bảng phieucan
+            let phieucan = result[0];
+
+            // Truy vấn dữ liệu từ bảng chitietphieucan
+            query = `SELECT * FROM chitietphieucan WHERE MaPhieuCan=${MaPhieuCan}`;
+            sqlcon.query(query, function (err, result) {
+                if (err) throw err;
+
+                // Lấy dữ liệu từ bảng chitietphieucan
+                let chitietphieucan = result;
+
+                // Gửi dữ liệu đến client
+                socket.emit('data_popup', { phieucan: phieucan, chitietphieucan: chitietphieucan });
+                console.log('Chi tiết phiếu cân: ', chitietphieucan)
+                console.log('Phiếu cân: ', phieucan)
+            });
+        });
+    });
     // Hàm nhận lệnh xuất dữ liệu ra file Excel
     socket.on("msg_Excel_Report", function (data) {
         console.log('Nhận được yêu cầu xuất report')
@@ -1113,24 +1348,7 @@ io.on("connection", function (socket) {
         console.log('Gửi report qua client')
     });
 
-    // Đăng ký trình xử lý sự kiện cho sự kiện socket "cmdChay_Click"
-    socket.on("cmdChay_Click", function (data) {
-        let newTextContent;
-        if (data === "CHẠY") {
-            // GhiGiaTri(MangDieuKhien[2], 1);
-            // GhiGiaTri(MangDieuKhien[8], 1);
-            // socket.emit('CHAY_DUNG', true);
-            // socket.emit('PAUSE_COM3', true);
-            newTextContent = "DỪNG";
-        } else {
-            // GhiGiaTri(MangDieuKhien[2], 0);
-            // socket.emit('CHAY_DUNG', false);
-            newTextContent = "CHẠY";
-        }
 
-        // Gửi lại dữ liệu xuống tất cả các client khác
-        io.sockets.emit("bttAuto_Chay_Caption", newTextContent);
-    });
 
 });
 
@@ -1222,28 +1440,25 @@ io.on("connection", function (socket) {
     // Không nên gọi thêm socket, nên tôi đã di chuyển vào trong một io.on duy nhất (duyphuoc)
     // ////////////////////////////////////////////////////////////////// Nhận các bức điện được gửi từ trình duyệt//////////
     ///////////// Nhận các bức điện được gửi từ trình duyệt ở chế độ TỰ ĐỘNG
-    // Nút nhấn chọn chế độ tự động
-    socket.on("PAUSE_COM3", function (data) {
-        conn_plc.writeItems('PAUSE_COM3', data, valuesWritten);
-        console.log('Trạng thái bit PAUSE_COM3: ', data)
-    });
-    socket.on("cmd_XeTronMoi_setON", () => {
-        conn_plc.writeItems('Q17', true, valuesWritten);
-        console.log('Đã Set bit Xe_Tron_Moi')
-    });
-    socket.on("cmd_XeTronMoi_resetOFF", () => {
-        conn_plc.writeItems('Q17', false, valuesWritten);
-        console.log('Đã Reset bit Xe_Tron_Moi')
-    });
-    // Nút nhấn chọn chế độ bằng tay
-    socket.on("CHAY_DUNG", function (data) {
-        conn_plc.writeItems('Q12', data, valuesWritten);
-        console.log('Trạng thái bit CHAY_DUNG: ', data)
-    });
-    // Nút nhấn xác nhận chế độ
-    socket.on("cmd_Confirm", function (data) {
-        conn_plc.writeItems('btt_Auto_Confirm', data, valuesWritten);
-    });
+    // // Nút nhấn chọn chế độ tự động
+    // socket.on("PAUSE_COM3", function (data) {
+    //     conn_plc.writeItems('PAUSE_COM3', data, valuesWritten);
+    //     console.log('Trạng thái bit PAUSE_COM3: ', data)
+    // });
+    // socket.on("cmd_XeTronMoi_setON", () => {
+    //     conn_plc.writeItems('Q17', true, valuesWritten);
+    //     console.log('Đã Set bit Xe_Tron_Moi')
+    // });
+    // socket.on("cmd_XeTronMoi_resetOFF", () => {
+    //     conn_plc.writeItems('Q17', false, valuesWritten);
+    //     console.log('Đã Reset bit Xe_Tron_Moi')
+    // });
+    // // Nút nhấn chọn chế độ bằng tay
+    // socket.on("CHAY_DUNG", function (data) {
+    //     conn_plc.writeItems('Q12', data, valuesWritten);
+    //     console.log('Trạng thái bit CHAY_DUNG: ', data)
+    // });
+
     ///////////// Nhận các bức điện được gửi từ trình duyệt ở chế độ BẰNG TAY
     // Nút nhấn Mở van 1
     socket.on("cmd_OpenV1", function (data) {
@@ -1426,7 +1641,8 @@ function fn_excelExport() {
     // Tên nhãn các cột
     var rowpos = 7;
     // var collumName = ["STT", "Thời gian", "Dữ liệu Bool", "Dữ liệu Byte", "Dữ liệu Integer", "Dữ liệu Số thực", "Dữ liệu String", "Ghi chú"]
-    var collumName = ["STT", "Thời gian", "STT MẺ", "TP1", "TP2", "TP3", "TP4", "Xi", "Nước", "PG1", "PG2", "Ghi chú"]
+    // var collumName = ["STT", "Thời gian", "STT MẺ", "TP1", "TP2", "TP3", "TP4", "Xi", "Nước", "PG1", "PG2", "Ghi chú"]
+    var collumName = ["STT", "Thời gian", "STT MẺ", CuaVatLieu.Cua[0], CuaVatLieu.Cua[1], CuaVatLieu.Cua[2], CuaVatLieu.Cua[3], CuaVatLieu.Xi, "Nước", CuaVatLieu.PG[0], CuaVatLieu.PG[1], "Ghi chú"]
     worksheet.spliceRows(rowpos, 1, collumName);
 
 
@@ -1586,23 +1802,24 @@ function convertDateFormat(dateString) {
 }
 
 function DocMangThuThap(values) {
+    // console.log('Vào hàm DocMangThuThap')
     // Luu giu vao trong object thu thap
     // can cot lieu VB5054 VB5055
-    ThuThap.TrangThaiCanCotLieu = String.fromCharCode(values.VB5054) + String.fromCharCode(values.VB5055);
+    ThuThap.TrangThaiCanCotLieu = GiaTriTrangThai(String.fromCharCode(values.VB5054) + String.fromCharCode(values.VB5055));
     ThuThap.SoMeHienTaiCotLieu = values.SO_ME_HT1;
-    console.log('ThuThap.TrangThaiCanCotLieu ', ThuThap.TrangThaiCanCotLieu)
-    console.log('ThuThap.SoMeHienTaiCotLieu ', ThuThap.SoMeHienTaiCotLieu)
+    // console.log('ThuThap.TrangThaiCanCotLieu ', ThuThap.TrangThaiCanCotLieu)
+    // console.log('ThuThap.SoMeHienTaiCotLieu ', ThuThap.SoMeHienTaiCotLieu)
     // can xi
-    ThuThap.TrangThaiCanXi = String.fromCharCode(values.VB4154) + String.fromCharCode(values.VB4155);
+    ThuThap.TrangThaiCanXi = GiaTriTrangThai(String.fromCharCode(values.VB4154) + String.fromCharCode(values.VB4155));
     ThuThap.SoMeHienTaiXi = values.SO_ME_HT2;
-    console.log('ThuThap.TrangThaiCanXi ', ThuThap.TrangThaiCanXi)
-    console.log('ThuThap.SoMeHienTaiXi ', ThuThap.SoMeHienTaiXi)
+    // console.log('ThuThap.TrangThaiCanXi ', ThuThap.TrangThaiCanXi)
+    // console.log('ThuThap.SoMeHienTaiXi ', ThuThap.SoMeHienTaiXi)
 
     // can nuoc
-    ThuThap.TrangThaiCanNuoc = String.fromCharCode(values.VB4155) + String.fromCharCode(values.VB4255);
+    ThuThap.TrangThaiCanNuoc = GiaTriTrangThai(String.fromCharCode(values.VB4254) + String.fromCharCode(values.VB4255));
     ThuThap.SoMeHienTaiNuoc = values.SOME_HT3;
-    console.log('ThuThap.TrangThaiCanNuoc ', ThuThap.TrangThaiCanNuoc)
-    console.log('ThuThap.SoMeHienTaiNuoc ', ThuThap.SoMeHienTaiNuoc)
+    // console.log('ThuThap.TrangThaiCanNuoc ', ThuThap.TrangThaiCanNuoc)
+    // console.log('ThuThap.SoMeHienTaiNuoc ', ThuThap.SoMeHienTaiNuoc)
 
     // can PG
     // ThuThap.TrangThaiCanPG = GiaTriTrangThai(CStr(Chr(result(31)) & Chr(result(32))))
@@ -1616,12 +1833,626 @@ function DocMangThuThap(values) {
     ThuThap.KhoiLuongNuoc = values.Sym_VD2066
     // ThuThap.KhoiLuongPG[0] = result(43)
     // ThuThap.KhoiLuongPG[1] = result(44)
-    console.log('ThuThap.KhoiLuongXi ', ThuThap.KhoiLuongXi)
-    console.log('ThuThap.KhoiLuongNuoc ', ThuThap.KhoiLuongNuoc)
+    // console.log('ThuThap.KhoiLuongXi ', ThuThap.KhoiLuongXi)
+    // console.log('ThuThap.KhoiLuongNuoc ', ThuThap.KhoiLuongNuoc)
     console.log('ThuThap.KhoiLuongCotLieu[0]', ThuThap.KhoiLuongCotLieu[0])
     console.log('ThuThap.KhoiLuongCotLieu[1]', ThuThap.KhoiLuongCotLieu[1])
     console.log('ThuThap.KhoiLuongCotLieu[2]', ThuThap.KhoiLuongCotLieu[2])
+    // console.log('Ra khỏi hàm DocMangThuThap')
+}
+// Hàm ghi giá trị của Cốt liệu vào bảng chitietphieucan
+function GhiGiaTriCL() {
+    let sqlstr = "SELECT * FROM chitietphieucan WHERE MaPhieuCan =" + PhieuCan.MaPhieuCan + " AND STTMe = " + ThuThap.SoMeHienTaiCotLieu;
+    sqlcon.query(sqlstr, function (error, results, fields) {
+        if (error) throw error;
+        if (results.length > 0) {
+            let updateSql = "UPDATE chitietphieucan SET Gio = ?, TP1 = ?, TP2 = ?, TP3 = ?, TP4 = ?, PG1 = ?, STTMe = ? WHERE MaPhieuCan =" + PhieuCan.MaPhieuCan + " AND STTMe = " + ThuThap.SoMeHienTaiCotLieu;
+            let values = [new Date(), ThuThap.KhoiLuongCotLieu[0], ThuThap.KhoiLuongCotLieu[1], ThuThap.KhoiLuongCotLieu[2], ThuThap.KhoiLuongCotLieu[3], PhieuCan.CapPhoi.DMPG[0], ThuThap.SoMeHienTaiCotLieu];
+            sqlcon.query(updateSql, values, function (error, results, fields) {
+                if (error) throw error;
+            });
+        } else {
+            let insertSql = "INSERT INTO chitietphieucan (MaPhieuCan, Gio, TP1, TP2, TP3, TP4, PG1, STTMe) VALUES ?";
+            let values = [[PhieuCan.MaPhieuCan, new Date(), ThuThap.KhoiLuongCotLieu[0], ThuThap.KhoiLuongCotLieu[1], ThuThap.KhoiLuongCotLieu[2], ThuThap.KhoiLuongCotLieu[3], PhieuCan.CapPhoi.DMPG[0], ThuThap.SoMeHienTaiCotLieu]];
+            sqlcon.query(insertSql, [values], function (error, results, fields) {
+                if (error) throw error;
+            });
+        }
+    });
+}
+
+function GhiGiaTriXi() {
+    let sqlstr = "SELECT * FROM chitietphieucan WHERE MaPhieuCan =" + PhieuCan.MaPhieuCan + " AND STTMe = " + ThuThap.SoMeHienTaiXi;
+    sqlcon.query(sqlstr, function (error, results, fields) {
+        if (error) throw error;
+        if (results.length > 0) {
+            let updateSql = "UPDATE chitietphieucan SET Gio = ?, Xi = ?, STTMe = ? WHERE MaPhieuCan =" + PhieuCan.MaPhieuCan + " AND STTMe = " + ThuThap.SoMeHienTaiXi;
+            let values = [new Date(), ThuThap.KhoiLuongXi, ThuThap.SoMeHienTaiXi];
+            sqlcon.query(updateSql, values, function (error, results, fields) {
+                if (error) throw error;
+            });
+        } else {
+            let insertSql = "INSERT INTO chitietphieucan (MaPhieuCan, Gio, Xi, STTMe) VALUES ?";
+            let values = [[PhieuCan.MaPhieuCan, new Date(), ThuThap.KhoiLuongXi, ThuThap.SoMeHienTaiXi]];
+            sqlcon.query(insertSql, [values], function (error, results, fields) {
+                if (error) throw error;
+            });
+        }
+    });
+}
+
+function GhiGiaTriNuoc() {
+    let sqlstr = "SELECT * FROM chitietphieucan WHERE MaPhieuCan =" + PhieuCan.MaPhieuCan + " AND STTMe = " + ThuThap.SoMeHienTaiNuoc;
+    sqlcon.query(sqlstr, function (error, results, fields) {
+        if (error) throw error;
+        if (results.length > 0) {
+            let updateSql = "UPDATE chitietphieucan SET Gio = ?, Nuoc = ?, STTMe = ? WHERE MaPhieuCan =" + PhieuCan.MaPhieuCan + " AND STTMe = " + ThuThap.SoMeHienTaiNuoc;
+            let values = [new Date(), ThuThap.KhoiLuongNuoc, ThuThap.SoMeHienTaiNuoc];
+            sqlcon.query(updateSql, values, function (error, results, fields) {
+                if (error) throw error;
+            });
+        } else {
+            let insertSql = "INSERT INTO chitietphieucan (MaPhieuCan, Gio, Nuoc, STTMe) VALUES ?";
+            let values = [[PhieuCan.MaPhieuCan, new Date(), ThuThap.KhoiLuongNuoc, ThuThap.SoMeHienTaiNuoc]];
+            sqlcon.query(insertSql, [values], function (error, results, fields) {
+                if (error) throw error;
+            });
+        }
+    });
+}
+
+function GhiGiaTriPG() {
+    let sqlstr = "SELECT * FROM chitietphieucan WHERE MaPhieuCan =" + PhieuCan.MaPhieuCan + " AND STTMe = " + ThuThap.SoMeHienTaiPG;
+    sqlcon.query(sqlstr, function (error, results, fields) {
+        if (error) throw error;
+        if (results.length > 0) {
+            let updateSql = "UPDATE chitietphieucan SET Gio = ?, PG1 = ?, STTMe = ? WHERE MaPhieuCan =" + PhieuCan.MaPhieuCan + " AND STTMe = " + ThuThap.SoMeHienTaiPG;
+            let values = [new Date(), ThuThap.KhoiLuongPG, ThuThap.SoMeHienTaiPG];
+            sqlcon.query(updateSql, values, function (error, results, fields) {
+                if (error) throw error;
+            });
+        } else {
+            let insertSql = "INSERT INTO chitietphieucan (MaPhieuCan, Gio, PG1, STTMe) VALUES ?";
+            let values = [[PhieuCan.MaPhieuCan, new Date(), ThuThap.KhoiLuongPG, ThuThap.SoMeHienTaiPG]];
+            sqlcon.query(insertSql, [values], function (error, results, fields) {
+                if (error) throw error;
+            });
+        }
+    });
+}
+
+// async function GhiGiaTriPG() {
+//     let sqlstr = "SELECT * FROM ChiTietPhieuCan WHERE MaPhieuCan =" + PhieuCan.MaPhieuCan +
+//         " AND STTMe = " + ThuThap.SoMeHienTaiPG;
+
+//     connection.query(sqlstr, function (error, results, fields) {
+//         if (error) throw error;
+//         if (results.length > 0) {
+//             let updateSql = "UPDATE ChiTietPhieuCan SET gio = ?, PG1 = ?, STTMe = ? WHERE MaPhieuCan = ? AND STTMe = ?";
+//             let values = [format(new Date(), "dd/mm/yyyy hh:mm"), parseFloat(format(ThuThap.KhoiLuongPG, "0.00")), ThuThap.SoMeHienTaiPG, PhieuCan.MaPhieuCan, ThuThap.SoMeHienTaiPG];
+//             connection.query(updateSql, values, function (error, results, fields) {
+//                 if (error) throw error;
+//             });
+//         } else {
+//             let insertSql = "INSERT INTO ChiTietPhieuCan (MaPhieuCan, gio, PG1, STTMe) VALUES (?, ?, ?, ?)";
+//             let values = [PhieuCan.MaPhieuCan, format(new Date(), "dd/mm/yyyy hh:mm"), parseFloat(format(ThuThap.KhoiLuongPG, "0.00")), ThuThap.SoMeHienTaiPG];
+//             connection.query(insertSql, values, function (error, results, fields) {
+//                 if (error) throw error;
+//             });
+//         }
+//     });
+// }
+// // Hàm công thêm thời gian với định dạng hh:mm
+// function CongThemThoiGian(min) {
+//     let curTime = new Date();
+//     let addTime = new Date(curTime.getTime() + min * 60000);
+//     let msg = addTime.toTimeString().slice(0, 5);
+//     return msg;
+// }
+// Hàm công thêm thời gian với định dạng YYYY-MM-DD HH:mm:ss:
+function CongThemThoiGian(min) {
+    let curTime = new Date();
+    let addTime = new Date(curTime.getTime() + min * 60000);
+    let msg = addTime.toISOString().slice(0, 19).replace('T', ' ');
+    return msg;
 }
 
 
-console.log('Đã đến cuối chương trình index.js')
+// let values;
+// let updateSql;
+// let insertSql;
+
+// // Listen for the 'connection' event from clients
+// io.on('connection', function (socket) {
+//     // console.log('Client connected:', socket.id);
+
+//     // // Listen for the 'confirmResult' event from this client
+//     // socket.on('confirmResult', function (data) {
+//     //     if (data === 'update') {
+//     //         // Handle update
+//     //         sqlcon.query(updateSql, [...values[0].slice(1), values[0][0]], function (err) {
+//     //             if (err) {
+//     //                 console.log('Error updating record:', err);
+//     //                 throw err;
+//     //             }
+//     //             console.log("Record updated");
+//     //         });
+//     //     } else if (data === 'insert') {
+//     //         // Handle insert
+//     //         values[0][0]++;
+//     //         sqlcon.query(insertSql, [values], function (err) {
+//     //             if (err) throw err;
+//     //             console.log("Record inserted");
+//     //         });
+//     //     } else {
+//     //         // Handle cancel
+//     //     }
+//     // });
+// });
+
+
+// // Hàm ghi phiếu cân mới
+// function GhiPhieuCan() {
+//     console.log('PhieuCan.MaPhieuCan hiện tại ở server Node khi hàm GhiPhieuCan được gọi: ', PhieuCan.MaPhieuCan)
+//     let tGian = CongThemThoiGian(5);
+//     PhieuCan.GioXong = tGian;
+//     insertSql = "INSERT INTO phieucan (MaPhieuCan, Ngay, GioBatDau, GioXong, Ca, MaDonDatHang, TenKhachHang, Maxe, BienSoXe, Som3Me, MacBetong, DoSut, SoMe, TenXiMang, TenPG1, TenTP1, TenTP2, TenTP3,TenTP4 ,DMTP1 ,DMTP2 ,DMTP3 ,DMTP4 ,DMNUOC ,DMXI ,DMPG1 ,DoAmTP1 ,DoAmTP2 ,DoAmTP3 ,DoAmTP4 ,Som3xe) VALUES ?";
+//     updateSql = "UPDATE phieucan SET Ngay = ?, GioBatDau = ?, GioXong = ?, Ca = ?, MaDonDatHang = ?, TenKhachHang = ?, Maxe = ?, BienSoXe = ?, Som3Me = ?, MacBetong = ?, DoSut = ?, SoMe = ?, TenXiMang = ?, TenPG1 = ?, TenTP1 = ?, TenTP2 = ?, TenTP3 = ?,TenTP4  = ? ,DMTP1  = ? ,DMTP2  = ? ,DMTP3  = ? ,DMTP4  = ? ,DMNUOC  = ? ,DMXI  = ? ,DMPG1  = ? ,DoAmTP1  = ? ,DoAmTP2  = ? ,DoAmTP3  = ? ,DoAmTP4  = ? ,Som3xe  = ? WHERE MaPhieuCan = ?";
+
+//     let MaDonDatHang = "";
+//     if (PhieuCan.dondathang.MaDonDatHang !== "" && PhieuCan.dondathang.MaDonDatHang !== "0") {
+//         MaDonDatHang = PhieuCan.dondathang.MaDonDatHang;
+//     }
+
+//     let TenKhachHang = "";
+//     if (PhieuCan.dondathang.khachhang.TenKhachHang !== null) {
+//         TenKhachHang = PhieuCan.dondathang.khachhang.TenKhachHang;
+//     }
+
+//     values =
+//         [
+//             [
+//                 PhieuCan.MaPhieuCan,
+//                 new Date(),
+//                 new Date(),
+//                 tGian,
+//                 1,
+//                 MaDonDatHang,
+//                 TenKhachHang,
+//                 PhieuCan.DaChonXe ? PhieuCan.XeBon.STT : 1,
+//                 PhieuCan.XeBon.BienSoXe,
+//                 PhieuCan.CapPhoi.Som3Me,
+//                 PhieuCan.CapPhoi.TenMacBeTong,
+//                 PhieuCan.CapPhoi.DoSutThongKe,
+//                 PhieuCan.CapPhoi.SoMe,
+//                 PhieuCan.TenXiMang,
+//                 PhieuCan.TenPG[0],
+//                 PhieuCan.TenTP[0],
+//                 PhieuCan.TenTP[1],
+//                 PhieuCan.TenTP[2],
+//                 PhieuCan.TenTP[3],
+//                 PhieuCan.CapPhoi.DMTP[0],
+//                 PhieuCan.CapPhoi.DMTP[1],
+//                 PhieuCan.CapPhoi.DMTP[2],
+//                 PhieuCan.CapPhoi.DMTP[3],
+//                 PhieuCan.CapPhoi.DMNUOC,
+//                 PhieuCan.CapPhoi.DMXI,
+//                 PhieuCan.CapPhoi.DMPG[0],
+//                 PhieuCan.CapPhoi.DoAmTP[0],
+//                 PhieuCan.CapPhoi.DoAmTP[1],
+//                 PhieuCan.CapPhoi.DoAmTP[2],
+//                 PhieuCan.CapPhoi.DoAmTP[3],
+//                 PhieuCan.CapPhoi.SoMe * PhieuCan.CapPhoi.Som3Me
+//             ]
+//         ];
+
+//     // Kiểm tra xem liệu đã có một bản ghi nào trong bảng phieucan có giá trị MaPhieucan là '144' hay không
+//     sqlcon.query("SELECT * FROM phieucan WHERE MaPhieucan = ?", [values[0][0]], function (err, result) {
+//         if (err) throw err;
+//         // Các xử lý khi ở trong form datCapphoi, nếu sau khi gửi một cấp phối xong, người dùng tiếp tục chọn lại cấp phối và gửi đi tiếp, thì lúc này mã phiếu cân trên form vẫn không tăng
+//         // Ví dụ vẫn là 163 như khi mở form ra, lúc này phía server cũng chỉ nhận 163 khi được đồng bộ từ client xuống
+//         // Nếu người dùng nhấn tiếp nút Truyền, thì phía server sẽ phát hiện là đã tồn tại mã phiếu cân 163, nên nó sẽ lại thực hiện việc xác nhậ người dùng
+//         // Điều này sẽ liên tục được lặp lại, vì sau khi Thoát hàm truyen cấp phối này, nó sẽ gọi hàm GhiPhieuCan theo chu kỳ trong hàm TmrDocPLC_timer
+//         // Dưới đây là cách xử lý nếu nó thành công
+//         let tmpMaPhieuCan;
+//         DocMaPhieuCan(function (result) {
+//             // Xử lý kết quả trả về tại đây
+//             tmpMaPhieuCan = result;
+//         });
+
+//         if (result.length > 0) {
+//             // Đã có một bản ghi trong bảng phieucan có giá trị MaPhieucan là '144'
+//             // Gửi thông báo đến client yêu cầu người dùng xác nhận
+//             // io.emit('confirm', 'Đã có một mã Phiếu cân là ' + values[0][0] + '. Bạn có muốn cập nhật thông số cho mã phiếu cân này không?');
+//             io.emit('error', 'Phiếu cấn số ' + values[0][0] + ' đã tồn tại. Vui lòng tạo cấp phối mới. Cảm ơn.');
+//             // // Lắng nghe sự kiện 'connection' từ client
+//             // io.on('connection', function (socket) {
+//             //     console.log('Client connected:', socket.id);
+//             //     // Lắng nghe sự kiện 'confirmResult' từ client
+//             //     socket.on('confirmResult', function (data) {
+//             //         if (data === 'update') {
+//             //             console.log("Nhận lệnh update ???????????????????????????????????????????????????????????????????");
+//             //             // Người dùng chọn cập nhật bản ghi hiện tại
+//             //             // Thực hiện cập nhật bản ghi
+//             //             sqlcon.query(updateSql, [...values[0].slice(1), values[0][0]], function (err) {
+//             //                 if (err) {
+//             //                     console.log('Error updating record:', err);
+//             //                     throw err;
+//             //                 }
+//             //                 console.log("Record updated");
+//             //             });
+//             //         } else if (data === 'insert') {
+//             //             // Người dùng chọn thêm một bản ghi mới
+//             //             // Tăng giá trị MaPhieucan lên 1 đơn vị
+//             //             values[0][0]++;
+//             //             // Thêm một bản ghi mới với giá trị MaPhieucan mới
+//             //             sqlcon.query(insertSql, [values], function (err) {
+//             //                 if (err) throw err;
+//             //                 console.log("Record inserted");
+//             //             });
+//             //         } else {
+//             //             // Người dùng chọn không làm gì cả
+//             //             // Thoát ra không làm gì cả
+//             //         }
+//             //     });
+//             // });
+//         } else {
+//             // Không có bản ghi nào trong bảng phieucan có giá trị MaPhieucan là '144'
+//             // Thêm một bản ghi mới
+//             sqlcon.query(insertSql, [values], function (err) {
+//                 if (err) throw err;
+//                 console.log("Record inserted");
+//             });
+//         }
+//     });
+
+//     ThuThap.CoMeDangTron = true;
+
+//     ThuThap.DaCanXong.DaCanXongCotLieu = false;
+//     ThuThap.DaCanXong.DaCanXongNuoc = false;
+//     ThuThap.DaCanXong.DaCanXongPG = false;
+//     ThuThap.DaCanXong.DaCanXongXi = false;
+// }
+
+// Hàm đọc mã phiếu cân ở phía server
+
+function GhiPhieuCan() {
+    let tGian = CongThemThoiGian(5);
+    PhieuCan.GioXong = tGian;
+    let insertSql = "INSERT INTO phieucan (MaPhieuCan, Ngay, GioBatDau, GioXong, Ca, MaDonDatHang, TenKhachHang, Maxe, BienSoXe, Som3Me, MacBetong, DoSut, SoMe, TenXiMang, TenPG1, TenTP1, TenTP2, TenTP3,TenTP4 ,DMTP1 ,DMTP2 ,DMTP3 ,DMTP4 ,DMNUOC ,DMXI ,DMPG1 ,DoAmTP1 ,DoAmTP2 ,DoAmTP3 ,DoAmTP4 ,Som3xe) VALUES ?";
+
+    let MaDonDatHang = "";
+    if (PhieuCan.dondathang.MaDonDatHang !== "" && PhieuCan.dondathang.MaDonDatHang !== "0") {
+        MaDonDatHang = PhieuCan.dondathang.MaDonDatHang;
+    }
+
+    let TenKhachHang = "";
+    if (PhieuCan.dondathang.khachhang.TenKhachHang !== null) {
+        TenKhachHang = PhieuCan.dondathang.khachhang.TenKhachHang;
+    }
+
+    let values =
+        [
+            [
+                PhieuCan.MaPhieuCan,
+                new Date(),
+                new Date(),
+                tGian,
+                1,
+                MaDonDatHang,
+                TenKhachHang,
+                PhieuCan.DaChonXe ? PhieuCan.XeBon.STT : 1,
+                PhieuCan.XeBon.BienSoXe,
+                PhieuCan.CapPhoi.Som3Me,
+                PhieuCan.CapPhoi.TenMacBeTong,
+                PhieuCan.CapPhoi.DoSutThongKe,
+                PhieuCan.CapPhoi.SoMe,
+                PhieuCan.TenXiMang,
+                PhieuCan.TenPG[0],
+                PhieuCan.TenTP[0],
+                PhieuCan.TenTP[1],
+                PhieuCan.TenTP[2],
+                PhieuCan.TenTP[3],
+                PhieuCan.CapPhoi.DMTP[0],
+                PhieuCan.CapPhoi.DMTP[1],
+                PhieuCan.CapPhoi.DMTP[2],
+                PhieuCan.CapPhoi.DMTP[3],
+                PhieuCan.CapPhoi.DMNUOC,
+                PhieuCan.CapPhoi.DMXI,
+                PhieuCan.CapPhoi.DMPG[0],
+                PhieuCan.CapPhoi.DoAmTP[0],
+                PhieuCan.CapPhoi.DoAmTP[1],
+                PhieuCan.CapPhoi.DoAmTP[2],
+                PhieuCan.CapPhoi.DoAmTP[3],
+                PhieuCan.CapPhoi.SoMe * PhieuCan.CapPhoi.Som3Me
+            ]
+        ];
+    sqlcon.query(insertSql, [values], function (err) {
+        // if (err) throw err;
+        // console.log("Record inserted");
+        if (err) {
+            // Xử lý lỗi tại đây
+            console.error(err);
+            // Gửi thông báo lỗi đến trình duyệt (đến tất cả các client đang kết nối tới server)
+            // io.emit('error', 'Đã có lỗi trong quá trình xử lý dữ liệu. Vui lòng kiểm tra và thực hiện theo đúng hướng dẫn. Cảm ơn!');
+            console.log("Lỗi do trùng dữ liệu hoặc nguyên nhân khác");
+        } else {
+            console.log("Record inserted");
+            console.log('Đã ghi phiếu cân với MaPhieuCan: ', PhieuCan.MaPhieuCan)
+        }
+    });
+
+    ThuThap.CoMeDangTron = true;
+
+    ThuThap.DaCanXong.DaCanXongCotLieu = false;
+    ThuThap.DaCanXong.DaCanXongNuoc = false;
+    ThuThap.DaCanXong.DaCanXongPG = false;
+    ThuThap.DaCanXong.DaCanXongXi = false;
+}
+
+
+function DocMaPhieuCan(callback) {
+    console.log('Vào hàm DocMaPhieuCan ở server Node')
+    let query = "SELECT * FROM phieucan ORDER BY MaPhieuCan ASC";
+
+    sqlcon.query(query, function (err, result) {
+        if (err) throw err;
+        if (result.length > 0) {
+            let tmp = 0;
+            if (result[result.length - 1].MaPhieuCan !== null) {
+                tmp = result[result.length - 1].MaPhieuCan;
+            }
+            tmp = tmp + 1;
+            //console.log('Mã phiếu cân hàm trả về là: ', tmp)
+            callback(tmp);
+        } else {
+            callback(1);
+        }
+    });
+    console.log('Exit hàm DocMaPhieuCan ở server Node')
+}
+
+
+
+
+function DocPhieuCanGanNhat() {
+    let query = "SELECT * FROM phieucan ORDER BY MaPhieuCan";
+
+    sqlcon.query(query, function (err, result) {
+        if (err) throw err;
+        // if (err) {
+        //     // Xử lý lỗi tại đây
+        //     console.error(err);
+        //     // Gửi thông báo lỗi đến trình duyệt (đến tất cả các client đang kết nối tới server)
+        //     io.socket.emit('error', 'Đã có lỗi trong quá trình xử lý dữ liệu. Vui lòng kiểm tra và thực hiện theo đúng hướng dẫn. Cảm ơn!');
+        // } else {
+        //     console.log("Record readed");
+        // }
+        if (result.length > 0) {
+            let lastRecord = result[result.length - 1];
+            PhieuCan.MaPhieuCan = lastRecord.MaPhieuCan + 1;
+            PhieuCan.dondathang.MaDonDatHang = lastRecord.MaDonDatHang || 0;
+            PhieuCan.dondathang.khachhang.TenKhachHang = lastRecord.TenKhachHang || "";
+
+            PhieuCan.DaChonXe = false;
+
+            PhieuCan.TenXiMang = lastRecord.TenXiMang || "";
+            PhieuCan.TenTP[0] = lastRecord.TenTP1 || "";
+            PhieuCan.TenTP[1] = lastRecord.TenTP2 || "";
+            PhieuCan.TenTP[2] = lastRecord.TenTP3 || "";
+            PhieuCan.TenTP[3] = lastRecord.TenTP4 || "";
+            PhieuCan.TenPG[0] = lastRecord.TenPG1 || "";
+
+            PhieuCan.CapPhoi.Som3Me = lastRecord.Som3Me || 0;
+            PhieuCan.CapPhoi.SoMe = lastRecord.SoMe || 0;
+            PhieuCan.CapPhoi.DMTP[0] = lastRecord.DMTP1 || 0;
+            PhieuCan.CapPhoi.DMTP[1] = lastRecord.DMTP2 || 0;
+            PhieuCan.CapPhoi.DMTP[2] = lastRecord.DMTP3 || 0;
+            PhieuCan.CapPhoi.DMTP[3] = lastRecord.DMTP4 || 0;
+            PhieuCan.CapPhoi.DMNUOC = lastRecord.DMNUOC || 0;
+            PhieuCan.CapPhoi.DMXI = lastRecord.DMXI || 0;
+            PhieuCan.CapPhoi.DMPG[0] = lastRecord.DMPG1 || 0;
+            PhieuCan.CapPhoi.DoSutThongKe = lastRecord.DoSut || "";
+            PhieuCan.CapPhoi.TenMacBeTong = lastRecord.MacBetong || "";
+
+            PhieuCan.CapPhoi.DoAmTP[0] = lastRecord.DoAmTP1 || 0;
+            PhieuCan.CapPhoi.DoAmTP[1] = lastRecord.DoAmTP2 || 0;
+            PhieuCan.CapPhoi.DoAmTP[2] = lastRecord.DoAmTP3 || 0;
+            PhieuCan.CapPhoi.DoAmTP[3] = lastRecord.DoAmTP4 || 0;
+        } else {
+            PhieuCan.MaPhieuCan = 1;
+        }
+    });
+}
+
+function GhiThoiGianTronXong() {
+    let query = "UPDATE Phieucan SET GioXong = ? WHERE MaPhieuCan = ?";
+    let values = [new Date(), PhieuCan.MaPhieuCan];
+
+    sqlcon.query(query, values, function (err) {
+        if (err) throw err;
+        // if (err) {
+        //     // Xử lý lỗi tại đây
+        //     console.error(err);
+        //     // Gửi thông báo lỗi đến trình duyệt (đến tất cả các client đang kết nối tới server)
+        //     io.socket.emit('error', 'Đã có lỗi trong quá trình xử lý dữ liệu. Vui lòng kiểm tra và thực hiện theo đúng hướng dẫn. Cảm ơn!');
+        // } else {
+        //     console.log("Record updated");
+        // }
+
+    });
+
+    PhieuCan.GioXong = new Date();
+}
+
+function GiaTriTrangThai(l_trangthai) {
+    let tmp;
+    l_trangthai = l_trangthai.trim();
+    switch (l_trangthai) {
+        case "EM":
+            tmp = "EMPTY";
+            break;
+        case "ST":
+            tmp = "STOP";
+            break;
+        case "FU":
+        case "PE":
+            tmp = "FULL";
+            break;
+        case "PA":
+            tmp = "PAUSE";
+            break;
+        case "CO":
+        case "1C":
+        case "2C":
+        case "3C":
+        case "4C":
+        case "NU":
+        case "XI":
+            tmp = "COARSE";
+            break;
+        case "FI":
+            tmp = "FINE";
+            break;
+        case "IN":
+            tmp = "IN";
+            break;
+        case "EN":
+            tmp = "END";
+            break;
+        case "UP":
+            tmp = "GO UP";
+            break;
+        case "DO":
+            tmp = "GO DOWN";
+            break;
+        case "ON":
+            tmp = "ON TOP";
+            break;
+        default:
+            tmp = "No signal";
+    }
+    return tmp;
+}
+
+
+function TmrDocPLC_timer() {
+    DocMangThuThap(valuesKey);
+    // showPhieucanHientai();
+
+    if (ThuThap.SoMeHienTaiCotLieu === 0 && ThuThap.SoMeHienTaiXi === 0 && ThuThap.SoMeHienTaiNuoc === 0 && ThuThap.SoMeHienTaiPG) {
+        return;
+    }
+
+    if (!PhieuCan.DaChonPhieuCan) {
+        return;
+    }
+
+    if ((ThuThap.TrangThaiCanCotLieu.trim() === "COARSE" || ThuThap.TrangThaiCanCotLieu.trim() === "PAUSE") && ThuThap.SoMeHienTaiCotLieu > 0) {
+        if (!ThuThap.GhiPhieuCan && PhieuCan.DaChonPhieuCan) {
+            GhiPhieuCan();
+            console.log('Đã ghi phiếu cân cho Cốt liệu với MaPhieuCan: ', PhieuCan.MaPhieuCan)
+            ThuThap.GhiPhieuCan = true;
+        }
+        ThuThap.GhiGiaTriCL = false;
+        console.log('Đang ở đây 1')
+    } else if ((ThuThap.KhoiLuongCotLieu[0] !== 0 || ThuThap.KhoiLuongCotLieu[1] !== 0 || ThuThap.KhoiLuongCotLieu[2] !== 0 || ThuThap.KhoiLuongCotLieu[3] !== 0) && !ThuThap.GhiGiaTriCL && ThuThap.SoMeHienTaiCotLieu > 0) {
+        if (Daghihetcacthanhphan("CanCL")) {
+            ThuThap.GhiGiaTriCL = true;
+        }
+        DocGiaTriCan(1);
+        GhiGiaTriCL();
+        // let CuaVatLieu = GetCuaVatLieu();
+        // Gọi hàm lấy thông tin của Cử vật liệu từ mysql sau đó gửi qua client để hiển thị
+        // Ngoài việc gọi them định kỳ thì phía client cũng có hàm yêu cầu thực hiện việc này, và sẽ cập nhật mới mỗi khi load trang, nhấn HOME, hay cập nhật Macbetong (hãy check lại)
+        getCuaVatLieu(function (result) {
+            io.emit('cuaVatLieuData', result);
+            console.log('Gửi lệnh và dữ liệu yêu cầu tất cả client cập nhật tên của cửa vật liệu', result);
+        });
+
+        if (ThuThap.SoMeDM === ThuThap.SoMeHienTaiCotLieu) {
+            ThuThap.DaCanXong.DaCanXongCotLieu = true;
+        }
+        console.log('Đang ở đây 2')
+    }
+
+    if ((ThuThap.TrangThaiCanXi.trim() === "COARSE" || ThuThap.TrangThaiCanXi.trim() === "FINE" || ThuThap.TrangThaiCanXi.trim() === "PAUSE") && ThuThap.SoMeHienTaiXi > 0) {
+        ThuThap.GhiGiaTriXi = false;
+        if (!ThuThap.GhiPhieuCan && PhieuCan.DaChonPhieuCan) {
+            GhiPhieuCan();
+            console.log('Đã ghi phiếu cân cho XI với MaPhieuCan: ', PhieuCan.MaPhieuCan)
+            ThuThap.GhiPhieuCan = true;
+        }
+        console.log('Đang ở đây 3')
+    } else if (ThuThap.KhoiLuongXi !== 0 && !ThuThap.GhiGiaTriXi && ThuThap.SoMeHienTaiXi > 0) {
+        GhiGiaTriXi();
+        ThuThap.GhiGiaTriXi = true;
+        DocGiaTriCan(2);
+        if (ThuThap.SoMeDM === ThuThap.SoMeHienTaiXi) {
+            ThuThap.DaCanXong.DaCanXongXi = true;
+        }
+        console.log('Đang ở đây 4')
+    }
+
+    if ((ThuThap.TrangThaiCanNuoc.trim() === "COARSE" || ThuThap.TrangThaiCanNuoc.trim() === "PAUSE") && ThuThap.SoMeHienTaiNuoc > 0) {
+        ThuThap.GhiGiaTriNuoc = false;
+        if (!ThuThap.GhiPhieuCan && PhieuCan.DaChonPhieuCan) {
+            GhiPhieuCan();
+            console.log('Đã ghi phiếu cân cho Nước với MaPhieuCan: ', PhieuCan.MaPhieuCan)
+            ThuThap.GhiPhieuCan = true;
+        }
+        console.log('Đang ở đây 5')
+    } else if (ThuThap.KhoiLuongNuoc !== 0 && !ThuThap.GhiGiaTriNuoc && ThuThap.SoMeHienTaiNuoc > 0) {
+        GhiGiaTriNuoc();
+        ThuThap.GhiGiaTriNuoc = true;
+        DocGiaTriCan(3);
+        if (ThuThap.SoMeDM === ThuThap.SoMeHienTaiNuoc) {
+            ThuThap.DaCanXong.DaCanXongNuoc = true;
+        }
+        console.log('Đang ở đây 6')
+    }
+
+    if (ThuThap.DaCanXong.DaCanXongCotLieu && ThuThap.DaCanXong.DaCanXongXi && ThuThap.DaCanXong.DaCanXongNuoc) {
+        // KiemTraFileDuLieu();
+        if (!PhieuCan.DaGhiGioXong) {
+            GhiThoiGianTronXong();
+            PhieuCan.DaGhiGioXong = true;
+        }
+        console.log('Đang ở đây 7')
+    }
+}
+
+// Hàm DocGiaTriCan ở phía server
+function DocGiaTriCan(CanSo) {
+    // Cập nhật dữ liệu mới lên tất cả các client đang kết nối đến server
+    // emit the updated data to all connected clients
+    io.emit('syncData', { CapPhoi, KhachHang, DonDatHang, XeBon, PhieuGiaoBeTong, PhieuCan, DaCanXong, ThongKe, ThuThap, CuaVatLieu, ThongTinCapPhoi });
+
+    // yêu cầu phía client đọc giá trị cân
+    io.emit('DocGiaTriCan', CanSo);
+}
+
+function Daghihetcacthanhphan(can) {
+    let result = true;
+    let i;
+
+    switch (can) {
+        case "CanCL":
+            for (i = 0; i <= 3; i++) {
+                if (PhieuCan.CapPhoi.DMTP[i] !== 0 && ThuThap.KhoiLuongCotLieu[i] === 0) {
+                    result = false;
+                    break;
+                }
+            }
+            break;
+        case "CanPG":
+            if (PhieuCan.CapPhoi.DMPG !== 0 && ThuThap.KhoiLuongPG === 0) {
+                result = false;
+            }
+            break;
+    }
+
+    return result;
+}
+
+console.log('////////////////////////////////////////////////////////////////////////Đã đến cuối chương trình index.js///////////////////////////////////////////////////////////////////////')

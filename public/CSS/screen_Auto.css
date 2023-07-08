@@ -169,6 +169,16 @@ body {
     height: 30px;
 }
 
+/*Cửa phểu trung gian*/
+#scrAuto_CylinderXa_PheuTG {
+    position: absolute;
+    left: 1232px;
+    top: 695px;
+    width: 65px;
+    height: 25px;
+}
+
+
 /*Code css cho nút nhấn Auto*/
 #bttAuto_XeTronMoi {
     border: none;
@@ -202,7 +212,7 @@ body {
     top: 100px; */
 }
 
-#bttAuto_ConfirmMode {
+#bttAuto_ChitietPhieucan {
     border: none;
     background-color: rgb(4, 0, 255);
     color: rgb(255, 255, 255);
@@ -514,6 +524,22 @@ th {
 
 /*Nút tìm kiếm*/
 #btt_Search {
+    border: none;
+    background-color: DodgerBlue;
+    color: rgb(255, 255, 255);
+    text-align: center;
+    display: inline-block;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    /* position: absolute; */
+    width: 105px;
+    height: 30px;
+    /* left: 127px;
+    top: 110px; */
+}
+
+.btn {
     border: none;
     background-color: DodgerBlue;
     color: rgb(255, 255, 255);

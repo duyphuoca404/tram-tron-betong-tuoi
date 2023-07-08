@@ -28,10 +28,14 @@
     padding: 10px;
 }
 
-.container-macBetong,
-.container-reportPhieucan {
+.container-macBetong {
     display: flex;
     flex-direction: row;
+}
+
+.container-reportPhieucan {
+    display: flex;
+    flex-direction: column;
 }
 
 /*Bảng mác bê tông, dành cho id #macBetong*/
@@ -46,7 +50,7 @@
 
 #reportPhieucan {
     display: block;
-    height: 800px;
+    height: 560px;
     overflow-y: scroll;
     overflow: auto;
     border-collapse: collapse;
@@ -83,7 +87,7 @@ td {
 
 /* ///////////////Hiển thị các input field ở màn hình MÁC BÊ TÔNG///////////////// */
 .form-container-macBetong {
-    margin-left: 20px;
+    /* margin-left: 20px; */
     border: 1px solid black;
     padding: 10px;
 }
@@ -97,7 +101,7 @@ td {
 .reportPhieuCantheoMaPhieuCan {
     display: flex;
     flex-direction: row;
-    margin-left: 20px;
+    /* margin-left: 20px; */
 }
 
 .form-container-macBetong-right {
@@ -242,7 +246,7 @@ td {
 /*Bảng datCapphoi, dành cho id #datCapphoi*/
 #reportTablePhieuCanMaPhieuCan {
     display: block;
-    height: 400px;
+    height: 560px;
     overflow-y: scroll;
     overflow: auto;
     border-collapse: collapse;

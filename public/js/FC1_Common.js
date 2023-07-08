@@ -93,7 +93,9 @@ let ThongKe = {
     TheoDonDatHang: false,
     TheoMac: false,
     TheoGio: false,
-    ThongKeChiTiet: false
+    ThongKeChiTiet: false,
+    BienSoXe: '',
+    MaPhieuCan: ''
 };
 
 let ThuThap = {
@@ -148,7 +150,7 @@ let ThongTinCapPhoi = {
 // Khai báo một số biến toàn cục
 var anable_edditting_datThongsocan = false;
 var anable_edditting_khungHieuchinhcan = false;
-PhieuCan.DaChonPhieuCan = false;
+// PhieuCan.DaChonPhieuCan = false;
 
 ////////////// YÊU CẦU DỮ LIỆU TỪ SERVER- REQUEST DATA //////////////
 var myVar = setInterval(myTimer, 100);

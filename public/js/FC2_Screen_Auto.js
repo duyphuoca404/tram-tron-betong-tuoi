@@ -55,37 +55,7 @@ function fn_scrAuto_IOField_TronXA(tag, IOField, tofix) {
         }
     });
 }
-// Hàm cập nhật tên của các Cửa vật liệu, xi, PG vào bảng trong màn hình chính
-function updateTableHeaders(CuaVatLieu) {
-    console.log('Đã vào hàm cập nhật Cuavatlieu từ bảng cuavatlieu')
-    // Lấy các phần tử thẻ th trong bảng
-    let tableHeaders = document.querySelectorAll(".responsive-table-input-matrix thead th");
 
-    // Điền giá trị của thuộc tính Cua vào các ô tương ứng
-    for (let i = 0; i < CuaVatLieu.Cua.length; i++) {
-        tableHeaders[i + 2].textContent = CuaVatLieu.Cua[i];
-        // console.log('table header_Cua_' + (i + 2) + ' _ ' + tableHeaders[i + 2].textContent)
-    }
-
-    // Điền giá trị của thuộc tính Xi vào ô tương ứng
-    tableHeaders[6].textContent = CuaVatLieu.Xi;
-    // console.log('table header_Xi_6: ' + tableHeaders[6].textContent)
-    // console.log('Đã cập nhật xong tên của các TP và Xi')
-    // Điền giá trị của thuộc tính PG vào các ô tương ứng
-    for (let i = 0; i < CuaVatLieu.PG.length; i++) {
-        tableHeaders[i + 8].textContent = CuaVatLieu.PG[i];
-        // console.log('table header_PG_' + (i + 8) + ' _ ' + tableHeaders[i + 8].textContent)
-    }
-    console.log('Đã cập nhật xong tên các CuaVatLieu từ bảng cuavatlieu')
-}
-
-// Sử dụng hàm updateTableHeaders để cập nhật nội dung của bảng
-// let CuaVatLieu = {
-//     Cua: ['TP1', 'TP2', 'TP3', 'TP4'],
-//     Xi: 'Xi Măng',
-//     PG: ['Phụ Gia 1', 'Phụ Gia 2'],
-//     ThuThapPG: false
-// };
 
 // Hàm nhận dữ liệu XeBon từ PhieuCan được server gửi lên, 
 // hàm này chỉ là nhận và hiển thị trong listbox thôi nhé, về việc xử lý khi click chọn Xebon thì tìm hàm  $('.scr_Auto_listbox-xebon').on('change', function ()
@@ -105,17 +75,21 @@ socket.on('scr_Auto_updateDataXebon', function (data) {
 });
 
 function mnuThiHanhDatCapPhoi_Click() {
+    console.log('Vao menu DatCapPhoi')
     //Call DienDanhSachXe
     if (PhieuCan.DaChonXe === true) {
         //Me.cboXeBon.Text = PhieuCan.XeBon.BienSoXe;
         document.querySelector('.scr_Auto_listbox-xebon').value = PhieuCan.XeBon.BienSoXe;
-
+        console.log('Đã chọn xe và hiển thị trên màn hình chính là: ', document.querySelector('.scr_Auto_listbox-xebon').value)
     } else {
         PhieuCan.DaChonXe = true;
         document.querySelector('.scr_Auto_listbox-xebon').value = PhieuCan.XeBon.BienSoXe;
-        //MsgBox("Da chon xe trong Dat cap phoi", vbOKOnly);
+        console.log('Đã đặt lại PhieuCan.DaChonXe = true và hiển thị trên màn hình chính là: ', document.querySelector('.scr_Auto_listbox-xebon').value)
+        // Đồng bộ dữ liệu với server
+        updateDataOnServer();
     }
     if (PhieuCan.DaChonPhieuCan === true) {
+        console.log('PhieuCan.DaChonPhieuCan === true, và chuẩn bị vào hàm DatCacThongSoPhieuCanBanDau()')
         DatCacThongSoPhieuCanBanDau();
     }
     // Lệnh này sẽ tắt tính năng disable (hay nó sẽ được enable) nút Xe Trộn Mới, đồng nghĩa việc phải chọn vào nút THIẾT LẬP CẤU HÌNH thì mới enable nút Xe Trộn Mới được
@@ -157,9 +131,249 @@ function showPhieucanHientai() {
     }
 }
 
+// // Khi trang web được load thì cần làm gì
+// function Form_Load() {
+
+//     if (!PhieuCan.dondathang.MaDonDatHang) {
+//         // cmdXeTronMoi.Enabled = false;
+//     }
+
+//     socket.emit('scr_Auto_getDataXebon');
+//     PhieuCan.DaChonXe = false;
+
+//     // for (let i = 0; i < 4; i++) {
+//     //     ThongTinCapPhoi.DoAm[i] = 0;
+//     // }
+//     ThongTinCapPhoi.Som3Me = 1;
+//     ThongTinCapPhoi.SoMe = 1;
+//     ThongTinCapPhoi.DangDatCapPhoi = false;
+
+//     // ThietLapBanDauDieuKhien(); // hàm này gọi hàm DocGiaTriBanDau, là hàm đọc các giá trị thêm nước, thời gian trộn/xả để hiển thị lên màn hình chính, cái này mình làm rồi nhé
+// }
+
+// Tạo một hàm để hiển thị popup
+function showPopup() {
+    // Lấy phần tử div của bạn
+    var div = document.querySelector(".form-reportPhieucanDetail");
+
+    // Tạo một phần tử div mới để làm nền cho popup
+    var overlay = document.createElement("div");
+    overlay.style.position = "fixed";
+    overlay.style.top = "0";
+    overlay.style.left = "0";
+    overlay.style.width = "100%";
+    overlay.style.height = "100%";
+    overlay.style.backgroundColor = "rgba(0,0,0,0.5)";
+
+    // Tạo một phần tử div mới để chứa nội dung của popup
+    var popup = document.createElement("div");
+    popup.setAttribute("id", "my-popup"); // Thêm id duy nhất cho phần tử popup
+    popup.style.position = "absolute";
+    popup.style.top = "50%";
+    popup.style.left = "50%";
+    popup.style.transform = "translate(-50%, -50%)";
+    popup.style.backgroundColor = "#fff";
+    popup.style.padding = "20px";
+
+    // Thêm nội dung của thẻ div của bạn vào phần tử div mới này
+    popup.appendChild(div.cloneNode(true));
+
+    // Tạo một nút đóng cho popup
+    var closeButton = document.createElement("button");
+    closeButton.innerHTML = "X";
+    closeButton.style.position = "absolute";
+    closeButton.style.top = "10px";
+    closeButton.style.right = "10px";
+
+    // Thêm sự kiện cho nút đóng để đóng popup khi nhấn vào nút này
+    closeButton.addEventListener("click", function () {
+        document.body.removeChild(overlay);
+    });
+
+    // Thêm nút đóng vào popup
+    popup.appendChild(closeButton);
+
+    // Thêm phần tử div mới này vào nền của popup
+    overlay.appendChild(popup);
+
+    // Thêm nền của popup vào trang web
+    document.body.appendChild(overlay);
+
+    // Thêm sự kiện cho phép đóng popup khi nhấn chuột bên ngoài popup
+    overlay.addEventListener("click", function (event) {
+        if (event.target === overlay) {
+            document.body.removeChild(overlay);
+        }
+    });
+
+    // Thêm sự kiện cho phép di chuyển popup bằng chuột
+    var isDragging = false;
+    var currentX;
+    var currentY;
+    var initialX;
+    var initialY;
+    var xOffset = 0;
+    var yOffset = 0;
+
+    popup.addEventListener("mousedown", dragStart, false);
+    document.addEventListener("mouseup", dragEnd, false);
+    document.addEventListener("mousemove", drag, false);
+
+    function dragStart(e) {
+        initialX = e.clientX - xOffset;
+        initialY = e.clientY - yOffset;
+
+        if (e.target === popup) {
+            isDragging = true;
+        }
+    }
+
+    function dragEnd(e) {
+        initialX = currentX;
+        initialY = currentY;
+
+        isDragging = false;
+    }
+
+    function drag(e) {
+        if (isDragging) {
+            e.preventDefault();
+            currentX = e.clientX - initialX;
+            currentY = e.clientY - initialY;
+
+            xOffset = currentX;
+            yOffset = currentY;
+
+            setTranslate(currentX, currentY, popup);
+        }
+    }
+
+    function setTranslate(xPos, yPos, el) {
+        el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
+    }
+
+    popup.querySelector('[data-label="MaPhieuCan"]').value = PhieuCan.MaPhieuCan;
+    if (PhieuCan.MaPhieuCan !== 'undefined' || PhieuCan.MaPhieuCan !== "" || PhieuCan.MaPhieuCan !== null) {
+        // Gửi giá trị MaPhieuCan đến server
+        socket.emit('get_data_popup', PhieuCan.MaPhieuCan);
+    }
+
+    // Thêm sự kiện cho trường Mã Phiếu Xuất trong popup
+    popup.querySelector('[data-label="MaPhieuCan"]').addEventListener('keyup', function (event) {
+        if (event.key === 'Enter') {
+            // Lấy giá trị MaPhieuCan từ input field
+            let MaPhieuCan = this.value;
+            // Lấy giá trị của MaPhieuCan hiện tại trong object PhieuCan
+            console.log('Giá trị trong ô Mã Số Phiếu: ', MaPhieuCan)
+            console.log('Loại dữ liệu của MaPhieuCan trong ô Mã Số Phiếu: ', typeof MaPhieuCan)
+            // Gửi giá trị MaPhieuCan đến server
+            socket.emit('get_data_popup', MaPhieuCan);
+        }
+    });
+}
+
+// Nhận dữ liệu từ server và hiển thị lên trang web
+socket.on('data_popup', function (data) {
+    console.log('Nội dung được nhận trên popup: ', data)
+    // Kiểm tra xem đối tượng phieucan có tồn tại trong dữ liệu trả về từ server hay không
+    // Kiểm tra xem popup có tồn tại hay không
+    var popup = document.querySelector("#my-popup");
+    if (!popup) {
+        return;
+    }
+    if (!data.phieucan) {
+        // Nếu đối tượng phieucan không tông tại, thì thông báo lỗi cho người dùng
+        if (confirm('Mã phiếu cân số ' + popup.querySelector('[data-label="MaPhieuCan"]').value + ' không có dữ liệu phiếu cân. \nVui lòng chọn một mã phiếu cân khác. Cảm ơn.')) {
+            popup.querySelector('[data-label="MaPhieuCan"]').focus();
+        } else popup.querySelector('[data-label="MaPhieuCan"]').focus();
+        return;
+    }
+
+    // Hiển thị dữ liệu lên các input field
+    //popup.querySelector('[data-label="TenKhachHang"]').value = data.phieucan.TenKhachHang;
+    popup.querySelector('[data-label="BienSoXe"]').value = data.phieucan.BienSoXe;
+    popup.querySelector('[data-label="SoM3"]').value = data.phieucan.Som3Me;
+    popup.querySelector('[data-label="MacBeTong"]').value = data.phieucan.MacBeTong;
+    popup.querySelector('[data-label="Ngay"]').value = data.phieucan.Ngay;
+    popup.querySelector('[data-label="GioXong"]').value = data.phieucan.GioXong;
+    popup.querySelector('[data-label="DoSut"]').value = data.phieucan.DoSut;
+
+    // Hiển thị dữ liệu lên bảng
+    let table = popup.querySelector('#reportTablePhieuCanMaPhieuCan');
+    let thead = table.getElementsByTagName('thead')[0];
+    let tbody = table.getElementsByTagName('tbody')[0];
+    let rows = tbody.getElementsByTagName('tr');
+    // Điền dữ liệu vào title của bảng
+    let titleRow = thead.getElementsByTagName('tr')[0];
+    titleRow.cells[2].innerHTML = data.phieucan.TenTP1;
+    titleRow.cells[3].innerHTML = data.phieucan.TenTP2;
+    titleRow.cells[4].innerHTML = data.phieucan.TenTP3;
+    titleRow.cells[5].innerHTML = data.phieucan.TenTP4;
+    titleRow.cells[6].innerHTML = data.phieucan.TenXiMang;
+    titleRow.cells[8].innerHTML = data.phieucan.TenPG1;
+    titleRow.cells[9].innerHTML = data.phieucan.TenPG2;
+
+    // Xóa dữ liệu cũ trong bảng
+    for (let i = rows.length - 1; i >= 1; i--) {
+        tbody.deleteRow(i);
+    }
+
+    // Điền dữ liệu vào bảng
+    for (let i = 0; i < data.chitietphieucan.length; i++) {
+        let chitietphieucan = data.chitietphieucan[i];
+        // Tạo một hàng mới
+        let row = tbody.insertRow(-1);
+        // Điền dữ liệu vào các ô
+        row.insertCell(-1).innerHTML = '';
+        row.insertCell(-1).innerHTML = chitietphieucan.STTMe;
+        row.insertCell(-1).innerHTML = formatNumber(chitietphieucan.TP1, "0.0");
+        row.insertCell(-1).innerHTML = formatNumber(chitietphieucan.TP2, "0.0");
+        row.insertCell(-1).innerHTML = formatNumber(chitietphieucan.TP3, "0.0");
+        row.insertCell(-1).innerHTML = formatNumber(chitietphieucan.TP4, "0.0");
+        row.insertCell(-1).innerHTML = formatNumber(chitietphieucan.Xi, "0.0");
+        row.insertCell(-1).innerHTML = formatNumber(chitietphieucan.Nuoc, "0.0");
+        row.insertCell(-1).innerHTML = formatNumber(chitietphieucan.PG1, "0.00");
+        row.insertCell(-1).innerHTML = formatNumber(chitietphieucan.PG2, "0.00");
+    }
+
+    // Tạo hàng Định Mức
+    let dinhmucRow = rows[0];
+    dinhmucRow.cells[0].innerHTML = 'Định Mức';
+    dinhmucRow.cells[1].innerHTML = '';
+    dinhmucRow.cells[2].innerHTML = formatNumber(data.phieucan.DMTP1, "0.0");
+    dinhmucRow.cells[3].innerHTML = formatNumber(data.phieucan.DMTP2, "0.0");
+    dinhmucRow.cells[4].innerHTML = formatNumber(data.phieucan.DMTP3, "0.0");
+    dinhmucRow.cells[5].innerHTML = formatNumber(data.phieucan.DMTP4, "0.0");
+    dinhmucRow.cells[6].innerHTML = formatNumber(data.phieucan.DMXi, "0.0");
+    dinhmucRow.cells[7].innerHTML = formatNumber(data.phieucan.DMNuoc, "0.0");
+    dinhmucRow.cells[8].innerHTML = formatNumber(data.phieucan.DMPG1, "0.00");
+    dinhmucRow.cells[9].innerHTML = formatNumber(data.phieucan.DMPG2, "0.00");
+
+    // Tạo hàng Tổng mới
+    let tongRow = tbody.insertRow(-1);
+    tongRow.insertCell(-1).innerHTML = 'Tổng';
+    tongRow.insertCell(-1).innerHTML = ''; // Ô trống ngay sau ô chứa chữ "Tổng"
+    for (let i = 2; i < 10; i++) {
+        let sum = 0;
+        for (let j = 1; j < rows.length - 1; j++) {
+            let cell = rows[j].cells[i];
+            if (cell) {
+                sum += Number(cell.innerHTML);
+            }
+        }
+        tongRow.insertCell(-1).innerHTML = sum.toFixed(1);
+    }
+});
+
 // ///////////////////////////////////////////////////////// Hàm lắng nghe sự kiện HTML đã tải xong cấu trúc, chưa tải xong video, ảnh, ... ///////////////////////////////////////////////////////
 document.addEventListener("DOMContentLoaded", function () {
     console.log("Đây là hàm lắng nghe sự kiện DOM ở màn hình Auto");
+    console.log('Dữ liệu PhieuCan tại thời điểm vừa load xong HTML là: ', PhieuCan)
+    console.log('Dữ liệu ThuThap tại thời điểm vừa load xong HTML là: ', ThuThap)
+    console.log('Dữ liệu CuaVatLieu tại thời điểm vừa load xong HTML là: ', CuaVatLieu)
+    // Đồng bộ dữ liệu đến server
+    console.log('Gọi hàm updateDataOnServer để yêu cầu server gửi lên dữ liệu từ server sau lần kết nối đầu tiên của client');
+    updateDataOnServer();
     // update objects with the data received from the server
     socket.on('syncData', (data) => {
         // update your objects with the data received from the server
@@ -175,24 +389,37 @@ document.addEventListener("DOMContentLoaded", function () {
         CuaVatLieu = data.CuaVatLieu;
         ThongTinCapPhoi = data.ThongTinCapPhoi;
     });
-    console.log('updated objects with the data received from the server');
+    console.log('Updated objects with the data received from the server');
+    console.log('Dữ liệu PhieuCan tại thời điểm sau khi gọi hàm updateDataOnServer là: ', PhieuCan)
+    console.log('Dữ liệu ThuThap tại thời điểm sau khi gọi hàm updateDataOnServer là: ', ThuThap)
+    console.log('Dữ liệu CuaVatLieu tại thời điểm sau khi gọi hàm updateDataOnServer là: ', CuaVatLieu)
     // Tiến hành thực hiện một số khởi tạo sau khi load xong
     ///////////////////////////////////////////////////// Hàm gửi yêu cầu server get Cửa vật liệu //////////////////////////////////////////////////////////////
+    console.log('Gọi hàm getCuaVatLieu');
     socket.emit('getCuaVatLieu');
-
+    console.log('Đã gọi hàm getCuaVatLieu');
     // Gọi hàm đọc Phiếu cân gần nhất để có dữ liệu đã cân trước đó
     // Call LatestPhieucanValues and pass showPhieucanHientai as the callback function
+    console.log('Gọi hàm lấy Phiếu cân gần nhất');
     LatestPhieucanValues(socket, showPhieucanHientai);
-    // tat flag da chon phieu can de ko ghi lai phieu can khi chua chon
-    PhieuCan.DaChonPhieuCan = false;
-    ThuThap.CoMeDangTron = false;
-    ThuThap.ChonVitMacDinh = false;
-    ThuThap.SoLanLoiTinHieu = 0
+
+    console.log('Đã gọi hàm lấy Phiếu cân gần nhất');
+    console.log('Dữ liệu PhieuCan tại thời điểm sau khi gọi hàm LatestPhieucanValues là: ', PhieuCan)
+    console.log('Dữ liệu ThuThap tại thời điểm sau khi gọi hàm LatestPhieucanValues là: ', ThuThap)
+    console.log('Dữ liệu CuaVatLieu tại thời điểm sau khi gọi hàm LatestPhieucanValues là: ', CuaVatLieu)
+
+    // // tat flag da chon phieu can de ko ghi lai phieu can khi chua chon,
+    // // Việc cài đặt các thông số ban đầu khi load chương trình nên được thực hiện dưới server
+    // PhieuCan.DaChonPhieuCan = false;
+    // ThuThap.CoMeDangTron = false;
+    // ThuThap.ChonVitMacDinh = false;
+    // ThuThap.SoLanLoiTinHieu = 0
 
     // Tạm thời disable nút Xe Tron Moi sau khi reload lại trang web
     // cmdXeTronMoi.disabled = true;
 
     // Hàm gửi yêu cầu server get data Xe bon, đặt ở đây thì không cần click vào nút AUTO, chỉ cần Refresh là đc
+    // Ở file VB gốc, có hàm Form_Load của Main form, sẽ gọi danh sách xe khi form được Load
     socket.emit('scr_Auto_getDataXebon');
 
     // Hàm xử lý khi có sự kiện click lên nút nhấn btt_Screen_Auto
@@ -220,7 +447,8 @@ document.addEventListener("DOMContentLoaded", function () {
         fn_Table01_SQL_Show();
         // Khi chọn menu quản lý Mac bê tông thì
         ThongTinCapPhoi.DangDatCapPhoi = false;
-
+        // Đồng bộ dữ liệu đến server
+        updateDataOnServer();
     });
 
     // Hàm xử lý khi có sự kiện click lên nút nhấn btt_Screen_datCapphoi
@@ -240,6 +468,15 @@ document.addEventListener("DOMContentLoaded", function () {
         fn_Table03_SQL_Show();
         // Khi tiến hành chọ đạt cấp phối thì
         // mnuThiHanhDatCapPhoi_Click();
+        document.querySelector('[data-label="MaPhieuCan"]').value = PhieuCan.MaPhieuCan;
+        if (PhieuCan.MaPhieuCan !== 'undefined' || PhieuCan.MaPhieuCan !== "" || PhieuCan.MaPhieuCan !== null) {
+            // Gửi giá trị MaPhieuCan đến server
+            socket.emit('get_data', PhieuCan.MaPhieuCan);
+        }
+        // Gọi danh sách khách hàng cho form thống kê
+        socket.emit('getDataReportKhachhang');
+        // Gọi danh sách đơn hàng cho form thống kê
+        // socket.emit('getDataReportDonHang');
     });
     // Phải đưa hàm thay đổi sự kiện này vào trong hàm lắng nghe event, vì file js chứa hàm này nó được gọi trước khi HTML load xong, vậy nên khi nhấn vào listbox nó ko work,
     // chỉ khi mình đưa vào hàm lắng nghe này thì nó mới hoạt động, do khi đó khung HTML đã được gọi xong, vậy nên chọn list nó mới chạy hàm được
@@ -261,6 +498,9 @@ document.addEventListener("DOMContentLoaded", function () {
             PhieuCan.XeBon.TenLaiXe = rowData.TenLaiXe;
             PhieuCan.DaChonXe = true;
 
+            // Đồng bộ dữ liệu đến server
+            updateDataOnServer();
+
             // Chỗ này theo VB code là sẽ cần ghi dữ liệu xe bồn của pHiếu Cân, tìm ở cboXeBon_Click()
             // Nhiệm vụ của đoạn này là tìm record có MaPhieuCan trung với PhieuCan.MaPhieuCan, 
             // sau đó cập nhật trường MaXe với PhieuCan.XeBon.STT, trường BienSoXe với PhieuCan.XeBon.BienSoXe
@@ -269,6 +509,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         } else {
             PhieuCan.DaChonXe = false;
+
+            // Đồng bộ dữ liệu đến server
+            updateDataOnServer();
         }
         // console.log('Đã chọn xe: ', PhieuCan.DaChonXe)
         // console.log('Kiểm tra dữ liệu XeBon: ', PhieuCan.XeBon.STT)
@@ -279,6 +522,15 @@ document.addEventListener("DOMContentLoaded", function () {
         // $('#sttXebon').val(rowData.STT);
         // $('#bienso').val(rowData.BienSoXe);
         // $('#taixe').val(rowData.TenLaiXe);
+    });
+
+    // // Thêm sự kiện cho nút bấm của bạn để hiển thị popup
+    // document.querySelector("#bttAuto_ChitietPhieucan").addEventListener("click", showPopup);
+
+    // Thêm sự kiện cho nút bấm của bạn để hiển thị popup
+    document.querySelector("#bttAuto_ChitietPhieucan").addEventListener("click", function () {
+        // Hiển thị popup
+        showPopup();
     });
 
 });

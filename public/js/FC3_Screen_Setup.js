@@ -193,7 +193,10 @@ socket.on('updateDataMacbetongSuccess', function () {
 
 // Tìm kiếm SQL theo khoảng thời gian
 function fn_SQL_By_Time() {
-    var val = [document.getElementById('dtpk_Search_Start').value, document.getElementById('dtpk_Search_End').value];
+    ThongKe.MaPhieuCan = document.querySelector('# document.querySelector').value;
+    ThongKe.BienSoXe = document.querySelector('[data-label="bienSoXe"]').value;
+    ThongKe.MacBetong = document.querySelector('[data-label="macBetong"]').value;
+    var val = [document.getElementById('dtpk_Search_Start').value, document.getElementById('dtpk_Search_End').value, ThongKe.MaDonDatHang, ThongKe.TenKhachHang, ThongKe.MaPhieuCan, ThongKe.BienSoXe, ThongKe.MacBetong];
     socket.emit('msg_SQL_ByTime', val);
     socket.on('SQL_ByTime', function (data) {
         fn_table_03(data); // Show sdata
@@ -710,6 +713,70 @@ socket.on('error', function (message) {
     alert(message);
 });
 
+//////////////////////////////////////////////////////// Update data for report /////////////////////////////////////////////////////////////////////////
+socket.on('updateDataReportKhachhang', function (data) {
+    // Cập nhật listbox-donhang-khachhang
+    var listbox = $('.listbox-report-khachhang');
+    //listbox.empty(); //lệnh này đầu tiên sẽ xóa trắng listbox, nên nếu muốn để lại các option đã khai báo trong html thì bỏ đoạn này đi
+    // Xóa các tùy chọn bắt đầu từ vị trí thứ hai trở đi, mục đích là để listbox khách hàng chỉ hiển thị chữ Vui lòng chọn .... mỗi khi nhấn vào nút ĐẶT CẤP PHÔI
+    listbox.find('option').slice(1).remove();
+    for (var i = 0; i < data.length; i++) {
+        var option = $('<option>' + data[i].MaKhachHang + ' - ' + data[i].TenKhachHang + '</option>');
+        option.data('rowData', data[i]);
+        listbox.append(option);
+    }
+});
+// Listen for changes in listbox-datcapphoi-khachhang
+$('.listbox-report-khachhang').on('change', function () {
+    // Cách viết hay được sử dụng ở nhưng đoạn code trước đây từng sử dụng sẽ viết như thế này để lấy MaKhachHang
+    var selectedOption = $('.listbox-report-khachhang').find('option:selected');
+    var rowData = selectedOption.data('rowData');
+    var MaKhachHang = rowData.MaKhachHang;
+    // Còn đây là cách viết gọn, nó là cách viết nối chứ không phải tách ra từng phần như trên
+    // Get the selected MaKhachHang
+    // const MaKhachHang = $(this).find(':selected').data('rowData').MaKhachHang;
+
+    // Emit the 'getDonHang' event with the selected MaKhachHang
+    socket.emit('getDataReportDonHang', MaKhachHang);
+    console.log('Gửi tin nhắn yêu cầu gửi thông tin đơn hàng của MaKhachHang: ' + MaKhachHang);
+    // Lưu MaKhachHang và TenKhachHang vao trong object PhieuCan
+    ThongKe.MaKhachHang = rowData.MaKhachHang;
+    ThongKe.TenKhachHang = rowData.TenKhachHang;
+    // console.log("ThongKe.MaKhachHang: " + ThongKe.MaKhachHang);
+    // console.log("ThongKe.TenKhachHang: " + ThongKe.TenKhachHang);
+});
+socket.on('updateDataReportDonhang', function (data) {
+    var listbox = $('.listbox-report-donhang');
+    // listbox.empty(); 
+    // lệnh này đầu tiên sẽ xóa trắng listbox, nên nó sẽ xóa luôn option đầu tiên đã đặt trong html là "Vui lòng chọn ...." (bao gồm cả những 
+    // option đã được xuất hiện từ các mã hàng trước đó). Vậy nên khi sử dụng lệnh này, cụm từ "Vui lòng chọn ...." sẽ bị xóa đi, nhưng đồng thời khi ta chọn khách hàng mới thì
+    // option đầu tiên trong danh sách đơn hàng của khách hàng mới này nó sẽ xuất hiện trong listbox đơn hàng, vậy nên câu lệnh lưu MaDonHang vào object PhieuCan nó không thực hiện được
+    // hay chính xác hơn trong trường hợp này ta không nên xóa trắng listbox
+    // Việc xóa các tùy chọn bắt đầu từ vị trí thứ hai trở đi, mục đích là để listbox đơn hàng chỉ hiển thị chữ Vui lòng chọn .... mỗi khi nhấn vào nút Datcapphoi,
+    // Chú ý: sau mỗi lần chọn một Khách hàng thì toàn bộ mã đơn hàng thuộc về khách hàng đó sẽ xuất hiện trong listbox-datcapphoi-donhang, điều đó có nghĩa là ta phải xóa mấy cái 
+    // option từ option thứ 2 trở đi để nó chỉ hiện mỗi cụm từ "Vui lòng chọn ....", rồi sau đó với những câu lệnh bện dưới nó sẽ cập nhật được những Đơn hàng mới, 
+    // và bao gồm luôn cả cụm từ "Vui lòng chọn ...." sẽ nằm ở trên cùng, sau đó ta sẽ phải xổ listbox ra để chọn đợn hàng, nên khi đó việc lưu MaDonHang sẽ được thực hiện
+    listbox.find('option').slice(1).remove();
+    for (var i = 0; i < data.length; i++) {
+        var option = $('<option>' + data[i].MaDonDatHang + ' - ' + data[i].DiaChiCongTruong + '</option>');
+        option.data('rowData', data[i]);
+        listbox.append(option);
+    }
+    console.log("Đơn đặt hàng được gửi từ server có Cấp phối là: ", data);
+});
+// Listen for changes in listbox-datcapphoi-khachhang
+$('.listbox-report-donhang').on('change', function () {
+    // Cách viết hay được sử dụng ở nhưng đoạn code trước đây từng sử dụng sẽ viết như thế này để lấy MaKhachHang
+    var selectedOption = $('.listbox-report-donhang').find('option:selected');
+    var rowData = selectedOption.data('rowData');
+    // Lưu MaDonDatHang vao trong object PhieuCan
+    ThongKe.MaDonDatHang = rowData.MaDonDatHang;
+    console.log("MaDonDatHang: " + ThongKe.MaDonDatHang);
+});
+
+/////////////////////////////////////////////////////////////////////////////////// End //////////////////////////////////////////////////////////////////////////////
+
+
 // Đọc giá trị của phiếu cân gần nhất trong bảng PhieuCan
 function LatestPhieucanValues(socket, callback) {
     console.log('Vào hàm LatestPhieucanValues để lấy Phiếu cân gần nhất');
@@ -721,8 +788,8 @@ function LatestPhieucanValues(socket, callback) {
         console.log('Hàm nhận dữ liệu từ server của phiếu cân gần nhất LatestPhieucanValues')
         // Update the value of the input fields with the retrieved data
         //document.querySelector('#sophieu').value = data.MaPhieuCan + 1;
-        //document.querySelector('#sophieu').value = docmaphieucan;
-        // Gọi hàm đọc MaPhieuCan
+
+        // Sử dụng cách Gọi hàm đọc MaPhieuCan
         getDocMaPhieuCan(socket, (docmaphieucan) => {
             document.querySelector('#sophieu').value = docmaphieucan;
         });
@@ -730,6 +797,7 @@ function LatestPhieucanValues(socket, callback) {
         document.querySelector('#some-datCapphoi').value = data.SoMe;
         if (data) {
             // Update the properties of the PhieuCan object with the retrieved data
+            // PhieuCan.MaPhieuCan = data.MaPhieuCan + 1;
             PhieuCan.MaPhieuCan = data.MaPhieuCan + 1;
             PhieuCan.dondathang.MaDonDatHang = data.MaDonDatHang;
             PhieuCan.dondathang.khachhang.TenKhachHang = data.TenKhachHang;
@@ -767,6 +835,8 @@ function LatestPhieucanValues(socket, callback) {
         //console.log('Thông tin phiếu cân gần nhất, với MaPhieuCan đã được +1: ', PhieuCan.CapPhoi.DMPG);
         // Call the callback function after data has been processed
         callback();
+        // Đồng bộ dữ liệu với server
+        updateDataOnServer();
     });
     console.log('Thoát hàm LatestPhieucanValues để lấy Phiếu cân gần nhất');
 }
@@ -826,14 +896,16 @@ function sendDataDatcapphoi(emptyValue) {
             // var inputFieldDoAmTP = document.querySelector(`#DoAmTP${i}`); // Cách 1 để láy giá trị của id input field
             var inputFieldDoAmTP = document.querySelector('#DoAmTP' + i); // Cách 2 để láy giá trị của id input field: chú ý trong js thì một chuỗi cộng với số được và nó sẽ trở thành chuối
             var inputValueDoAmTP = inputFieldDoAmTP.value.trim();
-            PhieuCan.CapPhoi.DMTP[i - 1] = inputValueTP;
-            PhieuCan.CapPhoi.DoAmTP[i - 1] = inputValueDoAmTP;
+            PhieuCan.CapPhoi.DMTP[i - 1] = inputValueTP || 0;
+            PhieuCan.CapPhoi.DoAmTP[i - 1] = inputValueDoAmTP || 0;
         }
 
         PhieuCan.CapPhoi.DMXI = document.querySelector('[data-label="Xi"]').value.trim();
         PhieuCan.CapPhoi.DMNUOC = document.querySelector('[data-label="Nuoc"]').value.trim();
         PhieuCan.CapPhoi.DMPG[0] = document.querySelector('[data-label="PG1"]').value.trim();
         PhieuCan.CapPhoi.DMPG[1] = document.querySelector('[data-label="PG2"]').value.trim();
+        // Tại đây sẽ lấy mã số phiếu đã được cộng 1 để làm mã phiếu cân mới sau khi truyền Cấp phối, rồi gửi qua server để tạo Phiếu Cân
+        // Ở client ta vẫn giữ MaPhieuCan như mã đã được đọc từ Phiếu cân gần nhất
         PhieuCan.MaPhieuCan = document.querySelector('#sophieu').value.trim();
         PhieuCan.CapPhoi.dieuchinh = true;
         PhieuCan.CapPhoi.Som3Me = document.querySelector('#som3me-datCapphoi').value.trim();
@@ -856,7 +928,7 @@ function sendDataDatcapphoi(emptyValue) {
 
         PhieuCan.DaChonPhieuCan = true;
 
-        // Truyền mảng định mức
+        // Truyền mảng định mức trực tiếp vào PLC
         var data_edit_array_dinhmuc = [PhieuCan.CapPhoi.DMTP[0], PhieuCan.CapPhoi.DMTP[1], PhieuCan.CapPhoi.DMTP[2], PhieuCan.CapPhoi.DMTP[3], PhieuCan.CapPhoi.DMXI, PhieuCan.CapPhoi.DMNUOC, PhieuCan.CapPhoi.SoMe];
         socket.emit('senDataDatcapphoi_Dinhmuc', data_edit_array_dinhmuc);
         // alert('Dữ liệu đã được lưu!');
@@ -881,6 +953,9 @@ function sendDataDatcapphoi(emptyValue) {
         // socket.on('error', function (msg) {
         //     console.log(msg);
         // });
+
+        // Đồng bộ dữ liệu với server
+        updateDataOnServer();
         console.log("Thoát hàm sendDataDatcapphoi và thông tin phiếu cân trước khi thoát hàm sendDataDatcapphoi: ", PhieuCan);
     }
 }
@@ -888,37 +963,75 @@ function sendDataDatcapphoi(emptyValue) {
 document.querySelector('#sendDatcapphoi').addEventListener('click', function () {
     sendDataDatcapphoi("Vui lòng chọn ...............");
 });
-////////////////////////////////////////////// Các hàm chức năng liên quan đến việc xử lý Cửa vật liệu và cuavatlieu của PhieuCan ///////////////////////////////
-// Hàm nhận dữ liệu Cửa vật liệu được gửi từ server và lưu vào object PhieuCan, này lưu thử thôi chứ chưa có sử dụng
-// socket.on('cuaVatLieuData', (data) => {
-//     PhieuCan.TenXiMang = data.Xi;
-//     for (let i = 0; i < 4; i++) {
-//         PhieuCan.TenTP[i] = data.Cua[i];
-//         // console.log('PhieuCan.TenTP' + i + ' : ' + PhieuCan.TenTP[i]);
-//     }
-//     for (let i = 0; i < 2; i++) {
-//         PhieuCan.TenPG[i] = data.PG[i];
-//         // console.log('PhieuCan.TenPG' + (i + 1) + ' : ' + PhieuCan.TenPG[i]);
-//         //console.log('Tên PG' + i + ':' + ' - ' + PhieuCan.TenPGi); //gọi thuộc tính theo cách này vẫn được
-//     }
-//     // console.log('PhieuCan.TenXiMang' + ' : ' + PhieuCan.TenXiMang);
-// });
-// // Hàm nhận dữ liệu Cửa vật liệu được gửi từ server và lưu vào object CuaVatLieu, cuối cùng là hiển thị lên màn hình chính
-// socket.on('cuaVatLieuData', (data) => {
-//     CuaVatLieu.Xi = data.Xi;
-//     for (let i = 0; i < 4; i++) {
-//         CuaVatLieu.Cua[i] = data.Cua[i];
-//         // console.log('CuaVatLieu.Cua' + (i + 1) + ' - ' + CuaVatLieu.Cua[i]);
-//     }
-//     for (let i = 0; i < 2; i++) {
-//         CuaVatLieu.PG[i] = data.PG[i];
-//         // console.log('CuaVatLieu.PG' + (i + 1) + ' - ' + CuaVatLieu.PG[i]);
-//         //console.log('Tên PG' + i + ':' + ' - ' + CuaVatLieu.PGi);
-//     }
-//     // console.log('CuaVatLieu.Xi' + ' - ' + CuaVatLieu.Xi);
 
-//     updateTableHeaders(CuaVatLieu);
-// });
+// Phần code liên quan đến việc ghi Phiếu cân vào Mysql, hàm này sẽ kiểm tra và lấy xác nhận của người dùng về việc .... CHỨC NĂNG NÀY CHƯA XONG
+socket.on('confirm', function (message) {
+    // Hiển thị hộp thoại xác nhận cho người dùng
+    let result = confirm(message);
+    console.log('result của confirm: ', result)
+    if (result) {
+        // Người dùng chọn OK
+        // Gửi sự kiện 'confirmResult' đến server với kết quả 'update'
+        console.log('Sending confirmResult event to server with data: update');
+        //socket.emit('confirmResult', 'update');
+        console.log('Đã gửi lệnh update cho việc Ghi phiếu cân')
+        alert('Xin lỗi. Hiện tại chức năng này chưa được cập nhật, vui lòng thoát ra và thực hiện lại. Cảm ơn.')
+        socket.emit('confirmResult', 'cancel');
+    } else {
+        // Người dùng chọn Cancel
+        // Hiển thị hộp thoại xác nhận thêm một lần nữa
+        let result2 = confirm('Bạn có muốn thêm một mã Phiếu cân mới không?');
+        console.log('result2 của confirm: ', result2)
+        if (result2) { // Tạm thời chưa xử lý được chức năng thêm mã mới trong phần đạt cấp phối này, nên sẽ thông báo hệ thống chưa đc update chức năng này
+            // Người dùng chọn OK
+            // Gửi sự kiện 'confirmResult' đến server với kết quả 'insert'
+            console.log('Sending confirmResult event to server with data: insert');
+            // socket.emit('confirmResult', 'insert'); // Gửi lệnh thêm mã mới tới server để thêm vào sql, tuy nhiên hiện tại chưa xử lý được các lỗi phát sinh
+            console.log('Đã gửi lệnh insert cho việc Ghi phiếu cân')
+            alert('Xin lỗi. Hiện tại chức năng này chưa được cập nhật, vui lòng thoát ra và thực hiện lại. Cảm ơn.')
+            socket.emit('confirmResult', 'cancel');
+        } else {
+            // Người dùng chọn Cancel
+            // Gửi sự kiện 'confirmResult' đến server với kết quả 'cancel'
+            console.log('Sending confirmResult event to server with data: cancel');
+            socket.emit('confirmResult', 'cancel');
+            console.log('Đã gửi lệnh cancel cho việc Ghi phiếu cân')
+        }
+    }
+});
+
+////////////////////////////////////////////// Các hàm chức năng liên quan đến việc xử lý Cửa vật liệu và cuavatlieu của PhieuCan ///////////////////////////////
+// Hàm cập nhật tên của các Cửa vật liệu, xi, PG vào bảng trong màn hình chính
+function updateTableHeaders(CuaVatLieu) {
+    console.log('Đã vào hàm cập nhật Cuavatlieu từ bảng cuavatlieu')
+    // Lấy các phần tử thẻ th trong bảng
+    let tableHeaders = document.querySelectorAll(".responsive-table-input-matrix thead th");
+
+    // Điền giá trị của thuộc tính Cua vào các ô tương ứng
+    for (let i = 0; i < CuaVatLieu.Cua.length; i++) {
+        tableHeaders[i + 2].textContent = CuaVatLieu.Cua[i];
+        // console.log('table header_Cua_' + (i + 2) + ' _ ' + tableHeaders[i + 2].textContent)
+    }
+
+    // Điền giá trị của thuộc tính Xi vào ô tương ứng
+    tableHeaders[6].textContent = CuaVatLieu.Xi;
+    // console.log('table header_Xi_6: ' + tableHeaders[6].textContent)
+    // console.log('Đã cập nhật xong tên của các TP và Xi')
+    // Điền giá trị của thuộc tính PG vào các ô tương ứng
+    for (let i = 0; i < CuaVatLieu.PG.length; i++) {
+        tableHeaders[i + 8].textContent = CuaVatLieu.PG[i];
+        // console.log('table header_PG_' + (i + 8) + ' _ ' + tableHeaders[i + 8].textContent)
+    }
+    console.log('Đã cập nhật xong tên các CuaVatLieu từ bảng cuavatlieu')
+}
+
+// Sử dụng hàm updateTableHeaders để cập nhật nội dung của bảng
+// let CuaVatLieu = {
+//     Cua: ['TP1', 'TP2', 'TP3', 'TP4'],
+//     Xi: 'Xi Măng',
+//     PG: ['Phụ Gia 1', 'Phụ Gia 2'],
+//     ThuThapPG: false
+// };
 
 socket.on('cuaVatLieuData', (data) => {
     // Update PhieuCan object
@@ -952,6 +1065,11 @@ socket.on('cuaVatLieuData', (data) => {
     updateDataOnServer();
 });
 
+// Đọc giá trị cân
+socket.on('DocGiaTriCan', (data) => {
+    DocGiaTriCan(data);
+
+});
 
 // Cập nhật tên cửa liệu, Xi, PG vào các list box trong option của form đặt lại tên cửa vật liệu
 let tmpCuaVatLieu = Object.create(CuaVatLieu);
@@ -1063,6 +1181,8 @@ function saveDataCuavatlieu() {
 
         // Gửi yêu cầu và dữ liệu xuống server để ghi vào MySQL
         socket.emit('saveDataCuavatlieu', { CuaVatLieu: CuaVatLieu });
+        // Đồng bộ dữ liệu với server
+        updateDataOnServer();
     }
 }
 
@@ -1158,23 +1278,23 @@ const cmdXeTronMoi = document.getElementById('bttAuto_XeTronMoi');
 
 // Định nghĩa hàm xử lý sự kiện nhấp chuột vào nút cmdXeTronMoi
 function cmdXeTronMoi_Click() {
+
     // Kích hoạt điều khiển cmdChay
     cmdChay.disabled = false;
 
     // Đặt thuộc tính DaChonPhieuCan của đối tượng PhieuCan thành true
     PhieuCan.DaChonPhieuCan = true;
 
+    // Đồng bộ dữ liệu với server
+    updateDataOnServer();
+
     // Gọi hàm XeTronMoi
     XeTronMoi();
 }
 
 function cmdChay_Click() {
-    document.body.style.cursor = 'wait';
-
     // Gửi sự kiện socket lên máy chủ với tên là "cmdChay_Click" và dữ liệu là giá trị hiện tại của thuộc tính textContent của nút bttAuto_Chay
     socket.emit("cmdChay_Click", cmdChay.textContent);
-
-    document.body.style.cursor = 'default';
 }
 
 // Đăng ký trình xử lý sự kiện cho sự kiện socket "bttAuto_Chay_Caption"
@@ -1191,6 +1311,7 @@ function XeTronMoi() { // Hàm này cớ bản đã chuyển xong
     socket.emit('XE_TRON_MOI', true);
     // socket.emit('XE_TRON_MOI',false);
     console.log('XE_TRON_MOI đã được nhấn để gọi hàm XeTronMoi')
+    console.log('Tiếp theo server sẽ nhận lệnh và xử lý việc bật tắt bit M21.5')
     // // Đọc tin done, sau đó nó đợi **(s) mới tiếp tục gửi lệnh reset đi
     // socket.on('done', function (data) {
     //     if (data) {
@@ -1210,6 +1331,8 @@ function XeTronMoi() { // Hàm này cớ bản đã chuyển xong
     // Cũng đọc các giá trị của thời gian trộn, thời gian xả, thêm nước, ... (một vài thông tin đã luôn được đọc ở màn hình chính)
     // Hiển thị tiêu đề bảng hiển thị trong màn hình chính, ghi Số Mẻ vào bảng
     // Đồng thời sẽ reset (hay ghi 0) vào bảng hiển thị trong màn hình chính
+
+
     DatCacThongSoPhieuCanBanDau();
 }
 function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyển xong
@@ -1217,13 +1340,24 @@ function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyể
     // Không chọn phiếu cân trước
     console.log('Mã đơn đặt hàng hiện tại là: ', PhieuCan.dondathang.MaDonDatHang)
     if (PhieuCan.dondathang.MaDonDatHang == "") {
+        console.log('Chưa có Mã đơn đặt hàng nên sẽ lấy dữ liệu của Phiếu cân gần nhất từ server')
         // Call LatestPhieucanValues and pass showPhieucanHientai as the callback function
         LatestPhieucanValues(socket, showPhieucanHientai);
+        console.log('Mã đơn đặt hàng sau khi lấy dữ liệu Phiếu cân gần nhất từ server là: ', PhieuCan.dondathang.MaDonDatHang)
+        // Đồng bộ dữ liệu với server
+        updateDataOnServer();
+        console.log('Mã đơn đặt hàng trong trường hợp chưa có MaDonDatHang sau khi đồng bộ là: ', PhieuCan.dondathang.MaDonDatHang)
+        console.log('PhieuCan.MaPhieuCan trong trường hợp chưa có MaDonDatHang sau khi đồng bộ là: ', PhieuCan.MaPhieuCan)
     }
 
     // Gọi hàm đọc MaPhieuCan, thay cho hàm này trong VB6: PhieuCan.MaPhieuCan = DocMaPhieuCan();
     getDocMaPhieuCan(socket, (docmaphieucan) => {
+        console.log('Mã đơn đặt hàng đã có, không cần goi Phiếu cân gần nhất: ', PhieuCan.dondathang.MaDonDatHang)
         PhieuCan.MaPhieuCan = docmaphieucan;
+        // Đồng bộ dữ liệu với server
+        updateDataOnServer();
+        console.log('Mã đơn đặt hàng sau khi đồng bộ là: ', PhieuCan.dondathang.MaDonDatHang)
+        console.log('PhieuCan.MaPhieuCan sau khi đồng bộ là: ', PhieuCan.MaPhieuCan)
     });
     console.log('DaChonXe: ', PhieuCan.DaChonXe)
     console.log('PhieuCan.XeBon.BienSoXe: ', PhieuCan.XeBon.BienSoXe)
@@ -1235,6 +1369,11 @@ function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyể
     PhieuCan.NhacNhapBienSo = false;
     ThuThap.GhiPhieuCan = false;
     ThuThap.SoMeDM = PhieuCan.CapPhoi.SoMe;
+    // Đồng bộ dữ liệu với server
+    updateDataOnServer();
+
+    console.log('ThuThap.GhiPhieuCan : ', ThuThap.GhiPhieuCan)
+    console.log('ThuThap.SoMeDM: ', ThuThap.SoMeDM)
 
     // Các giá trị thời gian trộn - thời gian xả - thêm nước ... để hiển thị lên các ô chức năng
     // DocGiaTriBanDau(); // Yêu cầu nãy đã được thược hiện khi trang web đươc load
@@ -1248,7 +1387,7 @@ function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyể
     // Thông tin ở dòng thứ 4 (row=3) sẽ là sai số của các mục, tính từ mục đầu tiên là cột Định mức (cột = 1), giá trị của tất cả đều là ""
 
     // Hiển thị số mẻ ĐM
-    console.log('Hiển thị số Mẻ ĐM của Phiếu cân gần nhất mới đọc lên: ', PhieuCan.CapPhoi.SoMe)
+    console.log('Hiển thị số Mẻ ĐM của Phiếu cân hiện tại là: ', PhieuCan.CapPhoi.SoMe)
     flexData.rows[1].cells[1].textContent = PhieuCan.CapPhoi.SoMe.toString();
 
     // // Hiển thi các thành phần định mức, ĐMXi, Nuoc, PG
@@ -1332,7 +1471,85 @@ function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyể
     console.log('Thoát hàm DatCacThongSoPhieuCanBanDau')
 }
 
-// Lắng nghe sự kiện nhấn phím Enter
+// Đọc và hiển thị giá trị cân thực tế lên màn hình
+function DocGiaTriCan(CanSo) {
+    console.log('Vào hàm DocGiaTriCan_Client để hiển thị lên bảng trong màn hình chính')
+    const flexData = document.querySelector('#responsive-table-input-matrix');
+    let result;
+    let i;
+
+    switch (CanSo) {
+        case 1:
+            for (i = 1; i <= 4; i++) {
+                // flexData.rows[2].cells[i + 1].textContent = formatNumber(ThuThap.KhoiLuongCotLieu[i - 1], "0");
+                result = formatNumber(ThuThap.KhoiLuongCotLieu[i - 1], "0.0");
+                if (result > PhieuCan.CapPhoi.DMTP[i - 1] * 1.02 || result < PhieuCan.CapPhoi.DMTP[i - 1] * 0.98) {
+                    result = PhieuCan.CapPhoi.DMTP[i - 1] + 0.25 * (result - PhieuCan.CapPhoi.DMTP[i - 1]);
+                }
+                flexData.rows[2].cells[i + 1].textContent = formatNumber(result, "0.0");
+                ThuThap.KhoiLuongCotLieu[i - 1] = Number(flexData.rows[2].cells[i + 1].textContent);
+                console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Giá Trị Cân Thực Tế @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+                console.log('Dòng:' + 2 + ' Ô: ' + (i + 1) + ' Có giá trị: ' + flexData.rows[2].cells[i + 1].textContent);
+                console.log('ThuThap.KhoiLuongCotLieu[' + (i - 1) + ']' + ThuThap.KhoiLuongCotLieu[i - 1]);
+
+                if (ThuThap.KhoiLuongCotLieu[i - 1] !== 0 && PhieuCan.CapPhoi.DMTP[i - 1] !== 0) {
+                    flexData.rows[3].cells[i + 1].textContent = formatNumber(((ThuThap.KhoiLuongCotLieu[i - 1] - PhieuCan.CapPhoi.DMTP[i - 1]) / PhieuCan.CapPhoi.DMTP[i - 1]) * 100, "0.0");
+                    console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Sai số @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+                    console.log('Dòng:' + 3 + ' Ô: ' + (i + 1) + ' Có giá trị: ' + flexData.rows[3].cells[i + 1].textContent);
+                }
+            }
+            break;
+        case 2:
+            // flexData.rows[2].cells[6].textContent = formatNumber(ThuThap.KhoiLuongXi, "0.0");
+            result = formatNumber(ThuThap.KhoiLuongXi, "0.0");
+            if (result > PhieuCan.CapPhoi.DMXI * 1.01) {
+                result = PhieuCan.CapPhoi.DMXI + 0.2 * (result - PhieuCan.CapPhoi.DMXI);
+            }
+            flexData.rows[2].cells[6].textContent = formatNumber(result, "0.0");
+            ThuThap.KhoiLuongXi = Number(flexData.rows[2].cells[6].textContent);
+
+            if (ThuThap.KhoiLuongXi !== 0 && PhieuCan.CapPhoi.DMXI !== 0) {
+                flexData.rows[3].cells[6].textContent = formatNumber(((ThuThap.KhoiLuongXi - PhieuCan.CapPhoi.DMXI) / PhieuCan.CapPhoi.DMXI) * 100, "0.0");
+            }
+            break;
+        case 3:
+            // flexData.rows[2].cells[7].textContent = formatNumber(ThuThap.KhoiLuongNuoc, "0.0");
+            result = formatNumber(ThuThap.KhoiLuongNuoc, "0.0");
+            if (result > PhieuCan.CapPhoi.DMNUOC * 1.01) {
+                result = PhieuCan.CapPhoi.DMNUOC + 0.2 * (result - PhieuCan.CapPhoi.DMNUOC);
+            }
+            flexData.rows[2].cells[7].textContent = formatNumber(result, "0.0");
+            ThuThap.KhoiLuongNuoc = Number(flexData.rows[2].cells[7].textContent);
+
+            if (ThuThap.KhoiLuongNuoc !== 0 && PhieuCan.CapPhoi.DMNUOC !== 0) {
+                flexData.rows[3].cells[7].textContent = formatNumber(((ThuThap.KhoiLuongNuoc - PhieuCan.CapPhoi.DMNUOC) / (PhieuCan.CapPhoi.DMNUOC)) * 100, "0.0");
+            }
+
+            flexData.rows[2].cells[8].textContent = formatNumber(PhieuCan.CapPhoi.DMPG[0], "0");
+
+            if (ThuThap.KhoiLuongPG !== 0 && PhieuCan.CapPhoi.DMPG[0] !== 0) {
+                flexData.rows[3].cells[8].textContent = formatNumber(((ThuThap.KhoiLuongPG - PhieuCan.CapPhoi.DMPG[0]) / PhieuCan.CapPhoi.DMPG[0]) * 100, "0.00");
+            }
+            break;
+    }
+    console.log('Phiếu cân tại thời điểm kết thúc hàm DocGiaTriCan: ', PhieuCan)
+    console.log('Thoát hàm DocGiaTriCan_Client')
+}
+// // Hàm làm tròn số
+function formatNumber(number, format) {
+    if (typeof format === 'undefined' || !format.split || !format.split('.')[1]) {
+        return number;
+    }
+    if (typeof number !== 'number' || isNaN(number)) {
+        // Xử lý trường hợp number không phải là một số
+        // Bạn có thể trả về một giá trị mặc định hoặc thông báo lỗi
+        return 0;
+    }
+    return number.toFixed(format.split('.')[1].length);
+}
+
+
+// Lắng nghe sự kiện nhấn phím Enter trên form report Chit tiết phiếu cân
 document.querySelector('[data-label="MaPhieuCan"]').addEventListener('keyup', function (event) {
     if (event.key === 'Enter') {
         // Lấy giá trị MaPhieuCan từ input field
@@ -1345,6 +1562,16 @@ document.querySelector('[data-label="MaPhieuCan"]').addEventListener('keyup', fu
 
 // Nhận dữ liệu từ server và hiển thị lên trang web
 socket.on('data', function (data) {
+    console.log('Nội dung nhận được từ server là: ', data)
+    // Kiểm tra xem đối tượng phieucan có tồn tại trong dữ liệu trả về từ server hay không
+    if (!data.phieucan) {
+        // Nếu đối tượng phieucan không tông tại, thì thông báo lỗi cho người dùng
+        if (confirm('Mã phiếu cân số ' + document.querySelector('[data-label="MaPhieuCan"]').value + ' không có dữ liệu phiếu cân. \nVui lòng chọn một mã phiếu cân khác. Cảm ơn.')) {
+            document.querySelector('[data-label="MaPhieuCan"]').focus();
+        } else document.querySelector('[data-label="MaPhieuCan"]').focus();
+        return;
+    }
+
     // Hiển thị dữ liệu lên các input field
     document.querySelector('[data-label="TenKhachHang"]').value = data.phieucan.TenKhachHang;
     document.querySelector('[data-label="BienSoXe"]').value = data.phieucan.BienSoXe;
@@ -1353,13 +1580,11 @@ socket.on('data', function (data) {
     document.querySelector('[data-label="Ngay"]').value = data.phieucan.Ngay;
     document.querySelector('[data-label="GioXong"]').value = data.phieucan.GioXong;
     document.querySelector('[data-label="DoSut"]').value = data.phieucan.DoSut;
-
     // Hiển thị dữ liệu lên bảng
     let table = document.getElementById('reportTablePhieuCanMaPhieuCan');
     let thead = table.getElementsByTagName('thead')[0];
     let tbody = table.getElementsByTagName('tbody')[0];
     let rows = tbody.getElementsByTagName('tr');
-
     // Điền dữ liệu vào title của bảng
     let titleRow = thead.getElementsByTagName('tr')[0];
     titleRow.cells[2].innerHTML = data.phieucan.TenTP1;
@@ -1369,7 +1594,6 @@ socket.on('data', function (data) {
     titleRow.cells[6].innerHTML = data.phieucan.TenXiMang;
     titleRow.cells[8].innerHTML = data.phieucan.TenPG1;
     titleRow.cells[9].innerHTML = data.phieucan.TenPG2;
-
     console.log('Số dòng lúc đầu: ', rows.length)
     // Xóa dữ liệu cũ trong bảng
     for (let i = rows.length - 1; i >= 1; i--) {
@@ -1377,65 +1601,42 @@ socket.on('data', function (data) {
         console.log('Số dòng hiện tại: ', rows.length)
     }
     console.log('Số dòng còn lại: ', rows.length)
-
     // Điền dữ liệu vào bảng
     for (let i = 0; i < data.chitietphieucan.length; i++) {
         let chitietphieucan = data.chitietphieucan[i];
-
         // Tạo một hàng mới
         let row = tbody.insertRow(-1);
-
         // Điền dữ liệu vào các ô
         row.insertCell(-1).innerHTML = '';
         row.insertCell(-1).innerHTML = chitietphieucan.STTMe;
-        row.insertCell(-1).innerHTML = chitietphieucan.TP1;
-        row.insertCell(-1).innerHTML = chitietphieucan.TP2;
-        row.insertCell(-1).innerHTML = chitietphieucan.TP3;
-        row.insertCell(-1).innerHTML = chitietphieucan.TP4;
-        row.insertCell(-1).innerHTML = chitietphieucan.Xi;
-        row.insertCell(-1).innerHTML = chitietphieucan.Nuoc;
-        row.insertCell(-1).innerHTML = chitietphieucan.PG1;
-        row.insertCell(-1).innerHTML = chitietphieucan.PG2;
+        row.insertCell(-1).innerHTML = formatNumber(chitietphieucan.TP1, "0.0");
+        row.insertCell(-1).innerHTML = formatNumber(chitietphieucan.TP2, "0.0");
+        row.insertCell(-1).innerHTML = formatNumber(chitietphieucan.TP3, "0.0");
+        row.insertCell(-1).innerHTML = formatNumber(chitietphieucan.TP4, "0.0");
+        row.insertCell(-1).innerHTML = formatNumber(chitietphieucan.Xi, "0.0");
+        row.insertCell(-1).innerHTML = formatNumber(chitietphieucan.Nuoc, "0.0");
+        row.insertCell(-1).innerHTML = formatNumber(chitietphieucan.PG1, "0.00");
+        row.insertCell(-1).innerHTML = formatNumber(chitietphieucan.PG2, "0.00");
     }
-
-    // // Tạo hàng Định Mức
-    // let dinhmucRow = tbody.insertRow(1);
-    // dinhmucRow.insertCell(-1).innerHTML = 'Định Mức 00';
-    // dinhmucRow.insertCell(-1).innerHTML = '';
-    // dinhmucRow.insertCell(-1).innerHTML = data.phieucan.DMTP1;
-    // dinhmucRow.insertCell(-1).innerHTML = data.phieucan.DMTP2;
-    // dinhmucRow.insertCell(-1).innerHTML = data.phieucan.DMTP3;
-    // dinhmucRow.insertCell(-1).innerHTML = data.phieucan.DMTP4;
-    // dinhmucRow.insertCell(-1).innerHTML = data.phieucan.DMXi;
-    // dinhmucRow.insertCell(-1).innerHTML = data.phieucan.DMNuoc;
-    // dinhmucRow.insertCell(-1).innerHTML = data.phieucan.DMPG1;
-    // dinhmucRow.insertCell(-1).innerHTML = data.phieucan.DMPG2;
-
-    // // Xóa dữ liệu cũ trong bảng
-    // for (let i = rows.length - 1; i >= 2; i--) {
-    //     tbody.deleteRow(i);
-    // }
-
     // Tạo hàng Định Mức
     let dinhmucRow = rows[0];
     dinhmucRow.cells[0].innerHTML = 'Định Mức';
     dinhmucRow.cells[1].innerHTML = '';
-    dinhmucRow.cells[2].innerHTML = data.phieucan.DMTP1;
-    dinhmucRow.cells[3].innerHTML = data.phieucan.DMTP2;
-    dinhmucRow.cells[4].innerHTML = data.phieucan.DMTP3;
-    dinhmucRow.cells[5].innerHTML = data.phieucan.DMTP4;
-    dinhmucRow.cells[6].innerHTML = data.phieucan.DMXi;
-    dinhmucRow.cells[7].innerHTML = data.phieucan.DMNuoc;
-    dinhmucRow.cells[8].innerHTML = data.phieucan.DMPG1;
-    dinhmucRow.cells[9].innerHTML = data.phieucan.DMPG2;
-
+    dinhmucRow.cells[2].innerHTML = formatNumber(data.phieucan.DMTP1, "0.0");
+    dinhmucRow.cells[3].innerHTML = formatNumber(data.phieucan.DMTP2, "0.0");
+    dinhmucRow.cells[4].innerHTML = formatNumber(data.phieucan.DMTP3, "0.0");
+    dinhmucRow.cells[5].innerHTML = formatNumber(data.phieucan.DMTP4, "0.0");
+    dinhmucRow.cells[6].innerHTML = formatNumber(data.phieucan.DMXi, "0.0");
+    dinhmucRow.cells[7].innerHTML = formatNumber(data.phieucan.DMNuoc, "0.0");
+    dinhmucRow.cells[8].innerHTML = formatNumber(data.phieucan.DMPG1, "0.00");
+    dinhmucRow.cells[9].innerHTML = formatNumber(data.phieucan.DMPG2, "0.00");
     // Tạo hàng Tổng mới
     let tongRow = tbody.insertRow(-1);
     tongRow.insertCell(-1).innerHTML = 'Tổng';
     tongRow.insertCell(-1).innerHTML = ''; // Ô trống ngay sau ô chứa chữ "Tổng"
     for (let i = 2; i < 10; i++) {
         let sum = 0;
-        for (let j = 2; j < rows.length - 1; j++) {
+        for (let j = 1; j < rows.length - 1; j++) {
             let cell = rows[j].cells[i];
             if (cell) {
                 sum += Number(cell.innerHTML);
@@ -1443,7 +1644,6 @@ socket.on('data', function (data) {
         }
         tongRow.insertCell(-1).innerHTML = sum.toFixed(1);
     }
-
 });
 
 // When you make changes to the objects on the client side, you can emit an 'updateData' event to update the server and other clients
@@ -1465,24 +1665,28 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Bít đã chọn xe đang là: ', PhieuCan.DaChonXe);
     console.log('Trạng thái bít disable Xe Tron Moi: ', cmdXeTronMoi.disabled);
 
-    // Đây là đoạn chương trình kiểm tra việt set và reset, chú ý bit XE_TRON_MOI đã được đổi sang M230.0, nhớ sửa lại. Ngoài ra cũng có một nút TEST được tạo mới để phục vụ việc kiểm tra
-    $('#test').on('click', function () {
-        socket.emit('nhannutTest', true);
-        console.log('Test đã được nhấn')
-    });
+    // // Đây là đoạn chương trình kiểm tra việt set và reset, chú ý bit XE_TRON_MOI đã được đổi sang M230.0, nhớ sửa lại. Ngoài ra cũng có một nút TEST được tạo mới để phục vụ việc kiểm tra
+    // $('#test').on('click', function () {
+    //     socket.emit('nhannutTest', true);
+    //     console.log('Test đã được nhấn')
+    // });
     // Đọc tin done, sau đó nó đợi 3s mới tiếp tục gửi lệnh reset đi
     /////////////////////////////////////////////////////////////// HÀM NÀY LÀ HÀM CHUNG, NÓ CHỈ CẦN LẮNG NGHE VÀ YÊU CẦU SERVER THỰC HIỆN LỆNH RESET///////////////////
     socket.on('done', function (data) {
         if (data) {
             setTimeout(function () {
-                socket.emit('nhannutTest', false);
+
                 console.log('Gửi lệnh yêu cầu reset bit')
-            }, 1000);
+                socket.emit('XE_TRON_MOI', false);
+
+            }, 100);
         }
+        socket.emit("cmdChay_Click", "DỪNG");
     });
     socket.on('error', function (msg) {
         console.log(msg);
     });
+
     // Không có tiemOut
     // socket.on('done', function (data) {
     //     if (data) {
@@ -1495,5 +1699,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // socket.on('error', function (msg) {
     //     console.log(msg);
     // });
+    socket.on('CHAY_DUNG_Status', function (data) {
+        if (data) {
+            console.log('CHAY_DUNG_Status', data)
 
+        } else {
+            console.log('Chưa set được CHAY_DUNG_Status', data)
+        }
+    });
+    socket.on('error', function (msg) {
+        console.log(msg);
+    });
 });
