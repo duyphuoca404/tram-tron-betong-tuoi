@@ -934,13 +934,10 @@ function sendDataDatcapphoi(emptyValue) {
         // alert('Dữ liệu đã được lưu!');
         console.log("Dữ liệu cấp phối truyền qua server để ghi vào PLC: ", data_edit_array_dinhmuc);
 
-        // Bật bit xe trộn mới lên 1, phaỉ đặt bên dưới mảng địa chỉ cần ghi senDataDatcapphoi_Dinhmuc
-        //socket.emit('XE_TRON_MOI');
-        //socket.emit('cmd_XeTronMoi_resetOFF');
-        // Bật bit xe trộn mới lên 1, SAU ĐÓ RESET
-        socket.emit('XE_TRON_MOI', true);
-        // socket.emit('XE_TRON_MOI',false);
-        console.log('XE_TRON_MOI được set lên 1 khi truyền Cấp phối')
+
+        // socket.emit('XE_TRON_MOI', true);
+        // console.log('XE_TRON_MOI được set lên 1 khi truyền Cấp phối')
+
         // // Đọc tin done, sau đó nó đợi **(s) mới tiếp tục gửi lệnh reset đi
         // socket.on('done', function (data) {
         //     if (data) {
@@ -956,6 +953,9 @@ function sendDataDatcapphoi(emptyValue) {
 
         // Đồng bộ dữ liệu với server
         updateDataOnServer();
+
+        // cmdXeTronMoi_Click();
+
         console.log("Thoát hàm sendDataDatcapphoi và thông tin phiếu cân trước khi thoát hàm sendDataDatcapphoi: ", PhieuCan);
     }
 }
@@ -1062,14 +1062,66 @@ socket.on('cuaVatLieuData', (data) => {
     // Update table headers
     updateTableHeaders(CuaVatLieu);
     // Đồng bộ dữ liệu với server
-    updateDataOnServer();
+    // updateDataOnServer();
 });
 
-// Đọc giá trị cân
-socket.on('DocGiaTriCan', (data) => {
-    DocGiaTriCan(data);
+// // Đọc giá trị cân
+// socket.on('DocGiaTriCan', (data) => {
+//     DocGiaTriCan(data);
 
+// });
+
+// Phía client
+socket.on('KetQuaTinhToan', ({ CanSo, KetQua }) => {
+    console.log('Nhận kết quả tính toán từ server');
+    console.log('Nhận kết quả tính toán từ server: ', CanSo);
+    console.log('Nhận kết quả tính toán từ server: ', KetQua);
+    HienThiKetQua(CanSo, KetQua);
 });
+
+function HienThiKetQua(CanSo, KetQua) {
+    console.log('Vào hàm DocGiaTriCan_Client để hiển thị lên bảng trong màn hình chính')
+    const flexData = document.querySelector('#responsive-table-input-matrix');
+    let i;
+
+    switch (CanSo) {
+        case 1:
+            for (i = 1; i <= 4; i++) {
+                flexData.rows[2].cells[i + 1].textContent = formatNumber(KetQua.KhoiLuongCotLieu[i - 1], "0.0");
+                console.log('Mảng Kết Quả: ', KetQua.KhoiLuongCotLieu[i - 1])
+                ThuThap.KhoiLuongCotLieu[i - 1] = Number(flexData.rows[2].cells[i + 1].textContent);
+                if (ThuThap.KhoiLuongCotLieu[i - 1] !== 0 && PhieuCan.CapPhoi.DMTP[i - 1] !== 0) {
+                    flexData.rows[3].cells[i + 1].textContent = formatNumber(((ThuThap.KhoiLuongCotLieu[i - 1] - PhieuCan.CapPhoi.DMTP[i - 1]) / PhieuCan.CapPhoi.DMTP[i - 1]) * 100, "0.0");
+                }
+            }
+            console.log('Mảng thu thập trên client: ', ThuThap)
+            break;
+        case 2:
+            flexData.rows[2].cells[6].textContent = formatNumber(KetQua.KhoiLuongXi, "0.0");
+            ThuThap.KhoiLuongXi = Number(flexData.rows[2].cells[6].textContent);
+            if (ThuThap.KhoiLuongXi !== 0 && PhieuCan.CapPhoi.DMXI !== 0) {
+                flexData.rows[3].cells[6].textContent = formatNumber(((ThuThap.KhoiLuongXi - PhieuCan.CapPhoi.DMXI) / PhieuCan.CapPhoi.DMXI) * 100, "0.0");
+            }
+            console.log('Mảng thu thập trên client: ', ThuThap)
+            break;
+        case 3:
+            flexData.rows[2].cells[7].textContent = formatNumber(KetQua.KhoiLuongNuoc, "0.0");
+            ThuThap.KhoiLuongNuoc = Number(flexData.rows[2].cells[7].textContent);
+            if (ThuThap.KhoiLuongNuoc !== 0 && PhieuCan.CapPhoi.DMNUOC !== 0) {
+                flexData.rows[3].cells[7].textContent = formatNumber(((ThuThap.KhoiLuongNuoc - PhieuCan.CapPhoi.DMNUOC) / (PhieuCan.CapPhoi.DMNUOC)) * 100, "0.0");
+            }
+            flexData.rows[2].cells[8].textContent = formatNumber(KetQua.KhoiLuongPG, "0");
+            if (ThuThap.KhoiLuongPG !== 0 && PhieuCan.CapPhoi.DMPG[0] !== 0) {
+                flexData.rows[3].cells[8].textContent = formatNumber(((ThuThap.KhoiLuongPG - PhieuCan.CapPhoi.DMPG[0]) / PhieuCan.CapPhoi.DMPG[0]) * 100, "0.00");
+            }
+            console.log('Mảng thu thập trên client: ', ThuThap)
+            break;
+    }
+    console.log('Phiếu cân tại thời điểm kết thúc hàm DocGiaTriCan: ', PhieuCan)
+    console.log('Thoát hàm DocGiaTriCan_Client')
+}
+
+
 
 // Cập nhật tên cửa liệu, Xi, PG vào các list box trong option của form đặt lại tên cửa vật liệu
 let tmpCuaVatLieu = Object.create(CuaVatLieu);
@@ -1227,58 +1279,46 @@ socket.on('updateDataChinhCanFromPLC', data => {
     // Cập nhật dữ liệu cho các ô input
     // console.log('Nhận dữ liệu chỉnh cân từ server: ', data);
     if (anable_edditting_khungHieuchinhcan !== true) {
+        // inputs.forEach(input => {
+        //     if (input.id in data) {
+        //         if (input.id === 'ALALOG1' || input.id === 'ZEZO1' || input.id === 'ALALOG2' || input.id === 'ZEZO2' || input.id === 'ALALOG3' || input.id === 'ZEZO_3') {
+        //             input.value = data[input.id].toFixed(0);
+        //         } else {
+        //             input.value = data[input.id].toFixed(1);
+        //         }
+        //     }
+        // });
         inputs.forEach(input => {
             if (input.id in data) {
-                if (input.id === 'ALALOG1' || input.id === 'ZEZO1' || input.id === 'ALALOG2' || input.id === 'ZEZO2' || input.id === 'ALALOG3' || input.id === 'ZEZO_3') {
-                    input.value = data[input.id].toFixed(0);
+                if (typeof data[input.id] === 'number') {
+                    if (input.id === 'ALALOG1' || input.id === 'ZEZO1' || input.id === 'ALALOG2' || input.id === 'ZEZO2' || input.id === 'ALALOG3' || input.id === 'ZEZO_3') {
+                        input.value = data[input.id].toFixed(0);
+                    } else {
+                        input.value = data[input.id].toFixed(1);
+                    }
                 } else {
-                    input.value = data[input.id].toFixed(1);
+                    console.log(`Giá trị của ${input.id} không phải là một số:`, data[input.id]);
                 }
             }
         });
+
     }
 
 });
 //////////////////////////////////////// Xử lý chức năng điều khiển trên màn hình chính //////////////////////////////////////////////////////
-// Lấy tham chiếu đến các điều khiển, này là khai báo chung, nên ở các file js khác có thể sử dụng hai biến này
-// const cmdChay = document.getElementById('bttAuto_Chay');
-// const cmdXeTronMoi = document.getElementById('bttAuto_XeTronMoi');
-// // // Vô hiệu hóa nút cmdChay
-// // cmdChay.disabled = true;
-// // Định nghĩa hàm xử lý sự kiện nhấp chuột vào nút cmdXeTronMoi
-// function cmdXeTronMoi_Click() { // tạm thời đã đủ yêu cầu, đã chuyển xong
-//     // Kích hoạt điều khiển cmdChay
-//     cmdChay.disabled = false;
-
-//     // Đặt thuộc tính DaChonPhieuCan của đối tượng PhieuCan thành true
-//     PhieuCan.DaChonPhieuCan = true;
-
-//     // Gọi hàm XeTronMoi
-//     XeTronMoi();
-// }
-
-// function cmdChay_Click() {
-//     document.body.style.cursor = 'wait';
-//     if (cmdChay.textContent === "CHẠY") {
-//         // GhiGiaTri(MangDieuKhien[2], 1);
-//         // GhiGiaTri(MangDieuKhien[8], 1);
-//         // socket.emit('CHAY_DUNG', true);
-//         // socket.emit('PAUSE_COM3', true);
-//         cmdChay.textContent = "DỪNG";
-//     } else {
-//         // GhiGiaTri(MangDieuKhien[2], 0);
-//         // socket.emit('CHAY_DUNG', false);
-//         cmdChay.textContent = "CHẠY";
-//     }
-//     document.body.style.cursor = 'default';
-// }
 
 const cmdChay = document.getElementById('bttAuto_Chay');
 const cmdXeTronMoi = document.getElementById('bttAuto_XeTronMoi');
 
 // Định nghĩa hàm xử lý sự kiện nhấp chuột vào nút cmdXeTronMoi
 function cmdXeTronMoi_Click() {
-
+    if (!PhieuCan.DaChonXe) {
+        alert('Xe bồn chưa được chọn, vui lòng thực hiện lại!')
+        return
+        // if (confirm('Xe bồn chưa được chọn, vui lòng thực hiện lại!')) {
+        //     return
+        // } else return
+    }
     // Kích hoạt điều khiển cmdChay
     cmdChay.disabled = false;
 
@@ -1302,8 +1342,6 @@ socket.on("bttAuto_Chay_Caption", function (data) {
     // Cập nhật thuộc tính textContent của nút bttAuto_Chay thành giá trị mới
     cmdChay.textContent = data;
 });
-
-
 
 
 function XeTronMoi() { // Hàm này cớ bản đã chuyển xong
@@ -1345,7 +1383,7 @@ function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyể
         LatestPhieucanValues(socket, showPhieucanHientai);
         console.log('Mã đơn đặt hàng sau khi lấy dữ liệu Phiếu cân gần nhất từ server là: ', PhieuCan.dondathang.MaDonDatHang)
         // Đồng bộ dữ liệu với server
-        updateDataOnServer();
+        // updateDataOnServer();
         console.log('Mã đơn đặt hàng trong trường hợp chưa có MaDonDatHang sau khi đồng bộ là: ', PhieuCan.dondathang.MaDonDatHang)
         console.log('PhieuCan.MaPhieuCan trong trường hợp chưa có MaDonDatHang sau khi đồng bộ là: ', PhieuCan.MaPhieuCan)
     }
@@ -1355,7 +1393,7 @@ function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyể
         console.log('Mã đơn đặt hàng đã có, không cần goi Phiếu cân gần nhất: ', PhieuCan.dondathang.MaDonDatHang)
         PhieuCan.MaPhieuCan = docmaphieucan;
         // Đồng bộ dữ liệu với server
-        updateDataOnServer();
+        // updateDataOnServer();
         console.log('Mã đơn đặt hàng sau khi đồng bộ là: ', PhieuCan.dondathang.MaDonDatHang)
         console.log('PhieuCan.MaPhieuCan sau khi đồng bộ là: ', PhieuCan.MaPhieuCan)
     });
@@ -1363,7 +1401,7 @@ function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyể
     console.log('PhieuCan.XeBon.BienSoXe: ', PhieuCan.XeBon.BienSoXe)
     if (PhieuCan.DaChonXe) {
         document.querySelector('#xebon_recently').value = PhieuCan.XeBon.BienSoXe;
-        document.querySelector('.scr_Auto_listbox-xebon').value = PhieuCan.XeBon.BienSoXe;
+        document.querySelector('.scr_Auto_listbox-xebon').option = PhieuCan.XeBon.BienSoXe;
     }
     PhieuCan.DaGhiGioXong = false;
     PhieuCan.NhacNhapBienSo = false;
@@ -1371,7 +1409,7 @@ function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyể
     ThuThap.SoMeDM = PhieuCan.CapPhoi.SoMe;
     // Đồng bộ dữ liệu với server
     updateDataOnServer();
-
+    showPhieucanHientai();
     console.log('ThuThap.GhiPhieuCan : ', ThuThap.GhiPhieuCan)
     console.log('ThuThap.SoMeDM: ', ThuThap.SoMeDM)
 
@@ -1472,69 +1510,86 @@ function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyể
 }
 
 // Đọc và hiển thị giá trị cân thực tế lên màn hình
-function DocGiaTriCan(CanSo) {
-    console.log('Vào hàm DocGiaTriCan_Client để hiển thị lên bảng trong màn hình chính')
-    const flexData = document.querySelector('#responsive-table-input-matrix');
-    let result;
-    let i;
+// function DocGiaTriCan(CanSo) {
+//     console.log('Vào hàm DocGiaTriCan_Client để hiển thị lên bảng trong màn hình chính')
+//     const flexData = document.querySelector('#responsive-table-input-matrix');
+//     let result;
+//     let i;
 
-    switch (CanSo) {
-        case 1:
-            for (i = 1; i <= 4; i++) {
-                // flexData.rows[2].cells[i + 1].textContent = formatNumber(ThuThap.KhoiLuongCotLieu[i - 1], "0");
-                result = formatNumber(ThuThap.KhoiLuongCotLieu[i - 1], "0.0");
-                if (result > PhieuCan.CapPhoi.DMTP[i - 1] * 1.02 || result < PhieuCan.CapPhoi.DMTP[i - 1] * 0.98) {
-                    result = PhieuCan.CapPhoi.DMTP[i - 1] + 0.25 * (result - PhieuCan.CapPhoi.DMTP[i - 1]);
-                }
-                flexData.rows[2].cells[i + 1].textContent = formatNumber(result, "0.0");
-                ThuThap.KhoiLuongCotLieu[i - 1] = Number(flexData.rows[2].cells[i + 1].textContent);
-                console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Giá Trị Cân Thực Tế @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
-                console.log('Dòng:' + 2 + ' Ô: ' + (i + 1) + ' Có giá trị: ' + flexData.rows[2].cells[i + 1].textContent);
-                console.log('ThuThap.KhoiLuongCotLieu[' + (i - 1) + ']' + ThuThap.KhoiLuongCotLieu[i - 1]);
+//     switch (CanSo) {
+//         case 1:
+//             for (i = 1; i <= 4; i++) {
+//                 // flexData.rows[2].cells[i + 1].textContent = formatNumber(ThuThap.KhoiLuongCotLieu[i - 1], "0");
+//                 result = formatNumber(ThuThap.KhoiLuongCotLieu[i - 1], "0.0");
+//                 if (result > PhieuCan.CapPhoi.DMTP[i - 1] * 1.02 || result < PhieuCan.CapPhoi.DMTP[i - 1] * 0.98) {
+//                     result = PhieuCan.CapPhoi.DMTP[i - 1] + 0.25 * (result - PhieuCan.CapPhoi.DMTP[i - 1]);
+//                 }
+//                 flexData.rows[2].cells[i + 1].textContent = formatNumber(result, "0.0");
+//                 ThuThap.KhoiLuongCotLieu[i - 1] = Number(flexData.rows[2].cells[i + 1].textContent);
+//                 console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Giá Trị Cân Thực Tế @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+//                 console.log('Dòng:' + 2 + ' Ô: ' + (i + 1) + ' Có giá trị: ' + flexData.rows[2].cells[i + 1].textContent);
+//                 console.log('ThuThap.KhoiLuongCotLieu[' + (i - 1) + ']' + ThuThap.KhoiLuongCotLieu[i - 1]);
 
-                if (ThuThap.KhoiLuongCotLieu[i - 1] !== 0 && PhieuCan.CapPhoi.DMTP[i - 1] !== 0) {
-                    flexData.rows[3].cells[i + 1].textContent = formatNumber(((ThuThap.KhoiLuongCotLieu[i - 1] - PhieuCan.CapPhoi.DMTP[i - 1]) / PhieuCan.CapPhoi.DMTP[i - 1]) * 100, "0.0");
-                    console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Sai số @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
-                    console.log('Dòng:' + 3 + ' Ô: ' + (i + 1) + ' Có giá trị: ' + flexData.rows[3].cells[i + 1].textContent);
-                }
-            }
-            break;
-        case 2:
-            // flexData.rows[2].cells[6].textContent = formatNumber(ThuThap.KhoiLuongXi, "0.0");
-            result = formatNumber(ThuThap.KhoiLuongXi, "0.0");
-            if (result > PhieuCan.CapPhoi.DMXI * 1.01) {
-                result = PhieuCan.CapPhoi.DMXI + 0.2 * (result - PhieuCan.CapPhoi.DMXI);
-            }
-            flexData.rows[2].cells[6].textContent = formatNumber(result, "0.0");
-            ThuThap.KhoiLuongXi = Number(flexData.rows[2].cells[6].textContent);
+//                 if (ThuThap.KhoiLuongCotLieu[i - 1] !== 0 && PhieuCan.CapPhoi.DMTP[i - 1] !== 0) {
+//                     flexData.rows[3].cells[i + 1].textContent = formatNumber(((ThuThap.KhoiLuongCotLieu[i - 1] - PhieuCan.CapPhoi.DMTP[i - 1]) / PhieuCan.CapPhoi.DMTP[i - 1]) * 100, "0.0");
+//                     console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Sai số @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+//                     console.log('Dòng:' + 3 + ' Ô: ' + (i + 1) + ' Có giá trị: ' + flexData.rows[3].cells[i + 1].textContent);
+//                     console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ======== @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+//                 }
+//             }
+//             console.log('Mảng thu thập trên client: ', ThuThap)
+//             updateDataOnServer();
+//             break;
+//         case 2:
+//             // flexData.rows[2].cells[6].textContent = formatNumber(ThuThap.KhoiLuongXi, "0.0");
+//             result = formatNumber(ThuThap.KhoiLuongXi, "0.0");
+//             if (result > PhieuCan.CapPhoi.DMXI * 1.01) {
+//                 result = PhieuCan.CapPhoi.DMXI + 0.2 * (result - PhieuCan.CapPhoi.DMXI);
+//             }
+//             flexData.rows[2].cells[6].textContent = formatNumber(result, "0.0");
+//             ThuThap.KhoiLuongXi = Number(flexData.rows[2].cells[6].textContent);
+//             console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Giá Trị Cân Thực Tế @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+//             console.log('Dòng:' + 2 + ' Ô: ' + 6 + ' Có giá trị: ' + flexData.rows[2].cells[6].textContent);
+//             console.log('ThuThap.KhoiLuongXi' + ThuThap.KhoiLuongXi);
 
-            if (ThuThap.KhoiLuongXi !== 0 && PhieuCan.CapPhoi.DMXI !== 0) {
-                flexData.rows[3].cells[6].textContent = formatNumber(((ThuThap.KhoiLuongXi - PhieuCan.CapPhoi.DMXI) / PhieuCan.CapPhoi.DMXI) * 100, "0.0");
-            }
-            break;
-        case 3:
-            // flexData.rows[2].cells[7].textContent = formatNumber(ThuThap.KhoiLuongNuoc, "0.0");
-            result = formatNumber(ThuThap.KhoiLuongNuoc, "0.0");
-            if (result > PhieuCan.CapPhoi.DMNUOC * 1.01) {
-                result = PhieuCan.CapPhoi.DMNUOC + 0.2 * (result - PhieuCan.CapPhoi.DMNUOC);
-            }
-            flexData.rows[2].cells[7].textContent = formatNumber(result, "0.0");
-            ThuThap.KhoiLuongNuoc = Number(flexData.rows[2].cells[7].textContent);
+//             if (ThuThap.KhoiLuongXi !== 0 && PhieuCan.CapPhoi.DMXI !== 0) {
+//                 flexData.rows[3].cells[6].textContent = formatNumber(((ThuThap.KhoiLuongXi - PhieuCan.CapPhoi.DMXI) / PhieuCan.CapPhoi.DMXI) * 100, "0.0");
+//                 console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Sai số @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+//                 console.log('Dòng:' + 3 + ' Ô: ' + 6 + ' Có giá trị: ' + flexData.rows[3].cells[6].textContent);
+//             }
+//             console.log('Mảng thu thập trên client: ', ThuThap)
+//             updateDataOnServer();
+//             break;
+//         case 3:
+//             // flexData.rows[2].cells[7].textContent = formatNumber(ThuThap.KhoiLuongNuoc, "0.0");
+//             result = formatNumber(ThuThap.KhoiLuongNuoc, "0.0");
+//             if (result > PhieuCan.CapPhoi.DMNUOC * 1.01) {
+//                 result = PhieuCan.CapPhoi.DMNUOC + 0.2 * (result - PhieuCan.CapPhoi.DMNUOC);
+//             }
+//             flexData.rows[2].cells[7].textContent = formatNumber(result, "0.0");
+//             ThuThap.KhoiLuongNuoc = Number(flexData.rows[2].cells[7].textContent);
+//             console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Giá Trị Cân Thực Tế @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+//             console.log('Dòng:' + 2 + ' Ô: ' + 7 + ' Có giá trị: ' + flexData.rows[2].cells[7].textContent);
+//             console.log('ThuThap.KhoiLuongNuoc' + ThuThap.KhoiLuongNuoc);
 
-            if (ThuThap.KhoiLuongNuoc !== 0 && PhieuCan.CapPhoi.DMNUOC !== 0) {
-                flexData.rows[3].cells[7].textContent = formatNumber(((ThuThap.KhoiLuongNuoc - PhieuCan.CapPhoi.DMNUOC) / (PhieuCan.CapPhoi.DMNUOC)) * 100, "0.0");
-            }
+//             if (ThuThap.KhoiLuongNuoc !== 0 && PhieuCan.CapPhoi.DMNUOC !== 0) {
+//                 flexData.rows[3].cells[7].textContent = formatNumber(((ThuThap.KhoiLuongNuoc - PhieuCan.CapPhoi.DMNUOC) / (PhieuCan.CapPhoi.DMNUOC)) * 100, "0.0");
+//                 console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Sai số @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+//                 console.log('Dòng:' + 3 + ' Ô: ' + 7 + ' Có giá trị: ' + flexData.rows[3].cells[7].textContent);
+//             }
 
-            flexData.rows[2].cells[8].textContent = formatNumber(PhieuCan.CapPhoi.DMPG[0], "0");
+//             flexData.rows[2].cells[8].textContent = formatNumber(PhieuCan.CapPhoi.DMPG[0], "0");
 
-            if (ThuThap.KhoiLuongPG !== 0 && PhieuCan.CapPhoi.DMPG[0] !== 0) {
-                flexData.rows[3].cells[8].textContent = formatNumber(((ThuThap.KhoiLuongPG - PhieuCan.CapPhoi.DMPG[0]) / PhieuCan.CapPhoi.DMPG[0]) * 100, "0.00");
-            }
-            break;
-    }
-    console.log('Phiếu cân tại thời điểm kết thúc hàm DocGiaTriCan: ', PhieuCan)
-    console.log('Thoát hàm DocGiaTriCan_Client')
-}
+//             if (ThuThap.KhoiLuongPG !== 0 && PhieuCan.CapPhoi.DMPG[0] !== 0) {
+//                 flexData.rows[3].cells[8].textContent = formatNumber(((ThuThap.KhoiLuongPG - PhieuCan.CapPhoi.DMPG[0]) / PhieuCan.CapPhoi.DMPG[0]) * 100, "0.00");
+//             }
+//             console.log('Mảng thu thập trên client: ', ThuThap)
+//             updateDataOnServer();
+//             break;
+//     }
+//     console.log('Phiếu cân tại thời điểm kết thúc hàm DocGiaTriCan: ', PhieuCan)
+//     console.log('Thoát hàm DocGiaTriCan_Client')
+// }
 // // Hàm làm tròn số
 function formatNumber(number, format) {
     if (typeof format === 'undefined' || !format.split || !format.split('.')[1]) {
@@ -1646,12 +1701,7 @@ socket.on('data', function (data) {
     }
 });
 
-// When you make changes to the objects on the client side, you can emit an 'updateData' event to update the server and other clients
-function updateDataOnServer() {
-    socket.emit('updateData', { CapPhoi, KhachHang, DonDatHang, XeBon, PhieuGiaoBeTong, PhieuCan, DaCanXong, ThongKe, ThuThap, CuaVatLieu, ThongTinCapPhoi });
-}
-
-//Lắng nghe sự kiện tải lại trang và gọi hàm khi có sự kiện Click
+/////////////////////////////////////////////////////////////Lắng nghe sự kiện tải lại trang và gọi hàm khi có sự kiện Click//////////////////////////////////////////////////////
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Gọi hàm lắng nghe sự kiện HTML đã tải song cú pháp ở file Setup js');
 
@@ -1664,6 +1714,8 @@ document.addEventListener('DOMContentLoaded', () => {
     cmdChay.addEventListener('click', cmdChay_Click);
     console.log('Bít đã chọn xe đang là: ', PhieuCan.DaChonXe);
     console.log('Trạng thái bít disable Xe Tron Moi: ', cmdXeTronMoi.disabled);
+
+    // btChay_status();
 
     // // Đây là đoạn chương trình kiểm tra việt set và reset, chú ý bit XE_TRON_MOI đã được đổi sang M230.0, nhớ sửa lại. Ngoài ra cũng có một nút TEST được tạo mới để phục vụ việc kiểm tra
     // $('#test').on('click', function () {

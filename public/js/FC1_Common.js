@@ -1,152 +1,3 @@
-//////////////////// Tạo các object để lưu thông tin ///////////////////////////
-let CapPhoi = {
-    STTMacBeTong: 0,
-    TenMacBeTong: '',
-    DMTP: [0, 0, 0, 0],
-    DMXI: 0,
-    DMNUOC: 0,
-    DMPG: [0, 0],
-    DoSutThongKe: '',
-    Som3Me: 0,
-    SoMe: 0,
-    DoAmTP: [0, 0, 0, 0],
-    dieuchinh: 0
-};
-
-let KhachHang = {
-    MaKhachHang: '',
-    TenKhachHang: '',
-    DiaChi: ''
-};
-
-let DonDatHang = {
-    MaDonDatHang: '',
-    khachhang: KhachHang,
-    DiaChiCongTruong: '',
-    KLDatHang: 0,
-    KLMeNay: 0,
-    KLLuyTien: 0
-};
-
-let XeBon = {
-    STT: 0,
-    BienSoXe: '',
-    TenLaiXe: ''
-};
-
-let PhieuGiaoBeTong = {
-    ChuyenSo: '',
-    khachhang: '',
-    NoiNhanBeTong: '',
-    NgayDo: '',
-    SoXe: '',
-    MacBetong: '',
-    DoSut: '',
-    YeuCauBom: '',
-    YeuCauPG: '',
-    ThoiGianCap: '',
-    DonGiaBeTong: '',
-    DonGiaBom: '',
-    DonGiaPG: '',
-    Cong: '',
-    KhoiLuongChuyen: '',
-    KhoiLuongDaDo: '',
-    NguoiXuatHang: '',
-    LaiXe: '',
-    TramSo: ''
-};
-
-let PhieuCan = {
-    MaPhieuCan: '',
-    dondathang: DonDatHang,
-    XeBon: XeBon,
-    CapPhoi: CapPhoi,
-    TenTP: ['', '', '', ''],
-    TenXiMang: '',
-    TenPG: ['', ''],
-
-    GioXong: new Date(),
-    DaChonXe: false,
-    DaChonPhieuCan: false,
-    DaGhiGioXong: false,
-    NhacNhapBienSo: false,
-
-    PhieuGiaoBetong: PhieuGiaoBeTong
-};
-
-let DaCanXong = {
-    DaCanXongCotLieu: false,
-    DaCanXongXi: false,
-    DaCanXongNuoc: false,
-    DaCanXongPG: false
-};
-let ThongKe = {
-    tungay: '',
-    TuGio: '',
-    denngay: '',
-    DenGio: '',
-    MaKhachHang: '',
-    TenKhachHang: '',
-    MaDonDatHang: '',
-    MacBetong: '',
-    TheoKhachHang: false,
-    TheoDonDatHang: false,
-    TheoMac: false,
-    TheoGio: false,
-    ThongKeChiTiet: false,
-    BienSoXe: '',
-    MaPhieuCan: ''
-};
-
-let ThuThap = {
-    SoMeDM: 0,
-    SoMeHienTaiCotLieu: 0,
-    SoMeHienTaiXi: 0,
-    SoMeHienTaiNuoc: 0,
-    SoMeHienTaiPG: 0,
-
-    TrangThaiCanCotLieu: '',
-    TrangThaiCanXi: '',
-    TrangThaiCanNuoc: '',
-    TrangThaiCanPG: '',
-
-    KhoiLuongHienTaiCotLieu: 0,
-    KhoiLuongHienTaiXi: 0,
-    KhoiLuongHienTaiNuoc: 0,
-
-    KhoiLuongCotLieu: [0, 0, 0, 0],
-    KhoiLuongNuoc: 0,
-    KhoiLuongXi: 0,
-    KhoiLuongPG: 0,
-
-    GhiGiaTriCL: false,
-    GhiGiaTriXi: false,
-    GhiGiaTriNuoc: false,
-    GhiGiaTriPG: false,
-
-    GhiPhieuCan: false,
-    CoMeDangTron: false,
-    ChonVitMacDinh: false,
-    SoLanLoiTinHieu: 0,
-
-    DaCanXong: DaCanXong
-};
-
-let CuaVatLieu = {
-    Cua: ['', '', '', ''],
-    Xi: '',
-    PG: ['', ''],
-    ThuThapPG: false
-};
-
-let ThongTinCapPhoi = {
-    ViTriCapPhoi: 0,
-    SoMe: 0,
-    Som3Me: 0.0,
-    DoAm: [0.0, 0.0, 0.0],
-    DangDatCapPhoi: false
-};
-
 // Khai báo một số biến toàn cục
 var anable_edditting_datThongsocan = false;
 var anable_edditting_khungHieuchinhcan = false;
@@ -590,6 +441,8 @@ function initSocketFormHieuchinhcan(containerClass, editButtonId, saveButtonId, 
     });
 }
 
+
+
 // Lằng nghe sự kiện sau khi đã tải xong html
 // Xử lý sự kiện DOMContentLoaded của đối tượng document
 document.addEventListener('DOMContentLoaded', () => {
@@ -598,4 +451,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initSocketForm('container-datThongsocan', 'editThongsocan', 'saveThongsocan', 'saveDataThongsocan');
     // Gọi hàm initSocketForm, xử lý sự kiện, chức năng nhập liệu cho form Hiệu chỉnh cân
     initSocketFormHieuchinhcan('container-Hieuchinhcan', 'editHieuchinhcan', 'saveHieuchinhcan', 'saveDataHieuchinhcan');
+
 });

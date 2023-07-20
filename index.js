@@ -144,6 +144,11 @@ let ThongTinCapPhoi = {
     DoAm: [0.0, 0.0, 0.0],
     DangDatCapPhoi: false
 };
+let bttStatus = {
+    bttChay_Status: '',
+    bttXeTronMoi_Status: '',
+    GhiPhieuCan: false
+}
 
 // ////////////////////////////////////////////////////////////////////////// ++THIẾT LẬP KẾT NỐI VỚI SERVER VỚI PLC/////////////////////////////////////////////////////////////
 
@@ -484,7 +489,9 @@ setInterval(() => {
         //console.log('valuesKey: ', valuesKey);
         TmrDocPLC_timer();
     }
-
+    console.log('ThuThapHieuChinh.KhoiLuongCotLieu: ', ThuThapHieuChinh.KhoiLuongCotLieu)
+    // console.log('bttStatus.bttChay_Status:', bttStatus.bttChay_Status);
+    // console.log('bttStatus.bttXeTronMoi_Status:', bttStatus.bttXeTronMoi_Status);
     // console.log('/////////////////////////////////////////////////////////////////////////////////////////////////////////////');
     // console.log('CapPhoi: ', CapPhoi);
     // console.log('KhachHang: ', KhachHang);
@@ -498,7 +505,6 @@ setInterval(() => {
     // console.log('CuaVatLieu: ', CuaVatLieu);
     // console.log('ThongTinCapPhoi: ', ThongTinCapPhoi);
     // console.log('/////////////////////////////////////////////////////////////////////////////////////////////////////////////');
-
 
 }, 500);
 
@@ -519,20 +525,22 @@ setInterval(() => {
     // console.log('DonDatHang: ', DonDatHang);
     // console.log('XeBon: ', XeBon);
     // console.log('PhieuGiaoBeTong: ', PhieuGiaoBeTong);
-    console.log('PhieuCan: ', PhieuCan);
+    // console.log('PhieuCan: ', PhieuCan);
     // console.log('DaCanXong: ', DaCanXong);
     // console.log('ThongKe: ', ThongKe);
     console.log('ThuThap: ', ThuThap);
-    console.log('CuaVatLieu: ', CuaVatLieu);
+    // console.log('CuaVatLieu: ', CuaVatLieu);
     // console.log('ThongTinCapPhoi: ', ThongTinCapPhoi);
-    console.log('/////////////////////////////////////////////////////////////////////////////////////////////////////////////');
+
     // Cách gọi hàm DocMaPhieuCan để lấy MaPhieuCan dưới mysql
     DocMaPhieuCan(function (result) {
         // Xử lý kết quả trả về tại đây
         let tmp = result;
-        console.log('Mã Phiếu Cân ở dưới server là khi hàm DocMaPhieuCan được gọi: ', tmp)
+        console.log('Kiểm tra xem MaPhieuCan ở phía server khi hàm DocMaPhieuCan được gọi là nhiêu: ', tmp)
+        console.log('/////////////////////////////////////////////////////////////////////////////////////////////////////////////');
     });
-}, 10000);
+
+}, 5000);
 
 // ///////////////////////////////////////////////////////////////////////////////////////++THIẾT LẬP KẾT NỐI VỚI TRÌNH DUYỆT PHÍA CLIENT/////////////////////////
 var express = require("express");
@@ -707,6 +715,16 @@ function getDataChinhCanFromPLC() {
     io.sockets.emit('updateDataChinhCanFromPLC', dataFromPLC);
     //console.log('Dữ liệu hiệu chỉnh cân được gửi đi: ', dataFromPLC)
 }
+// Hàm so sánh dữ liệu mới từ client và dữ liệu hiện tại trên server
+function updateObject(oldObj, newObj) {
+    for (let key in newObj) {
+        if (newObj.hasOwnProperty(key) && oldObj[key] !== newObj[key]) {
+            oldObj[key] = newObj[key];
+        }
+    }
+}
+
+let lock = null;
 
 // //////////////////////////////////////////////////////////////////// GỬI NHẬN DỮ LIỆU VỚI CLIENT (TRÌNH DUYỆT)//////////////////////////////////////////////////
 io.on("connection", function (socket) {
@@ -715,6 +733,7 @@ io.on("connection", function (socket) {
     console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
     socket.on("Client-send-data", function (data) {
         fn_tag();
+
         // Khi nhận được tin nhắn "Client-send-data", thì server sẽ gửi dữ liệu là fn_tag(), trong này sẽ chứa những tin nhắn mà client cần nhận cho các ứng dụng cụ thể
         // Ví dụ: io.sockets.emit("TGTRON", arr_tag_value[94]); đây là lệnh gửi đi tin nhắn TGTRON và dữ liệu là arr_tag_value[94], nó chính là 305 đọc từ PLC, vậy thì qua bên client sẽ nhận được TGTRON: 305
         // Nghĩa là, nếu dùng câu lệnh socket.on(tag, function (data){} , nếu tag là TGTRON thì giá trị nhận được sẽ là 305
@@ -725,35 +744,46 @@ io.on("connection", function (socket) {
 
     // listen for changes from the client and update the server data accordingly
     socket.on('updateData', (data) => {
-        CapPhoi = data.CapPhoi;
-        KhachHang = data.KhachHang;
-        DonDatHang = data.DonDatHang;
-        XeBon = data.XeBon;
-        PhieuGiaoBeTong = data.PhieuGiaoBeTong;
-        PhieuCan = data.PhieuCan;
-        DaCanXong = data.DaCanXong;
-        ThongKe = data.ThongKe;
-        ThuThap = data.ThuThap;
-        CuaVatLieu = data.CuaVatLieu;
-        ThongTinCapPhoi = data.ThongTinCapPhoi;
+        // CapPhoi = data.CapPhoi;
+        // KhachHang = data.KhachHang;
+        // DonDatHang = data.DonDatHang;
+        // XeBon = data.XeBon;
+        // PhieuGiaoBeTong = data.PhieuGiaoBeTong;
+        // PhieuCan = data.PhieuCan;
+        // DaCanXong = data.DaCanXong;
+        // ThongKe = data.ThongKe;
+        // ThuThap = data.ThuThap;
+        // CuaVatLieu = data.CuaVatLieu;
+        // ThongTinCapPhoi = data.ThongTinCapPhoi;
+
+        // check if the lock is available or owned by this client
+        if (!lock || lock === socket.id) {
+            // acquire the lock
+            lock = socket.id;
+            // only update the necessary properties of the objects
+            updateObject(CapPhoi, data.CapPhoi);
+            updateObject(KhachHang, data.KhachHang);
+            updateObject(DonDatHang, data.DonDatHang);
+            updateObject(XeBon, data.XeBon);
+            updateObject(PhieuGiaoBeTong, data.PhieuGiaoBeTong);
+            updateObject(PhieuCan, data.PhieuCan);
+            updateObject(DaCanXong, data.DaCanXong);
+            updateObject(ThongKe, data.ThongKe);
+            updateObject(ThuThap, data.ThuThap);
+            updateObject(CuaVatLieu, data.CuaVatLieu);
+            updateObject(ThongTinCapPhoi, data.ThongTinCapPhoi);
+            // release the lock
+            lock = null;
+        } else {
+            // reject the update request
+            socket.emit('error', 'Đang có một máy khách khác ghi dữ liệu lên ứng dụng, vui kiểm tra và thực hiện lại. Cảm ơn!');
+        }
         // emit the updated data to all connected clients
-        io.emit('syncData', { CapPhoi, KhachHang, DonDatHang, XeBon, PhieuGiaoBeTong, PhieuCan, DaCanXong, ThongKe, ThuThap, CuaVatLieu, ThongTinCapPhoi });
+        io.emit('syncData', { CapPhoi, KhachHang, DonDatHang, XeBon, PhieuGiaoBeTong, PhieuCan, DaCanXong, ThongKe, ThuThap, CuaVatLieu, ThongTinCapPhoi, bttStatus });
     });
 
     // Đoạn lệnh này sẽ nhận lệnh SET bit, sau đó nó sẽ gửi tin báo done lên client kèm với data chính là true mà phía client đã gửi trươc đó,
     // phía client sẽ kiểm tra nếu data phía server gửi lên là true (mà thực tế đây là true mà, vì cũng là data nó gửi từ đâu), vậy nên chương trình này chưa ổn
-    socket.on("nhannutTest", function (data) {
-        conn_plc.writeItems('XE_TRON_MOI', data, function (err) {
-            if (err) {
-                console.log("Error writing to PLC: ", err);
-                socket.emit("error", "Error writing to PLC");
-            } else {
-                console.log('Trạng thái bit XE_TRON_MOI: ', data);
-                socket.emit("done", data);
-            }
-        });
-    });
-    // Lệnh SET và RESET trạng thái bit XE_TRON_MOI
     socket.on("XE_TRON_MOI", function (data) {
         conn_plc.writeItems('XE_TRON_MOI', data, function (err) {
             if (err) {
@@ -763,21 +793,37 @@ io.on("connection", function (socket) {
                 console.log('Trạng thái bit XE_TRON_MOI: ', data);
                 socket.emit("done", data);
             }
+            // Gán trạng thái cho nút XeTronMoi
+            bttStatus.bttXeTronMoi_Status = 'ON'
         });
-        // console.log('\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ Cần Cho hệ thống Dừng')
-        // conn_plc.writeItems('CHAY_DUNG', false, function (err) {
-        //     if (err) {
-        //         console.log("Error writing to PLC: ", err);
-        //         socket.emit("error", "Error writing to PLC");
-        //     } else {
-        //         console.log('Trạng thái bit CHAY_DUNG: ' + valuesKey.CHAY_DUNG);
-        //         socket.emit("CHAY_DUNG_Status", valuesKey.CHAY_DUNG);
-        //     }
-        // });
-        // newTextContent = "CHẠY";
-        // // Gửi lại dữ liệu xuống tất cả các client khác
-        // io.emit("bttAuto_Chay_Caption", newTextContent);
     });
+    // // Lệnh SET và RESET trạng thái bit XE_TRON_MOI
+    // socket.on("XE_TRON_MOI", function (data) {
+    //     conn_plc.writeItems(['XE_TRON_MOI', 'Q12'], [data, data], function (err) {
+    //         if (err) {
+    //             console.log("Error writing to PLC: ", err);
+    //             socket.emit("error", "Error writing to PLC");
+    //         } else {
+    //             console.log('Trạng thái bit XE_TRON_MOI: ', data);
+    //             socket.emit("done", data);
+    //         }
+    //         // Gán trạng thái cho nút XeTronMoi
+    //         bttStatus.bttXeTronMoi_Status = 'ON'
+    //     });
+    //     // console.log('\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ Cần Cho hệ thống Dừng')
+    //     // conn_plc.writeItems('CHAY_DUNG', false, function (err) {
+    //     //     if (err) {
+    //     //         console.log("Error writing to PLC: ", err);
+    //     //         socket.emit("error", "Error writing to PLC");
+    //     //     } else {
+    //     //         console.log('Trạng thái bit CHAY_DUNG: ' + valuesKey.CHAY_DUNG);
+    //     //         socket.emit("CHAY_DUNG_Status", valuesKey.CHAY_DUNG);
+    //     //     }
+    //     // });
+    //     // newTextContent = "CHẠY";
+    //     // // Gửi lại dữ liệu xuống tất cả các client khác
+    //     // io.emit("bttAuto_Chay_Caption", newTextContent);
+    // });
 
     // Đăng ký trình xử lý sự kiện cho sự kiện socket "cmdChay_Click"
     socket.on("cmdChay_Click", function (data) {
@@ -814,9 +860,9 @@ io.on("connection", function (socket) {
             });
             newTextContent = "CHẠY";
         }
-
+        bttStatus.bttChay_Status = newTextContent;
         // Gửi lại dữ liệu xuống tất cả các client khác
-        io.sockets.emit("bttAuto_Chay_Caption", newTextContent);
+        io.emit("bttAuto_Chay_Caption", newTextContent);
     });
 
     console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
@@ -844,10 +890,6 @@ io.on("connection", function (socket) {
             // Handle cancel
         }
     });
-
-
-
-
 
     // Chương trình này cải tiến hơn ở chỗ nó sẽ đọc lại trạng thái của bit mới vừa được SET, sau đó nó sẽ gửi trạng thái này tới client, phía client vẫn giữ chương trình cũ
     // nó sẽ thực hiện kiểm tra bit data mà server gửi lên, nếu nó là True thì client sẽ gửi yêu cầu reset trạng thái bít này về 0
@@ -1348,95 +1390,7 @@ io.on("connection", function (socket) {
         console.log('Gửi report qua client')
     });
 
-
-
-});
-
-// // Hàm đọc tên cửa vật liệu sau đó gửi qua trình duyệt
-// setupSocketListeners(); có thể tạo một hàm và trong đó gọi sự kiện lắng nghe io.on hoặc io.emit để lắng nghe sự kiên cient kết nối với server, 
-// sau đó sử dụng hàm lắng nghe sự kiện socket.on và socket.emit để nhận và gửi các bức điện qua lại giữa client và server nhằm thực hiện các yêu cầu khác nhau của dự án
-// setupSocketListeners(); là một ví dụ, bên dưới là một cách viết khác, trong cách này chúng ta không cần tạo hàm như trên mà sử dụng trực tiếp io.on()
-// io.on("connection", function (socket) {
-//     // This event listener is called when a new client connects to the server
-
-//     socket.on('event1', function (data) {
-//         // This event listener is called when the connected client emits the 'event1' event
-//         // ...
-//     });
-
-//     socket.on('event2', function (data) {
-//         // This event listener is called when the connected client emits the 'event2' event
-//         // ...
-//     });
-
-//     socket.on('event3', function (data) {
-//         // This event listener is called when the connected client emits the 'event3' event
-//         // ...
-//     });
-// });
-// // Hàm đọc tên cửa vật liệu sau đó gửi qua trình duyệt
-function getCuaVatLieu(callback) {
-    let CuaVatLieu = {
-        Cua: ['', '', '', ''],
-        Xi: '',
-        PG: ['', ''],
-        ThuThapPG: false
-    };
-    sqlcon.query('SELECT * FROM cuavatlieu', function (error, results, fields) {
-        if (error) throw error;
-        console.log('Kết quả đọc từ bảng cuavatlieu: ', results);
-        console.log('Chiều dài mảng dữ liệu đọc từ bảng cuavatlieu là: ', results.length);
-        // Nếu tồn tại tên các cửa vật liệu trang bảng cuavatlieu thì sẽ đọc và gửi qua trình duyệt
-        if (results.length > 0) {
-            console.log('Bảng cửa vật liệu có bản ghi từ trước, nên object CuaVatLieu sẽ là dữ liệu CŨ trong mysql: ');
-            for (let i = 0; i < 4; i++) {
-                CuaVatLieu.Cua[i] = results[0][`Can${i + 1}`] || `TP${i + 1}`;
-                console.log('Cửa liệu' + (i + 1) + ': ' + CuaVatLieu.Cua[i]);
-            }
-            for (let i = 0; i < 2; i++) {
-                CuaVatLieu.PG[i] = results[0][`PG${i + 1}`] || `PG${i + 1}`;
-                console.log('Cửa PG' + (i + 1) + ': ' + CuaVatLieu.PG[i]);
-            }
-            CuaVatLieu.Xi = results[0].Xi || 'Xi';
-            //CuaVatLieu.PG = results[0].PG1 || 'PG1';
-            CuaVatLieu.ThuThapPG = results[0].ThuThapPG || true;
-        } else {
-            console.log('Bảng cửa vật liệu chưa có bản ghi, nên object CuaVatLieu mới sẽ là giá trị tự đặt TP1, TP2, ...: ');
-            for (let i = 0; i < 4; i++) {
-                CuaVatLieu.Cua[i] = `TP${i + 1}`;
-                console.log('Cửa liệu' + (i + 1) + ': ' + CuaVatLieu.Cua[i]);
-
-            }
-            for (let i = 0; i < 2; i++) {
-                CuaVatLieu.PG[i] = `PG${i + 1}`;
-                console.log('Cửa PG' + (i + 1) + ': ' + CuaVatLieu.PG[i]);
-            }
-            CuaVatLieu.Xi = 'Xi';
-            //CuaVatLieu.PG = 'PG';
-            CuaVatLieu.ThuThapPG = true;
-        }
-        callback(CuaVatLieu);
-    });
-}
-
-///////////////////////////////////////////////////////////////////////////// Khởi tạo SQL //////////////////////////////////////////////////////////////////////////////////
-var mysql = require('mysql');
-var sqlcon = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "Dp123456789*-",
-    database: "sql_plc",
-    dateStrings: true // Hiển thị không có T và Z
-});
-
-// //////////////////////////////////////////////////////////////////////// Hàm callback khi ghi dữ liệu xuống PLC ///////////////////////////////////////////////////////////
-function valuesWritten(anythingBad) {
-    if (anythingBad) { console.log("SOMETHING WENT WRONG WRITING VALUES!!!!"); }
-    console.log("Done writing.");
-}
-
-// ////////////////////////////////////////////////////////////////// Nhận các bức điện được gửi từ trình duyệt//////////
-io.on("connection", function (socket) {
+    // ////////////////////////////////////////////////////////////////// Nhận các bức điện được gửi từ trình duyệt//////////
     // Không nên gọi thêm socket, nên tôi đã di chuyển vào trong một io.on duy nhất (duyphuoc)
     // ////////////////////////////////////////////////////////////////// Nhận các bức điện được gửi từ trình duyệt//////////
     ///////////// Nhận các bức điện được gửi từ trình duyệt ở chế độ TỰ ĐỘNG
@@ -1579,6 +1533,93 @@ io.on("connection", function (socket) {
 
     });
 });
+
+// // Hàm đọc tên cửa vật liệu sau đó gửi qua trình duyệt
+// setupSocketListeners(); có thể tạo một hàm và trong đó gọi sự kiện lắng nghe io.on hoặc io.emit để lắng nghe sự kiên cient kết nối với server, 
+// sau đó sử dụng hàm lắng nghe sự kiện socket.on và socket.emit để nhận và gửi các bức điện qua lại giữa client và server nhằm thực hiện các yêu cầu khác nhau của dự án
+// setupSocketListeners(); là một ví dụ, bên dưới là một cách viết khác, trong cách này chúng ta không cần tạo hàm như trên mà sử dụng trực tiếp io.on()
+// io.on("connection", function (socket) {
+//     // This event listener is called when a new client connects to the server
+
+//     socket.on('event1', function (data) {
+//         // This event listener is called when the connected client emits the 'event1' event
+//         // ...
+//     });
+
+//     socket.on('event2', function (data) {
+//         // This event listener is called when the connected client emits the 'event2' event
+//         // ...
+//     });
+
+//     socket.on('event3', function (data) {
+//         // This event listener is called when the connected client emits the 'event3' event
+//         // ...
+//     });
+// });
+// // Hàm đọc tên cửa vật liệu sau đó gửi qua trình duyệt
+function getCuaVatLieu(callback) {
+    let CuaVatLieu = {
+        Cua: ['', '', '', ''],
+        Xi: '',
+        PG: ['', ''],
+        ThuThapPG: false
+    };
+    sqlcon.query('SELECT * FROM cuavatlieu', function (error, results, fields) {
+        if (error) throw error;
+        //console.log('Kết quả đọc từ bảng cuavatlieu: ', results);
+        //console.log('Chiều dài mảng dữ liệu đọc từ bảng cuavatlieu là: ', results.length);
+        // Nếu tồn tại tên các cửa vật liệu trang bảng cuavatlieu thì sẽ đọc và gửi qua trình duyệt
+        if (results.length > 0) {
+            console.log('Bảng cửa vật liệu có bản ghi từ trước, nên object CuaVatLieu sẽ là dữ liệu CŨ trong mysql: ');
+            for (let i = 0; i < 4; i++) {
+                CuaVatLieu.Cua[i] = results[0][`Can${i + 1}`] || `TP${i + 1}`;
+                //console.log('Cửa liệu' + (i + 1) + ': ' + CuaVatLieu.Cua[i]);
+            }
+            for (let i = 0; i < 2; i++) {
+                CuaVatLieu.PG[i] = results[0][`PG${i + 1}`] || `PG${i + 1}`;
+                //console.log('Cửa PG' + (i + 1) + ': ' + CuaVatLieu.PG[i]);
+            }
+            CuaVatLieu.Xi = results[0].Xi || 'Xi';
+            //console.log('Cửa Xi' + ': ' + CuaVatLieu.Xi);
+            //CuaVatLieu.PG = results[0].PG1 || 'PG1';
+            CuaVatLieu.ThuThapPG = results[0].ThuThapPG || true;
+        } else {
+            console.log('Bảng cửa vật liệu chưa có bản ghi, nên object CuaVatLieu mới sẽ là giá trị tự đặt TP1, TP2, ...: ');
+            for (let i = 0; i < 4; i++) {
+                CuaVatLieu.Cua[i] = `TP${i + 1}`;
+                //console.log('Cửa liệu' + (i + 1) + ': ' + CuaVatLieu.Cua[i]);
+
+            }
+            for (let i = 0; i < 2; i++) {
+                CuaVatLieu.PG[i] = `PG${i + 1}`;
+                //console.log('Cửa PG' + (i + 1) + ': ' + CuaVatLieu.PG[i]);
+            }
+            CuaVatLieu.Xi = 'Xi';
+            //console.log('Cửa Xi' + ': ' + CuaVatLieu.Xi);
+            //CuaVatLieu.PG = 'PG';
+            CuaVatLieu.ThuThapPG = true;
+        }
+        callback(CuaVatLieu);
+    });
+}
+
+///////////////////////////////////////////////////////////////////////////// Khởi tạo SQL //////////////////////////////////////////////////////////////////////////////////
+var mysql = require('mysql');
+var sqlcon = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "Dp123456789*-",
+    database: "sql_plc",
+    dateStrings: true // Hiển thị không có T và Z
+});
+
+// //////////////////////////////////////////////////////////////////////// Hàm callback khi ghi dữ liệu xuống PLC ///////////////////////////////////////////////////////////
+function valuesWritten(anythingBad) {
+    if (anythingBad) { console.log("SOMETHING WENT WRONG WRITING VALUES!!!!"); }
+    console.log("Done writing.");
+}
+
+
 
 // /////////////////////////////// BÁO CÁO EXCEL ///////////////////////////////
 const Excel = require('exceljs');
@@ -1828,6 +1869,7 @@ function DocMangThuThap(values) {
     ThuThap.KhoiLuongCotLieu[0] = values.Sym_VD66;
     ThuThap.KhoiLuongCotLieu[1] = values.Sym_VD366;
     ThuThap.KhoiLuongCotLieu[2] = values.Sym_VD566;
+    ThuThap.KhoiLuongCotLieu[3] = values.Sym_VD766;
 
     ThuThap.KhoiLuongXi = values.Sym_VD1066
     ThuThap.KhoiLuongNuoc = values.Sym_VD2066
@@ -1835,30 +1877,45 @@ function DocMangThuThap(values) {
     // ThuThap.KhoiLuongPG[1] = result(44)
     // console.log('ThuThap.KhoiLuongXi ', ThuThap.KhoiLuongXi)
     // console.log('ThuThap.KhoiLuongNuoc ', ThuThap.KhoiLuongNuoc)
-    console.log('ThuThap.KhoiLuongCotLieu[0]', ThuThap.KhoiLuongCotLieu[0])
-    console.log('ThuThap.KhoiLuongCotLieu[1]', ThuThap.KhoiLuongCotLieu[1])
-    console.log('ThuThap.KhoiLuongCotLieu[2]', ThuThap.KhoiLuongCotLieu[2])
-    // console.log('Ra khỏi hàm DocMangThuThap')
+    // console.log('ThuThap.KhoiLuongCotLieu[0]', ThuThap.KhoiLuongCotLieu[0])
+    // console.log('ThuThap.KhoiLuongCotLieu[1]', ThuThap.KhoiLuongCotLieu[1])
+    // console.log('ThuThap.KhoiLuongCotLieu[2]', ThuThap.KhoiLuongCotLieu[2])
+    // console.log('ThuThap.KhoiLuongCotLieu[3]', ThuThap.KhoiLuongCotLieu[3])
+    // console.log('Chiều dài của ThuThap.KhoiLuongCotLieu: ', ThuThap.KhoiLuongCotLieu.length)
+}
+// // Hàm làm tròn số
+function formatNumber(number, format) {
+    if (typeof format === 'undefined' || !format.split || !format.split('.')[1]) {
+        return number;
+    }
+    if (typeof number !== 'number' || isNaN(number)) {
+        // Xử lý trường hợp number không phải là một số
+        // Bạn có thể trả về một giá trị mặc định hoặc thông báo lỗi
+        return 0;
+    }
+    return number.toFixed(format.split('.')[1].length);
 }
 // Hàm ghi giá trị của Cốt liệu vào bảng chitietphieucan
 function GhiGiaTriCL() {
+    console.log('=================================================================================Vào hàm GhiGaTriCL+++++++++++++++++++++++++++++++++++++++++++++++++++++++')
     let sqlstr = "SELECT * FROM chitietphieucan WHERE MaPhieuCan =" + PhieuCan.MaPhieuCan + " AND STTMe = " + ThuThap.SoMeHienTaiCotLieu;
     sqlcon.query(sqlstr, function (error, results, fields) {
         if (error) throw error;
         if (results.length > 0) {
             let updateSql = "UPDATE chitietphieucan SET Gio = ?, TP1 = ?, TP2 = ?, TP3 = ?, TP4 = ?, PG1 = ?, STTMe = ? WHERE MaPhieuCan =" + PhieuCan.MaPhieuCan + " AND STTMe = " + ThuThap.SoMeHienTaiCotLieu;
-            let values = [new Date(), ThuThap.KhoiLuongCotLieu[0], ThuThap.KhoiLuongCotLieu[1], ThuThap.KhoiLuongCotLieu[2], ThuThap.KhoiLuongCotLieu[3], PhieuCan.CapPhoi.DMPG[0], ThuThap.SoMeHienTaiCotLieu];
+            let values = [new Date(), formatNumber(ThuThapHieuChinh.KhoiLuongCotLieu[0], "0.0"), formatNumber(ThuThapHieuChinh.KhoiLuongCotLieu[1], "0.0"), formatNumber(ThuThapHieuChinh.KhoiLuongCotLieu[2], "0.0"), formatNumber(ThuThapHieuChinh.KhoiLuongCotLieu[3], "0.0"), PhieuCan.CapPhoi.DMPG[0], ThuThap.SoMeHienTaiCotLieu];
             sqlcon.query(updateSql, values, function (error, results, fields) {
                 if (error) throw error;
             });
         } else {
             let insertSql = "INSERT INTO chitietphieucan (MaPhieuCan, Gio, TP1, TP2, TP3, TP4, PG1, STTMe) VALUES ?";
-            let values = [[PhieuCan.MaPhieuCan, new Date(), ThuThap.KhoiLuongCotLieu[0], ThuThap.KhoiLuongCotLieu[1], ThuThap.KhoiLuongCotLieu[2], ThuThap.KhoiLuongCotLieu[3], PhieuCan.CapPhoi.DMPG[0], ThuThap.SoMeHienTaiCotLieu]];
+            let values = [[PhieuCan.MaPhieuCan, new Date(), formatNumber(ThuThapHieuChinh.KhoiLuongCotLieu[0], "0.0"), formatNumber(ThuThapHieuChinh.KhoiLuongCotLieu[1], "0.0"), formatNumber(ThuThapHieuChinh.KhoiLuongCotLieu[2], "0.0"), formatNumber(ThuThapHieuChinh.KhoiLuongCotLieu[3], "0.0"), PhieuCan.CapPhoi.DMPG[0], ThuThap.SoMeHienTaiCotLieu]];
             sqlcon.query(insertSql, [values], function (error, results, fields) {
                 if (error) throw error;
             });
         }
     });
+    console.log('=================================================================================Thoát hàm GhiGaTriCL+++++++++++++++++++++++++++++++++++++++++++++++++++++++')
 }
 
 function GhiGiaTriXi() {
@@ -1867,13 +1924,13 @@ function GhiGiaTriXi() {
         if (error) throw error;
         if (results.length > 0) {
             let updateSql = "UPDATE chitietphieucan SET Gio = ?, Xi = ?, STTMe = ? WHERE MaPhieuCan =" + PhieuCan.MaPhieuCan + " AND STTMe = " + ThuThap.SoMeHienTaiXi;
-            let values = [new Date(), ThuThap.KhoiLuongXi, ThuThap.SoMeHienTaiXi];
+            let values = [new Date(), formatNumber(ThuThapHieuChinh.KhoiLuongXi, "0.0"), ThuThap.SoMeHienTaiXi];
             sqlcon.query(updateSql, values, function (error, results, fields) {
                 if (error) throw error;
             });
         } else {
             let insertSql = "INSERT INTO chitietphieucan (MaPhieuCan, Gio, Xi, STTMe) VALUES ?";
-            let values = [[PhieuCan.MaPhieuCan, new Date(), ThuThap.KhoiLuongXi, ThuThap.SoMeHienTaiXi]];
+            let values = [[PhieuCan.MaPhieuCan, new Date(), formatNumber(ThuThapHieuChinh.KhoiLuongXi, "0.0"), ThuThap.SoMeHienTaiXi]];
             sqlcon.query(insertSql, [values], function (error, results, fields) {
                 if (error) throw error;
             });
@@ -1887,13 +1944,13 @@ function GhiGiaTriNuoc() {
         if (error) throw error;
         if (results.length > 0) {
             let updateSql = "UPDATE chitietphieucan SET Gio = ?, Nuoc = ?, STTMe = ? WHERE MaPhieuCan =" + PhieuCan.MaPhieuCan + " AND STTMe = " + ThuThap.SoMeHienTaiNuoc;
-            let values = [new Date(), ThuThap.KhoiLuongNuoc, ThuThap.SoMeHienTaiNuoc];
+            let values = [new Date(), formatNumber(ThuThapHieuChinh.KhoiLuongNuoc, "0.0"), ThuThap.SoMeHienTaiNuoc];
             sqlcon.query(updateSql, values, function (error, results, fields) {
                 if (error) throw error;
             });
         } else {
             let insertSql = "INSERT INTO chitietphieucan (MaPhieuCan, Gio, Nuoc, STTMe) VALUES ?";
-            let values = [[PhieuCan.MaPhieuCan, new Date(), ThuThap.KhoiLuongNuoc, ThuThap.SoMeHienTaiNuoc]];
+            let values = [[PhieuCan.MaPhieuCan, new Date(), formatNumber(ThuThapHieuChinh.KhoiLuongNuoc, "0.0"), ThuThap.SoMeHienTaiNuoc]];
             sqlcon.query(insertSql, [values], function (error, results, fields) {
                 if (error) throw error;
             });
@@ -1907,13 +1964,13 @@ function GhiGiaTriPG() {
         if (error) throw error;
         if (results.length > 0) {
             let updateSql = "UPDATE chitietphieucan SET Gio = ?, PG1 = ?, STTMe = ? WHERE MaPhieuCan =" + PhieuCan.MaPhieuCan + " AND STTMe = " + ThuThap.SoMeHienTaiPG;
-            let values = [new Date(), ThuThap.KhoiLuongPG, ThuThap.SoMeHienTaiPG];
+            let values = [new Date(), formatNumber(ThuThapHieuChinh.KhoiLuongPG, "0.00"), ThuThap.SoMeHienTaiPG];
             sqlcon.query(updateSql, values, function (error, results, fields) {
                 if (error) throw error;
             });
         } else {
             let insertSql = "INSERT INTO chitietphieucan (MaPhieuCan, Gio, PG1, STTMe) VALUES ?";
-            let values = [[PhieuCan.MaPhieuCan, new Date(), ThuThap.KhoiLuongPG, ThuThap.SoMeHienTaiPG]];
+            let values = [[PhieuCan.MaPhieuCan, new Date(), formatNumber(ThuThapHieuChinh.KhoiLuongPG, "0.00"), ThuThap.SoMeHienTaiPG]];
             sqlcon.query(insertSql, [values], function (error, results, fields) {
                 if (error) throw error;
             });
@@ -2168,18 +2225,18 @@ function GhiPhieuCan() {
             ]
         ];
     sqlcon.query(insertSql, [values], function (err) {
-        // if (err) throw err;
-        // console.log("Record inserted");
-        if (err) {
-            // Xử lý lỗi tại đây
-            console.error(err);
-            // Gửi thông báo lỗi đến trình duyệt (đến tất cả các client đang kết nối tới server)
-            // io.emit('error', 'Đã có lỗi trong quá trình xử lý dữ liệu. Vui lòng kiểm tra và thực hiện theo đúng hướng dẫn. Cảm ơn!');
-            console.log("Lỗi do trùng dữ liệu hoặc nguyên nhân khác");
-        } else {
-            console.log("Record inserted");
-            console.log('Đã ghi phiếu cân với MaPhieuCan: ', PhieuCan.MaPhieuCan)
-        }
+        if (err) throw err;
+        console.log("Record inserted");
+        // if (err) {
+        //     // Xử lý lỗi tại đây
+        //     console.error(err);
+        //     // Gửi thông báo lỗi đến trình duyệt (đến tất cả các client đang kết nối tới server)
+        //     // io.sockets.emit('error', 'Đã có lỗi trong quá trình ghi mã phiếu cân. Vui lòng kiểm tra và thực hiện theo đúng hướng dẫn. Cảm ơn!');
+        //     console.log("Lỗi do trùng dữ liệu hoặc nguyên nhân khác");
+        // } else {
+        //     console.log("Record inserted");
+        //     console.log('Đã ghi phiếu cân với MaPhieuCan: ', PhieuCan.MaPhieuCan)
+        // }
     });
 
     ThuThap.CoMeDangTron = true;
@@ -2192,7 +2249,7 @@ function GhiPhieuCan() {
 
 
 function DocMaPhieuCan(callback) {
-    console.log('Vào hàm DocMaPhieuCan ở server Node')
+    // console.log('Vào hàm DocMaPhieuCan ở server Node')
     let query = "SELECT * FROM phieucan ORDER BY MaPhieuCan ASC";
 
     sqlcon.query(query, function (err, result) {
@@ -2209,7 +2266,7 @@ function DocMaPhieuCan(callback) {
             callback(1);
         }
     });
-    console.log('Exit hàm DocMaPhieuCan ở server Node')
+    // console.log('Exit hàm DocMaPhieuCan ở server Node')
 }
 
 
@@ -2337,6 +2394,8 @@ function GiaTriTrangThai(l_trangthai) {
 
 
 function TmrDocPLC_timer() {
+    console.log('Đã vào hàm TmrDocPLC_timer để ghi/đọc PLC')
+    // console.log('Gọi hàm DocMangThuThap')
     DocMangThuThap(valuesKey);
     // showPhieucanHientai();
 
@@ -2356,12 +2415,18 @@ function TmrDocPLC_timer() {
         }
         ThuThap.GhiGiaTriCL = false;
         console.log('Đang ở đây 1')
+        console.log('ThuThap: ', ThuThap)
     } else if ((ThuThap.KhoiLuongCotLieu[0] !== 0 || ThuThap.KhoiLuongCotLieu[1] !== 0 || ThuThap.KhoiLuongCotLieu[2] !== 0 || ThuThap.KhoiLuongCotLieu[3] !== 0) && !ThuThap.GhiGiaTriCL && ThuThap.SoMeHienTaiCotLieu > 0) {
         if (Daghihetcacthanhphan("CanCL")) {
             ThuThap.GhiGiaTriCL = true;
+            console.log('Đã ghi hết các thành phần Cốt liệu')
         }
-        DocGiaTriCan(1);
         GhiGiaTriCL();
+        DocGiaTriCan(1);
+        // ThuThap.GhiGiaTriCL = true;
+
+
+        console.log('Đã ghi hết các thành phần Cốt liệu')
         // let CuaVatLieu = GetCuaVatLieu();
         // Gọi hàm lấy thông tin của Cử vật liệu từ mysql sau đó gửi qua client để hiển thị
         // Ngoài việc gọi them định kỳ thì phía client cũng có hàm yêu cầu thực hiện việc này, và sẽ cập nhật mới mỗi khi load trang, nhấn HOME, hay cập nhật Macbetong (hãy check lại)
@@ -2372,8 +2437,10 @@ function TmrDocPLC_timer() {
 
         if (ThuThap.SoMeDM === ThuThap.SoMeHienTaiCotLieu) {
             ThuThap.DaCanXong.DaCanXongCotLieu = true;
-        }
+            console.log('Đã cân xong Cốt liệu')
+        } else console.log('Chưa đủ điều kiện báo cân xong Cốt liệu')
         console.log('Đang ở đây 2')
+        console.log('ThuThap: ', ThuThap)
     }
 
     if ((ThuThap.TrangThaiCanXi.trim() === "COARSE" || ThuThap.TrangThaiCanXi.trim() === "FINE" || ThuThap.TrangThaiCanXi.trim() === "PAUSE") && ThuThap.SoMeHienTaiXi > 0) {
@@ -2384,14 +2451,17 @@ function TmrDocPLC_timer() {
             ThuThap.GhiPhieuCan = true;
         }
         console.log('Đang ở đây 3')
+        console.log('ThuThap: ', ThuThap)
     } else if (ThuThap.KhoiLuongXi !== 0 && !ThuThap.GhiGiaTriXi && ThuThap.SoMeHienTaiXi > 0) {
         GhiGiaTriXi();
         ThuThap.GhiGiaTriXi = true;
         DocGiaTriCan(2);
         if (ThuThap.SoMeDM === ThuThap.SoMeHienTaiXi) {
             ThuThap.DaCanXong.DaCanXongXi = true;
+            console.log('Đã cân xong Xi')
         }
         console.log('Đang ở đây 4')
+        console.log('ThuThap: ', ThuThap)
     }
 
     if ((ThuThap.TrangThaiCanNuoc.trim() === "COARSE" || ThuThap.TrangThaiCanNuoc.trim() === "PAUSE") && ThuThap.SoMeHienTaiNuoc > 0) {
@@ -2408,6 +2478,7 @@ function TmrDocPLC_timer() {
         DocGiaTriCan(3);
         if (ThuThap.SoMeDM === ThuThap.SoMeHienTaiNuoc) {
             ThuThap.DaCanXong.DaCanXongNuoc = true;
+            console.log('Đã cân xong Cốt Nước')
         }
         console.log('Đang ở đây 6')
     }
@@ -2417,22 +2488,82 @@ function TmrDocPLC_timer() {
         if (!PhieuCan.DaGhiGioXong) {
             GhiThoiGianTronXong();
             PhieuCan.DaGhiGioXong = true;
+            console.log('Đã ghi giờ xong')
         }
         console.log('Đang ở đây 7')
     }
+    console.log('Thoát hàm TmrDocPLC_timer để ghi/đọc PLC')
 }
 
-// Hàm DocGiaTriCan ở phía server
-function DocGiaTriCan(CanSo) {
-    // Cập nhật dữ liệu mới lên tất cả các client đang kết nối đến server
-    // emit the updated data to all connected clients
-    io.emit('syncData', { CapPhoi, KhachHang, DonDatHang, XeBon, PhieuGiaoBeTong, PhieuCan, DaCanXong, ThongKe, ThuThap, CuaVatLieu, ThongTinCapPhoi });
+let ThuThapHieuChinh = {
+    KhoiLuongCotLieu: [0, 0, 0, 0],
+    KhoiLuongNuoc: 0,
+    KhoiLuongXi: 0,
+    KhoiLuongPG: 0,
+};
 
-    // yêu cầu phía client đọc giá trị cân
-    io.emit('DocGiaTriCan', CanSo);
+// Phía server
+function DocGiaTriCan(CanSo) {
+    console.log('Thực hiện tính toán tại server');
+    let KetQua = TinhToan(CanSo);
+    io.emit('KetQuaTinhToan', { CanSo, KetQua });
+    console.log('Mảng thu thập hiệu chỉnh: ', ThuThapHieuChinh)
+}
+
+function TinhToan(CanSo) {
+    let result;
+    let i;
+    let KhoiLuongCotLieu = [];
+    let KhoiLuongXi;
+    let KhoiLuongNuoc;
+    let KhoiLuongPG;
+
+    switch (CanSo) {
+        case 1:
+            for (i = 1; i <= 4; i++) {
+                if (PhieuCan.CapPhoi.DMTP[i - 1] !== 0) {
+                    result = formatNumber(ThuThap.KhoiLuongCotLieu[i - 1], "0.0");
+                    if (result > PhieuCan.CapPhoi.DMTP[i - 1] * 1.02 || result < PhieuCan.CapPhoi.DMTP[i - 1] * 0.98) {
+                        result = PhieuCan.CapPhoi.DMTP[i - 1] + 0.25 * (result - PhieuCan.CapPhoi.DMTP[i - 1]);
+                    }
+                    KhoiLuongCotLieu.push(result);
+                } else {
+                    result = 0;
+                    KhoiLuongCotLieu.push(result);
+                }
+
+                // Lưu kết quả tính toán vào object ThuThapHieuChinh
+                ThuThapHieuChinh.KhoiLuongCotLieu = KhoiLuongCotLieu;
+
+            }
+            break;
+        case 2:
+            result = formatNumber(ThuThap.KhoiLuongXi, "0.0");
+            if (result > PhieuCan.CapPhoi.DMXI * 1.01) {
+                result = PhieuCan.CapPhoi.DMXI + 0.2 * (result - PhieuCan.CapPhoi.DMXI);
+            }
+            KhoiLuongXi = result;
+            // Lưu kết quả tính toán vào object ThuThapHieuChinh
+            ThuThapHieuChinh.KhoiLuongXi = KhoiLuongXi;
+            break;
+        case 3:
+            result = formatNumber(ThuThap.KhoiLuongNuoc, "0.0");
+            if (result > PhieuCan.CapPhoi.DMNUOC * 1.01) {
+                result = PhieuCan.CapPhoi.DMNUOC + 0.2 * (result - PhieuCan.CapPhoi.DMNUOC);
+            }
+            KhoiLuongNuoc = result;
+            // Lưu kết quả tính toán vào object ThuThapHieuChinh
+            ThuThapHieuChinh.KhoiLuongNuoc = KhoiLuongNuoc;
+            KhoiLuongPG = PhieuCan.CapPhoi.DMPG[0];
+            // Lưu kết quả tính toán vào object ThuThapHieuChinh
+            ThuThapHieuChinh.KhoiLuongPG = KhoiLuongPG;
+            break;
+    }
+    return { KhoiLuongCotLieu, KhoiLuongXi, KhoiLuongNuoc, KhoiLuongPG };
 }
 
 function Daghihetcacthanhphan(can) {
+    console.log('Vào hàm Daghihetcacthanhphan để kiểm tra đã ghi hết các thành phần hay chưa')
     let result = true;
     let i;
 
@@ -2451,6 +2582,9 @@ function Daghihetcacthanhphan(can) {
             }
             break;
     }
+    if (result) {
+        console.log('//////////////////////////////////////////////////////////////////////////////////////////////////////// Đã ghi hết các thành phần')
+    } else console.log('//////////////////////////////////////////////////////////////////////Chưa ghi hết các thành phần')
 
     return result;
 }

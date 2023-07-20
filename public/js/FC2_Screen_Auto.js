@@ -1,3 +1,156 @@
+//////////////////// Tạo các object để lưu thông tin ///////////////////////////
+let CapPhoi = {
+    STTMacBeTong: 0,
+    TenMacBeTong: '',
+    DMTP: [0, 0, 0, 0],
+    DMXI: 0,
+    DMNUOC: 0,
+    DMPG: [0, 0],
+    DoSutThongKe: '',
+    Som3Me: 0,
+    SoMe: 0,
+    DoAmTP: [0, 0, 0, 0],
+    dieuchinh: 0
+};
+
+let KhachHang = {
+    MaKhachHang: '',
+    TenKhachHang: '',
+    DiaChi: ''
+};
+
+let DonDatHang = {
+    MaDonDatHang: '',
+    khachhang: KhachHang,
+    DiaChiCongTruong: '',
+    KLDatHang: 0,
+    KLMeNay: 0,
+    KLLuyTien: 0
+};
+
+let XeBon = {
+    STT: 0,
+    BienSoXe: '',
+    TenLaiXe: ''
+};
+
+let PhieuGiaoBeTong = {
+    ChuyenSo: '',
+    khachhang: '',
+    NoiNhanBeTong: '',
+    NgayDo: '',
+    SoXe: '',
+    MacBetong: '',
+    DoSut: '',
+    YeuCauBom: '',
+    YeuCauPG: '',
+    ThoiGianCap: '',
+    DonGiaBeTong: '',
+    DonGiaBom: '',
+    DonGiaPG: '',
+    Cong: '',
+    KhoiLuongChuyen: '',
+    KhoiLuongDaDo: '',
+    NguoiXuatHang: '',
+    LaiXe: '',
+    TramSo: ''
+};
+
+let PhieuCan = {
+    MaPhieuCan: '',
+    dondathang: DonDatHang,
+    XeBon: XeBon,
+    CapPhoi: CapPhoi,
+    TenTP: ['', '', '', ''],
+    TenXiMang: '',
+    TenPG: ['', ''],
+
+    GioXong: new Date(),
+    DaChonXe: false,
+    DaChonPhieuCan: false,
+    DaGhiGioXong: false,
+    NhacNhapBienSo: false,
+
+    PhieuGiaoBetong: PhieuGiaoBeTong
+};
+
+let DaCanXong = {
+    DaCanXongCotLieu: false,
+    DaCanXongXi: false,
+    DaCanXongNuoc: false,
+    DaCanXongPG: false
+};
+let ThongKe = {
+    tungay: '',
+    TuGio: '',
+    denngay: '',
+    DenGio: '',
+    MaKhachHang: '',
+    TenKhachHang: '',
+    MaDonDatHang: '',
+    MacBetong: '',
+    TheoKhachHang: false,
+    TheoDonDatHang: false,
+    TheoMac: false,
+    TheoGio: false,
+    ThongKeChiTiet: false,
+    BienSoXe: '',
+    MaPhieuCan: ''
+};
+
+let ThuThap = {
+    SoMeDM: 0,
+    SoMeHienTaiCotLieu: 0,
+    SoMeHienTaiXi: 0,
+    SoMeHienTaiNuoc: 0,
+    SoMeHienTaiPG: 0,
+
+    TrangThaiCanCotLieu: '',
+    TrangThaiCanXi: '',
+    TrangThaiCanNuoc: '',
+    TrangThaiCanPG: '',
+
+    KhoiLuongHienTaiCotLieu: 0,
+    KhoiLuongHienTaiXi: 0,
+    KhoiLuongHienTaiNuoc: 0,
+
+    KhoiLuongCotLieu: [0, 0, 0, 0],
+    KhoiLuongNuoc: 0,
+    KhoiLuongXi: 0,
+    KhoiLuongPG: 0,
+
+    GhiGiaTriCL: false,
+    GhiGiaTriXi: false,
+    GhiGiaTriNuoc: false,
+    GhiGiaTriPG: false,
+
+    GhiPhieuCan: false,
+    CoMeDangTron: false,
+    ChonVitMacDinh: false,
+    SoLanLoiTinHieu: 0,
+
+    DaCanXong: DaCanXong
+};
+
+let CuaVatLieu = {
+    Cua: ['', '', '', ''],
+    Xi: '',
+    PG: ['', ''],
+    ThuThapPG: false
+};
+
+let ThongTinCapPhoi = {
+    ViTriCapPhoi: 0,
+    SoMe: 0,
+    Som3Me: 0.0,
+    DoAm: [0.0, 0.0, 0.0],
+    DangDatCapPhoi: false
+};
+
+let bttStatus = {
+    bttChay_Status: '',
+    bttXeTronMoi_Status: ''
+}
 // Tạo 1 tag tạm báo đang sửa dữ liệu
 var Auto_Scr_data_edditting = false;
 ///// CHƯƠNG TRÌNH CON NÚT NHẤN SỬA //////
@@ -365,15 +518,49 @@ socket.on('data_popup', function (data) {
     }
 });
 
-// ///////////////////////////////////////////////////////// Hàm lắng nghe sự kiện HTML đã tải xong cấu trúc, chưa tải xong video, ảnh, ... ///////////////////////////////////////////////////////
+function btChay_status() {
+    if (typeof bttStatus !== 'undefined') {
+        cmdChay.textContent = bttStatus.bttChay_Status;
+        console.log('Trang thai nut CHẠY: ', cmdChay.textContent)
+        console.log('bttStatus.bttChay_Status: ', bttStatus.bttChay_Status)
+        console.log('bttStatus.bttXeTronMoi_Status: ', bttStatus.bttXeTronMoi_Status)
+        if (bttStatus.bttXeTronMoi_Status == 'ON') {
+            cmdChay.disabled = false;
+        }
+    }
+
+}
+
+// Hàm so sánh dữ liệu mới và cũ giữa client và server
+function updateObject(oldObj, newObj) {
+    for (let key in newObj) {
+        if (newObj.hasOwnProperty(key) && oldObj[key] !== newObj[key]) {
+            oldObj[key] = newObj[key];
+        }
+    }
+}
+
+// When you make changes to the objects on the client side, you can emit an 'updateData' event to update the server and other clients
+function updateDataOnServer() {
+    socket.emit('updateData', { CapPhoi, KhachHang, DonDatHang, XeBon, PhieuGiaoBeTong, PhieuCan, DaCanXong, ThongKe, ThuThap, CuaVatLieu, ThongTinCapPhoi });
+    console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Gọi hàm updateDataOnServer tới client đang được kết nối, sau đó SynData đến tất cả các client');
+    // console.log('Dữ liệu PhieuCan tại thời điểm sau khi gọi hàm updateDataOnServer là: ', PhieuCan)
+    // console.log('Dữ liệu ThuThap tại thời điểm sau khi gọi hàm updateDataOnServer là: ', ThuThap)
+    // console.log('Dữ liệu CuaVatLieu tại thời điểm sau khi gọi hàm updateDataOnServer là: ', CuaVatLieu)
+    // console.log('Dữ liệu bttChay trong hàm updateDataOnServer là: ', bttStatus.bttChay_Status)
+}
+
+// ///////////////////////////////////////////////////////////////// Hàm lắng nghe sự kiện HTML đã tải xong cấu trúc, chưa tải xong video, ảnh, ... ///////////////////////////////////////////////////////
 document.addEventListener("DOMContentLoaded", function () {
     console.log("Đây là hàm lắng nghe sự kiện DOM ở màn hình Auto");
     console.log('Dữ liệu PhieuCan tại thời điểm vừa load xong HTML là: ', PhieuCan)
     console.log('Dữ liệu ThuThap tại thời điểm vừa load xong HTML là: ', ThuThap)
     console.log('Dữ liệu CuaVatLieu tại thời điểm vừa load xong HTML là: ', CuaVatLieu)
     // Đồng bộ dữ liệu đến server
-    console.log('Gọi hàm updateDataOnServer để yêu cầu server gửi lên dữ liệu từ server sau lần kết nối đầu tiên của client');
+    console.log('Gọi hàm updateDataOnServer để gửi dữ liệu xuống server sau khi HTML đã load xong');
     updateDataOnServer();
+    // Sau khi goi hàm updateDataOnserver thì server cũng sẽ tự động gửi các dữ liệu vừa được đồng bộ đến tất cả các client thông qua hàm io.emit
+    // Và bên dưới là hàm nhận những dữ liệu được gửi lại từ server
     // update objects with the data received from the server
     socket.on('syncData', (data) => {
         // update your objects with the data received from the server
@@ -388,20 +575,49 @@ document.addEventListener("DOMContentLoaded", function () {
         ThuThap = data.ThuThap;
         CuaVatLieu = data.CuaVatLieu;
         ThongTinCapPhoi = data.ThongTinCapPhoi;
+        bttStatus = data.bttStatus;
+        // only update the necessary properties of the objects
+        // updateObject(CapPhoi, data.CapPhoi);
+        // updateObject(KhachHang, data.KhachHang);
+        // updateObject(DonDatHang, data.DonDatHang);
+        // updateObject(XeBon, data.XeBon);
+        // updateObject(PhieuGiaoBeTong, data.PhieuGiaoBeTong);
+        // updateObject(PhieuCan, data.PhieuCan);
+        // updateObject(DaCanXong, data.DaCanXong);
+        // updateObject(ThongKe, data.ThongKe);
+        // updateObject(ThuThap, data.ThuThap);
+        // updateObject(CuaVatLieu, data.CuaVatLieu);
+        // updateObject(ThongTinCapPhoi, data.ThongTinCapPhoi);
+        // updateObject(bttStatus, data.bttStatus);
+        btChay_status();
     });
     console.log('Updated objects with the data received from the server');
     console.log('Dữ liệu PhieuCan tại thời điểm sau khi gọi hàm updateDataOnServer là: ', PhieuCan)
     console.log('Dữ liệu ThuThap tại thời điểm sau khi gọi hàm updateDataOnServer là: ', ThuThap)
     console.log('Dữ liệu CuaVatLieu tại thời điểm sau khi gọi hàm updateDataOnServer là: ', CuaVatLieu)
+    // console.log('Dữ liệu bttChay khi nhận được tin nhắn syncData từ server gửi lên là: ', bttStatus.bttChay_Status)
+    // if (!PhieuCan.DaChonXe) {
+    //     document.querySelector('#xebon_recently').value = PhieuCan.XeBon.BienSoXe;
+    //     document.querySelector('.scr_Auto_listbox-xebon').option = PhieuCan.XeBon.BienSoXe;
+    // }
+
+
     // Tiến hành thực hiện một số khởi tạo sau khi load xong
     ///////////////////////////////////////////////////// Hàm gửi yêu cầu server get Cửa vật liệu //////////////////////////////////////////////////////////////
     console.log('Gọi hàm getCuaVatLieu');
     socket.emit('getCuaVatLieu');
     console.log('Đã gọi hàm getCuaVatLieu');
+
     // Gọi hàm đọc Phiếu cân gần nhất để có dữ liệu đã cân trước đó
     // Call LatestPhieucanValues and pass showPhieucanHientai as the callback function
     console.log('Gọi hàm lấy Phiếu cân gần nhất');
-    LatestPhieucanValues(socket, showPhieucanHientai);
+    if (!PhieuCan.DaChonPhieuCan) {
+        socket.emit('scr_Auto_getDataXebon');
+        LatestPhieucanValues(socket, showPhieucanHientai);
+        document.querySelector('#xebon_recently').value = PhieuCan.XeBon.BienSoXe;
+        document.querySelector('.scr_Auto_listbox-xebon').option = PhieuCan.XeBon.BienSoXe;
+
+    }
 
     console.log('Đã gọi hàm lấy Phiếu cân gần nhất');
     console.log('Dữ liệu PhieuCan tại thời điểm sau khi gọi hàm LatestPhieucanValues là: ', PhieuCan)
@@ -420,7 +636,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Hàm gửi yêu cầu server get data Xe bon, đặt ở đây thì không cần click vào nút AUTO, chỉ cần Refresh là đc
     // Ở file VB gốc, có hàm Form_Load của Main form, sẽ gọi danh sách xe khi form được Load
-    socket.emit('scr_Auto_getDataXebon');
 
     // Hàm xử lý khi có sự kiện click lên nút nhấn btt_Screen_Auto
     document.querySelector('#btt_Screen_Auto').addEventListener('click', function () {
