@@ -843,6 +843,7 @@ function LatestPhieucanValues(socket, callback) {
 
 // Đọc mã phiếu cân từ bảng Phiếu Cân
 function getDocMaPhieuCan(socket, callback) {
+    console.log('Vào hàm đọc mã phiếu cân lên client đang đươc kết nối');
     // Emit a socket event to request the data from the phieucan table from the server
     socket.emit('getPhieucanData');
 
@@ -869,6 +870,7 @@ function getDocMaPhieuCan(socket, callback) {
         }
 
         // Gọi hàm callback với giá trị của docmaphieucan
+        console.log('Mã phiếu cần được đọc từ server và sau đó cộng thêm 1 là: ', docmaphieucan);
         callback(docmaphieucan);
     });
 }
@@ -953,6 +955,9 @@ function sendDataDatcapphoi(emptyValue) {
 
         // Đồng bộ dữ liệu với server
         updateDataOnServer();
+        // updateDataOnServer(["PhieuCan.MaPhieuCan", "PhieuCan.CapPhoi.dieuchinh", "PhieuCan.CapPhoi.Som3Me", "PhieuCan.CapPhoi.SoMe", "PhieuCan.CapPhoi.DMXI", "PhieuCan.CapPhoi.DMNUOC",
+        //     "PhieuCan.CapPhoi.DMPG[0]", "PhieuCan.CapPhoi.DMPG[1]", "PhieuCan.CapPhoi.DMTP[0]", "PhieuCan.CapPhoi.DMTP[1]", "PhieuCan.CapPhoi.DMTP[2]", " PhieuCan.CapPhoi.DMTP[3]",
+        //     "PhieuCan.CapPhoi.DoAmTP[0]", "PhieuCan.CapPhoi.DoAmTP[1]", "PhieuCan.CapPhoi.DoAmTP[2]", "PhieuCan.CapPhoi.DoAmTP[3]", "PhieuCan.CapPhoi.DoSutThongKe", "PhieuCan.CapPhoi.TenMacBeTong", "PhieuCan.DaChonPhieuCan"]);
 
         // cmdXeTronMoi_Click();
 
@@ -1234,7 +1239,7 @@ function saveDataCuavatlieu() {
         // Gửi yêu cầu và dữ liệu xuống server để ghi vào MySQL
         socket.emit('saveDataCuavatlieu', { CuaVatLieu: CuaVatLieu });
         // Đồng bộ dữ liệu với server
-        updateDataOnServer();
+        // updateDataOnServer();
     }
 }
 
@@ -1326,7 +1331,8 @@ function cmdXeTronMoi_Click() {
     PhieuCan.DaChonPhieuCan = true;
 
     // Đồng bộ dữ liệu với server
-    updateDataOnServer();
+    // updateDataOnServer();
+    updateDataOnServer(["PhieuCan.DaChonPhieuCan"]);
 
     // Gọi hàm XeTronMoi
     XeTronMoi();
@@ -1383,7 +1389,7 @@ function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyể
         LatestPhieucanValues(socket, showPhieucanHientai);
         console.log('Mã đơn đặt hàng sau khi lấy dữ liệu Phiếu cân gần nhất từ server là: ', PhieuCan.dondathang.MaDonDatHang)
         // Đồng bộ dữ liệu với server
-        // updateDataOnServer();
+        // updateDataOnServer(["PhieuCan.dondathang.MaDonDatHang"]);
         console.log('Mã đơn đặt hàng trong trường hợp chưa có MaDonDatHang sau khi đồng bộ là: ', PhieuCan.dondathang.MaDonDatHang)
         console.log('PhieuCan.MaPhieuCan trong trường hợp chưa có MaDonDatHang sau khi đồng bộ là: ', PhieuCan.MaPhieuCan)
     }
@@ -1394,6 +1400,7 @@ function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyể
         PhieuCan.MaPhieuCan = docmaphieucan;
         // Đồng bộ dữ liệu với server
         // updateDataOnServer();
+        updateDataOnServer(["PhieuCan.MaPhieuCan"]);
         console.log('Mã đơn đặt hàng sau khi đồng bộ là: ', PhieuCan.dondathang.MaDonDatHang)
         console.log('PhieuCan.MaPhieuCan sau khi đồng bộ là: ', PhieuCan.MaPhieuCan)
     });
@@ -1408,7 +1415,8 @@ function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyể
     ThuThap.GhiPhieuCan = false;
     ThuThap.SoMeDM = PhieuCan.CapPhoi.SoMe;
     // Đồng bộ dữ liệu với server
-    updateDataOnServer();
+    // updateDataOnServer();
+    updateDataOnServer1(["PhieuCan.DaChonXe", "PhieuCan.XeBon.BienSoXe", "PhieuCan.DaGhiGioXong", "PhieuCan.NhacNhapBienSo", "ThuThap.GhiPhieuCan", "ThuThap.SoMeDM"]);
     showPhieucanHientai();
     console.log('ThuThap.GhiPhieuCan : ', ThuThap.GhiPhieuCan)
     console.log('ThuThap.SoMeDM: ', ThuThap.SoMeDM)
@@ -1416,7 +1424,7 @@ function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyể
     // Các giá trị thời gian trộn - thời gian xả - thêm nước ... để hiển thị lên các ô chức năng
     // DocGiaTriBanDau(); // Yêu cầu nãy đã được thược hiện khi trang web đươc load
     console.log('Phiếu cân tại thời điểm gọi hàm XeTronMoi: ', PhieuCan)
-
+    console.log('Thu thập tại thời điểm gọi hàm XeTronMoi: ', ThuThap)
     const flexData = document.querySelector('#responsive-table-input-matrix');
     //  HienThiLaiTieuDeBangSoLieu(); // đã đươc thực hiện, đó chính là chức năng hiển thị các giá trị lên tiêu đề bảng trong trang chính ở dòng đầu tiên (chỉ số dòng là 0), 
     // xem ở phần cửa vật liệu, updateTableHeaders
@@ -1506,6 +1514,7 @@ function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyể
         flexData.rows[3].cells[i].textContent = '';
     }
     console.log('Phiếu cân tại thời điểm kết thúc hàm XeTronMoi: ', PhieuCan)
+    console.log('Thu thập tại thời điểm kết thúc hàm XeTronMoi: ', ThuThap)
     console.log('Thoát hàm DatCacThongSoPhieuCanBanDau')
 }
 

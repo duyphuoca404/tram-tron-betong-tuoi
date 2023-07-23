@@ -716,13 +716,25 @@ function getDataChinhCanFromPLC() {
     //console.log('Dữ liệu hiệu chỉnh cân được gửi đi: ', dataFromPLC)
 }
 // Hàm so sánh dữ liệu mới từ client và dữ liệu hiện tại trên server
+// function updateObject(oldObj, newObj) {
+//     for (let key in newObj) {
+//         if (newObj.hasOwnProperty(key) && oldObj[key] !== newObj[key]) {
+//             oldObj[key] = newObj[key];
+//         }
+//     }
+// }
+
 function updateObject(oldObj, newObj) {
-    for (let key in newObj) {
-        if (newObj.hasOwnProperty(key) && oldObj[key] !== newObj[key]) {
-            oldObj[key] = newObj[key];
+    if (newObj && oldObj) {
+        for (let key in newObj) {
+            if (newObj.hasOwnProperty(key) && oldObj[key] !== newObj[key]) {
+                oldObj[key] = newObj[key];
+            }
         }
     }
 }
+
+
 
 let lock = null;
 
@@ -781,6 +793,30 @@ io.on("connection", function (socket) {
         // emit the updated data to all connected clients
         io.emit('syncData', { CapPhoi, KhachHang, DonDatHang, XeBon, PhieuGiaoBeTong, PhieuCan, DaCanXong, ThongKe, ThuThap, CuaVatLieu, ThongTinCapPhoi, bttStatus });
     });
+
+
+    socket.on('updateData1', (data) => {
+        if (!lock || lock === socket.id) {
+            // acquire the lock
+            lock = socket.id;
+            // only update the necessary properties of the objects
+            for (let object in data) {
+                updateObject(global[object], data[object]);
+            }
+            // release the lock
+            lock = null;
+        } else {
+            // reject the update request
+            socket.emit('error', 'Đang có một máy khách khác ghi dữ liệu lên ứng dụng, vui kiểm tra và thực hiện lại. Cảm ơn!');
+        }
+        // emit the updated data to all connected clients
+        io.emit('syncData', { CapPhoi, KhachHang, DonDatHang, XeBon, PhieuGiaoBeTong, PhieuCan, DaCanXong, ThongKe, ThuThap, CuaVatLieu, ThongTinCapPhoi, bttStatus });
+    });
+
+
+
+
+
 
     // Đoạn lệnh này sẽ nhận lệnh SET bit, sau đó nó sẽ gửi tin báo done lên client kèm với data chính là true mà phía client đã gửi trươc đó,
     // phía client sẽ kiểm tra nếu data phía server gửi lên là true (mà thực tế đây là true mà, vì cũng là data nó gửi từ đâu), vậy nên chương trình này chưa ổn
@@ -2426,7 +2462,7 @@ function TmrDocPLC_timer() {
         // ThuThap.GhiGiaTriCL = true;
 
 
-        console.log('Đã ghi hết các thành phần Cốt liệu')
+        // console.log('Đã ghi hết các thành phần Cốt liệu')
         // let CuaVatLieu = GetCuaVatLieu();
         // Gọi hàm lấy thông tin của Cử vật liệu từ mysql sau đó gửi qua client để hiển thị
         // Ngoài việc gọi them định kỳ thì phía client cũng có hàm yêu cầu thực hiện việc này, và sẽ cập nhật mới mỗi khi load trang, nhấn HOME, hay cập nhật Macbetong (hãy check lại)
@@ -2478,7 +2514,7 @@ function TmrDocPLC_timer() {
         DocGiaTriCan(3);
         if (ThuThap.SoMeDM === ThuThap.SoMeHienTaiNuoc) {
             ThuThap.DaCanXong.DaCanXongNuoc = true;
-            console.log('Đã cân xong Cốt Nước')
+            console.log('Đã cân xong Nước')
         }
         console.log('Đang ở đây 6')
     }

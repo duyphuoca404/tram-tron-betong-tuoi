@@ -239,7 +239,9 @@ function mnuThiHanhDatCapPhoi_Click() {
         document.querySelector('.scr_Auto_listbox-xebon').value = PhieuCan.XeBon.BienSoXe;
         console.log('Đã đặt lại PhieuCan.DaChonXe = true và hiển thị trên màn hình chính là: ', document.querySelector('.scr_Auto_listbox-xebon').value)
         // Đồng bộ dữ liệu với server
+        // updateDataOnServer1(["PhieuCan.DaChonXe"]);
         updateDataOnServer();
+
     }
     if (PhieuCan.DaChonPhieuCan === true) {
         console.log('PhieuCan.DaChonPhieuCan === true, và chuẩn bị vào hàm DatCacThongSoPhieuCanBanDau()')
@@ -550,6 +552,72 @@ function updateDataOnServer() {
     // console.log('Dữ liệu bttChay trong hàm updateDataOnServer là: ', bttStatus.bttChay_Status)
 }
 
+// function updateDataOnServer(properties) {
+//     let data = {};
+//     for (let prop of properties) {
+//         let [object, property] = prop.split('.');
+//         if (!data[object]) {
+//             data[object] = {};
+//         }
+//         data[object][property] = window[object][property];
+//     }
+//     socket.emit('updateData', data);
+//     console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Gọi hàm updateDataOnServer tới client đang được kết nối, sau đó SynData đến tất cả các client');
+// }
+
+function updateDataOnServer1(properties) {
+    let data = {};
+    if (properties) {
+        for (let prop of properties) {
+            let parts = prop.split('.');
+            let object = parts.shift();
+            let property = parts.pop();
+            if (!data[object]) {
+                data[object] = {};
+            }
+            let currentData = data[object];
+            let currentObject = window[object];
+            for (let part of parts) {
+                if (!currentData[part]) {
+                    currentData[part] = {};
+                }
+                currentData = currentData[part];
+                if (currentObject) {
+                    currentObject = currentObject[part];
+                }
+            }
+            if (currentObject) {
+                currentData[property] = currentObject[property];
+            } else {
+                console.log(`Property ${prop} does not exist`);
+            }
+        }
+    } else {
+        // handle the case when no properties are specified
+        console.log('Không có tham số phù hợp truyền vào hàm updateDataOnServer')
+    }
+    socket.emit('updateData1', data);
+    console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Gọi hàm updateDataOnServer tới client đang được kết nối, sau đó SynData đến tất cả các client');
+}
+
+
+
+
+function getAllProperties() {
+    let properties = [];
+    let objects = [CapPhoi, KhachHang, DonDatHang, XeBon, PhieuGiaoBeTong, PhieuCan, DaCanXong, ThongKe, ThuThap, CuaVatLieu, ThongTinCapPhoi];
+    for (let obj of objects) {
+        for (let prop in obj) {
+            properties.push(obj.constructor.name + '.' + prop);
+        }
+    }
+    return properties;
+}
+
+
+
+
+
 // ///////////////////////////////////////////////////////////////// Hàm lắng nghe sự kiện HTML đã tải xong cấu trúc, chưa tải xong video, ảnh, ... ///////////////////////////////////////////////////////
 document.addEventListener("DOMContentLoaded", function () {
     console.log("Đây là hàm lắng nghe sự kiện DOM ở màn hình Auto");
@@ -559,6 +627,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Đồng bộ dữ liệu đến server
     console.log('Gọi hàm updateDataOnServer để gửi dữ liệu xuống server sau khi HTML đã load xong');
     updateDataOnServer();
+    // updateDataOnServer(getAllProperties);
     // Sau khi goi hàm updateDataOnserver thì server cũng sẽ tự động gửi các dữ liệu vừa được đồng bộ đến tất cả các client thông qua hàm io.emit
     // Và bên dưới là hàm nhận những dữ liệu được gửi lại từ server
     // update objects with the data received from the server
@@ -664,6 +733,8 @@ document.addEventListener("DOMContentLoaded", function () {
         ThongTinCapPhoi.DangDatCapPhoi = false;
         // Đồng bộ dữ liệu đến server
         updateDataOnServer();
+        // updateDataOnServer(["ThongTinCapPhoi.DangDatCapPhoi"]);
+
     });
 
     // Hàm xử lý khi có sự kiện click lên nút nhấn btt_Screen_datCapphoi
@@ -715,6 +786,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // Đồng bộ dữ liệu đến server
             updateDataOnServer();
+            // updateDataOnServer(["PhieuCan.XeBon.STT", "PhieuCan.XeBon.BienSoXe", "PhieuCan.XeBon.TenLaiXe", "PhieuCan.DaChonXe"]);
+
 
             // Chỗ này theo VB code là sẽ cần ghi dữ liệu xe bồn của pHiếu Cân, tìm ở cboXeBon_Click()
             // Nhiệm vụ của đoạn này là tìm record có MaPhieuCan trung với PhieuCan.MaPhieuCan, 
@@ -727,6 +800,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // Đồng bộ dữ liệu đến server
             updateDataOnServer();
+            // updateDataOnServer(["PhieuCan.DaChonXe"]);
         }
         // console.log('Đã chọn xe: ', PhieuCan.DaChonXe)
         // console.log('Kiểm tra dữ liệu XeBon: ', PhieuCan.XeBon.STT)
