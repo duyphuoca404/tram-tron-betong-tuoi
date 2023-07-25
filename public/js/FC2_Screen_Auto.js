@@ -151,6 +151,17 @@ let bttStatus = {
     bttChay_Status: '',
     bttXeTronMoi_Status: ''
 }
+window.CapPhoi = CapPhoi;
+window.KhachHang = KhachHang;
+window.DonDatHang = DonDatHang;
+window.XeBon = XeBon;
+window.PhieuGiaoBeTong = PhieuGiaoBeTong;
+//window.PhieuCan = PhieuCan;
+window.DaCanXong = DaCanXong;
+window.ThongKe = ThongKe;
+window.ThuThap = ThuThap;
+window.CuaVatLieu = CuaVatLieu;
+window.bttStatus = bttStatus;
 // Tạo 1 tag tạm báo đang sửa dữ liệu
 var Auto_Scr_data_edditting = false;
 ///// CHƯƠNG TRÌNH CON NÚT NHẤN SỬA //////
@@ -239,8 +250,8 @@ function mnuThiHanhDatCapPhoi_Click() {
         document.querySelector('.scr_Auto_listbox-xebon').value = PhieuCan.XeBon.BienSoXe;
         console.log('Đã đặt lại PhieuCan.DaChonXe = true và hiển thị trên màn hình chính là: ', document.querySelector('.scr_Auto_listbox-xebon').value)
         // Đồng bộ dữ liệu với server
-        // updateDataOnServer1(["PhieuCan.DaChonXe"]);
-        updateDataOnServer();
+        updateDataOnServer1(["PhieuCan.DaChonXe"]);
+        // updateDataOnServer();
 
     }
     if (PhieuCan.DaChonPhieuCan === true) {
@@ -521,6 +532,7 @@ socket.on('data_popup', function (data) {
 });
 
 function btChay_status() {
+    console.log("Đã gọi hàm btChay_status trong sự kiện socket.on('syncData', (data) => {}")
     if (typeof bttStatus !== 'undefined') {
         cmdChay.textContent = bttStatus.bttChay_Status;
         console.log('Trang thai nut CHẠY: ', cmdChay.textContent)
@@ -565,19 +577,60 @@ function updateDataOnServer() {
 //     console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Gọi hàm updateDataOnServer tới client đang được kết nối, sau đó SynData đến tất cả các client');
 // }
 
+// function updateDataOnServer1(properties) {
+//     let data = {};
+//     if (properties) {
+//         for (let prop of properties) {
+//             let parts = prop.split('.');
+//             let object = parts.shift();
+//             let property = parts.pop();
+//             if (!data[object]) {
+//                 data[object] = {};
+//             }
+//             let currentData = data[object];
+//             let currentObject = window[object];
+//             for (let part of parts) {
+//                 if (!currentData[part]) {
+//                     currentData[part] = {};
+//                 }
+//                 currentData = currentData[part];
+//                 if (currentObject) {
+//                     currentObject = currentObject[part];
+//                 }
+//             }
+//             if (currentObject) {
+//                 currentData[property] = currentObject[property];
+//             } else {
+//                 console.log(`Property ${prop} does not exist @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ `);
+//             }
+//         }
+//     } else {
+//         // handle the case when no properties are specified
+//         console.log('Không có tham số phù hợp truyền vào hàm updateDataOnServer @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ')
+//     }
+//     socket.emit('updateData1', data);
+//     console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Gọi hàm updateDataOnServer11111111111111111 tới client đang được kết nối, sau đó SynData đến tất cả các client');
+//     console.log('Data để gửi qua server cho việc đồng bộ: ', data)
+// }
+
 function updateDataOnServer1(properties) {
+    console.log("??????????????????????????????????????????????????????????????????????PhieuCan: ", PhieuCan)
+    console.log('Properties:', properties);
     let data = {};
     if (properties) {
         for (let prop of properties) {
+            console.log('Processing property:', prop);
             let parts = prop.split('.');
             let object = parts.shift();
             let property = parts.pop();
+            console.log('Object:', object, 'Property:', property);
             if (!data[object]) {
                 data[object] = {};
             }
             let currentData = data[object];
             let currentObject = window[object];
             for (let part of parts) {
+                console.log('Processing part:', part);
                 if (!currentData[part]) {
                     currentData[part] = {};
                 }
@@ -587,6 +640,7 @@ function updateDataOnServer1(properties) {
                 }
             }
             if (currentObject) {
+                console.log('Updating data:', property, currentObject[property]);
                 currentData[property] = currentObject[property];
             } else {
                 console.log(`Property ${prop} does not exist`);
@@ -594,12 +648,13 @@ function updateDataOnServer1(properties) {
         }
     } else {
         // handle the case when no properties are specified
-        console.log('Không có tham số phù hợp truyền vào hàm updateDataOnServer')
+        console.log('No properties specified')
     }
+    console.log('Sending data to server:', data);
     socket.emit('updateData1', data);
-    console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Gọi hàm updateDataOnServer tới client đang được kết nối, sau đó SynData đến tất cả các client');
+    console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Gọi hàm updateDataOnServer11111111111111111 tới client đang được kết nối, sau đó SynData đến tất cả các client');
+    console.log('Data để gửi qua server cho việc đồng bộ: ', data)
 }
-
 
 
 
@@ -624,10 +679,28 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log('Dữ liệu PhieuCan tại thời điểm vừa load xong HTML là: ', PhieuCan)
     console.log('Dữ liệu ThuThap tại thời điểm vừa load xong HTML là: ', ThuThap)
     console.log('Dữ liệu CuaVatLieu tại thời điểm vừa load xong HTML là: ', CuaVatLieu)
+    // Gọi hàm đọc Phiếu cân gần nhất để có dữ liệu đã cân trước đó
+    // Call LatestPhieucanValues and pass showPhieucanHientai as the callback function
+    console.log('Gọi hàm lấy Phiếu cân gần nhất');
+    if (!PhieuCan.DaChonPhieuCan) {
+        socket.emit('scr_Auto_getDataXebon');
+        LatestPhieucanValues(socket, showPhieucanHientai);
+        document.querySelector('#xebon_recently').value = PhieuCan.XeBon.BienSoXe;
+        document.querySelector('.scr_Auto_listbox-xebon').option = PhieuCan.XeBon.BienSoXe;
+        // console.log('Cập nhật dữ liệu cho window.PhieuCan');
+        // window.PhieuCan = PhieuCan;
+    }
+
+    console.log('Đã gọi hàm lấy Phiếu cân gần nhất');
+    console.log('Dữ liệu PhieuCan tại thời điểm sau khi gọi hàm LatestPhieucanValues là: ', PhieuCan)
+    console.log('Dữ liệu ThuThap tại thời điểm sau khi gọi hàm LatestPhieucanValues là: ', ThuThap)
+    console.log('Dữ liệu CuaVatLieu tại thời điểm sau khi gọi hàm LatestPhieucanValues là: ', CuaVatLieu)
+
     // Đồng bộ dữ liệu đến server
     console.log('Gọi hàm updateDataOnServer để gửi dữ liệu xuống server sau khi HTML đã load xong');
-    updateDataOnServer();
-    // updateDataOnServer(getAllProperties);
+    // updateDataOnServer();
+    // console.log('getAllProperties(): ', getAllProperties())
+    updateDataOnServer1(getAllProperties())
     // Sau khi goi hàm updateDataOnserver thì server cũng sẽ tự động gửi các dữ liệu vừa được đồng bộ đến tất cả các client thông qua hàm io.emit
     // Và bên dưới là hàm nhận những dữ liệu được gửi lại từ server
     // update objects with the data received from the server
@@ -661,9 +734,9 @@ document.addEventListener("DOMContentLoaded", function () {
         btChay_status();
     });
     console.log('Updated objects with the data received from the server');
-    console.log('Dữ liệu PhieuCan tại thời điểm sau khi gọi hàm updateDataOnServer là: ', PhieuCan)
-    console.log('Dữ liệu ThuThap tại thời điểm sau khi gọi hàm updateDataOnServer là: ', ThuThap)
-    console.log('Dữ liệu CuaVatLieu tại thời điểm sau khi gọi hàm updateDataOnServer là: ', CuaVatLieu)
+    console.log('Dữ liệu PhieuCan tại thời điểm syncData sau khi gọi hàm updateDataOnServer1 là: ', PhieuCan)
+    console.log('Dữ liệu ThuThap tại thời điểm syncData sau khi gọi hàm updateDataOnServer1 là: ', ThuThap)
+    // console.log('Dữ liệu CuaVatLieu tại thời điểm sau khi gọi hàm updateDataOnServer là: ', CuaVatLieu)
     // console.log('Dữ liệu bttChay khi nhận được tin nhắn syncData từ server gửi lên là: ', bttStatus.bttChay_Status)
     // if (!PhieuCan.DaChonXe) {
     //     document.querySelector('#xebon_recently').value = PhieuCan.XeBon.BienSoXe;
@@ -677,21 +750,6 @@ document.addEventListener("DOMContentLoaded", function () {
     socket.emit('getCuaVatLieu');
     console.log('Đã gọi hàm getCuaVatLieu');
 
-    // Gọi hàm đọc Phiếu cân gần nhất để có dữ liệu đã cân trước đó
-    // Call LatestPhieucanValues and pass showPhieucanHientai as the callback function
-    console.log('Gọi hàm lấy Phiếu cân gần nhất');
-    if (!PhieuCan.DaChonPhieuCan) {
-        socket.emit('scr_Auto_getDataXebon');
-        LatestPhieucanValues(socket, showPhieucanHientai);
-        document.querySelector('#xebon_recently').value = PhieuCan.XeBon.BienSoXe;
-        document.querySelector('.scr_Auto_listbox-xebon').option = PhieuCan.XeBon.BienSoXe;
-
-    }
-
-    console.log('Đã gọi hàm lấy Phiếu cân gần nhất');
-    console.log('Dữ liệu PhieuCan tại thời điểm sau khi gọi hàm LatestPhieucanValues là: ', PhieuCan)
-    console.log('Dữ liệu ThuThap tại thời điểm sau khi gọi hàm LatestPhieucanValues là: ', ThuThap)
-    console.log('Dữ liệu CuaVatLieu tại thời điểm sau khi gọi hàm LatestPhieucanValues là: ', CuaVatLieu)
 
     // // tat flag da chon phieu can de ko ghi lai phieu can khi chua chon,
     // // Việc cài đặt các thông số ban đầu khi load chương trình nên được thực hiện dưới server
@@ -732,8 +790,8 @@ document.addEventListener("DOMContentLoaded", function () {
         // Khi chọn menu quản lý Mac bê tông thì
         ThongTinCapPhoi.DangDatCapPhoi = false;
         // Đồng bộ dữ liệu đến server
-        updateDataOnServer();
-        // updateDataOnServer(["ThongTinCapPhoi.DangDatCapPhoi"]);
+        // updateDataOnServer();
+        updateDataOnServer1(["ThongTinCapPhoi.DangDatCapPhoi"]);
 
     });
 
@@ -785,8 +843,8 @@ document.addEventListener("DOMContentLoaded", function () {
             PhieuCan.DaChonXe = true;
 
             // Đồng bộ dữ liệu đến server
-            updateDataOnServer();
-            // updateDataOnServer(["PhieuCan.XeBon.STT", "PhieuCan.XeBon.BienSoXe", "PhieuCan.XeBon.TenLaiXe", "PhieuCan.DaChonXe"]);
+            // updateDataOnServer();
+            // updateDataOnServer1(["PhieuCan.XeBon.STT", "PhieuCan.XeBon.BienSoXe", "PhieuCan.XeBon.TenLaiXe", "PhieuCan.DaChonXe"]);
 
 
             // Chỗ này theo VB code là sẽ cần ghi dữ liệu xe bồn của pHiếu Cân, tìm ở cboXeBon_Click()
@@ -799,15 +857,17 @@ document.addEventListener("DOMContentLoaded", function () {
             PhieuCan.DaChonXe = false;
 
             // Đồng bộ dữ liệu đến server
-            updateDataOnServer();
-            // updateDataOnServer(["PhieuCan.DaChonXe"]);
+            // updateDataOnServer();
+            // updateDataOnServer1(["PhieuCan.DaChonXe"]);
         }
-        // console.log('Đã chọn xe: ', PhieuCan.DaChonXe)
-        // console.log('Kiểm tra dữ liệu XeBon: ', PhieuCan.XeBon.STT)
-        // console.log('Kiểm tra dữ liệu XeBon: ', PhieuCan.XeBon.BienSoXe)
-        // console.log('Kiểm tra dữ liệu XeBon: ', PhieuCan.XeBon.TenLaiXe)
-        // console.log('Hiện tại Mã Phiếu Cân là: ', PhieuCan.MaPhieuCan)
-        // Cập nhật giá trị của ba trường input
+
+        console.log('Đã chọn xe: ', PhieuCan.DaChonXe)
+        console.log('Kiểm tra dữ liệu XeBon: ', PhieuCan.XeBon.STT)
+        console.log('Kiểm tra dữ liệu XeBon: ', PhieuCan.XeBon.BienSoXe)
+        console.log('Kiểm tra dữ liệu XeBon: ', PhieuCan.XeBon.TenLaiXe)
+        console.log('Hiện tại Mã Phiếu Cân là: ', PhieuCan.MaPhieuCan)
+        updateDataOnServer1(["PhieuCan.XeBon.STT", "PhieuCan.XeBon.BienSoXe", "PhieuCan.XeBon.TenLaiXe", "PhieuCan.DaChonXe"]);
+        // // Cập nhật giá trị của ba trường input
         // $('#sttXebon').val(rowData.STT);
         // $('#bienso').val(rowData.BienSoXe);
         // $('#taixe').val(rowData.TenLaiXe);

@@ -149,7 +149,17 @@ let bttStatus = {
     bttXeTronMoi_Status: '',
     GhiPhieuCan: false
 }
-
+global.CapPhoi = CapPhoi;
+global.KhachHang = KhachHang;
+global.DonDatHang = DonDatHang;
+global.XeBon = XeBon;
+global.PhieuGiaoBeTong = PhieuGiaoBeTong;
+global.PhieuCan = PhieuCan;
+global.DaCanXong = DaCanXong;
+global.ThongKe = ThongKe;
+global.ThuThap = ThuThap;
+global.CuaVatLieu = CuaVatLieu;
+global.bttStatus = bttStatus;
 // ////////////////////////////////////////////////////////////////////////// ++THIẾT LẬP KẾT NỐI VỚI SERVER VỚI PLC/////////////////////////////////////////////////////////////
 
 // KHỞI TẠO KẾT NỐI PLC
@@ -506,7 +516,7 @@ setInterval(() => {
     // console.log('ThongTinCapPhoi: ', ThongTinCapPhoi);
     // console.log('/////////////////////////////////////////////////////////////////////////////////////////////////////////////');
 
-}, 500);
+}, 1000);
 
 setInterval(() => {
     //fn_read_data_scan();
@@ -525,7 +535,7 @@ setInterval(() => {
     // console.log('DonDatHang: ', DonDatHang);
     // console.log('XeBon: ', XeBon);
     // console.log('PhieuGiaoBeTong: ', PhieuGiaoBeTong);
-    // console.log('PhieuCan: ', PhieuCan);
+    console.log('PhieuCan: ', PhieuCan);
     // console.log('DaCanXong: ', DaCanXong);
     // console.log('ThongKe: ', ThongKe);
     console.log('ThuThap: ', ThuThap);
@@ -796,19 +806,33 @@ io.on("connection", function (socket) {
 
 
     socket.on('updateData1', (data) => {
+        console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Gọi hàm updateDataOnServer11111111111111111 tới client đang được kết nối, sau đó SynData đến tất cả các client:');
+        console.log(data)
         if (!lock || lock === socket.id) {
             // acquire the lock
             lock = socket.id;
             // only update the necessary properties of the objects
             for (let object in data) {
                 updateObject(global[object], data[object]);
+                // log the updated value of the PhieuCan object
+                if (object === 'PhieuCan') {
+                    console.log('Updated PhieuCan:', global[object]);
+                }
             }
             // release the lock
             lock = null;
         } else {
             // reject the update request
-            socket.emit('error', 'Đang có một máy khách khác ghi dữ liệu lên ứng dụng, vui kiểm tra và thực hiện lại. Cảm ơn!');
+            socket.emit('error', 'Đang có một máy khách khác ghi dữ liệu lên ứng dụng, vui kiểm tra và thực hiện lại. Cảm ơn@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
         }
+        // // log the updated value of the PhieuCan object
+        // if (object === PhieuCan) {
+        //     console.log('Updated PhieuCan:', PhieuCan);
+        // }
+        // // log the updated value of the PhieuCan object
+        // if (object === ThuThap) {
+        //     console.log('Updated PhieuCan:', ThuThap);
+        // }
         // emit the updated data to all connected clients
         io.emit('syncData', { CapPhoi, KhachHang, DonDatHang, XeBon, PhieuGiaoBeTong, PhieuCan, DaCanXong, ThongKe, ThuThap, CuaVatLieu, ThongTinCapPhoi, bttStatus });
     });
@@ -1568,6 +1592,8 @@ io.on("connection", function (socket) {
         } else console.log('Không có giá trị nào cần thay đổi so với giá trị trong PLC')
 
     });
+
+
 });
 
 // // Hàm đọc tên cửa vật liệu sau đó gửi qua trình duyệt
