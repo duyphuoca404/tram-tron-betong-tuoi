@@ -499,7 +499,7 @@ setInterval(() => {
         //console.log('valuesKey: ', valuesKey);
         TmrDocPLC_timer();
     }
-    console.log('ThuThapHieuChinh.KhoiLuongCotLieu: ', ThuThapHieuChinh.KhoiLuongCotLieu)
+    // console.log('ThuThapHieuChinh.KhoiLuongCotLieu: ', ThuThapHieuChinh.KhoiLuongCotLieu)
     // console.log('bttStatus.bttChay_Status:', bttStatus.bttChay_Status);
     // console.log('bttStatus.bttXeTronMoi_Status:', bttStatus.bttXeTronMoi_Status);
     // console.log('/////////////////////////////////////////////////////////////////////////////////////////////////////////////');
@@ -536,6 +536,7 @@ setInterval(() => {
     // console.log('XeBon: ', XeBon);
     // console.log('PhieuGiaoBeTong: ', PhieuGiaoBeTong);
     console.log('PhieuCan: ', PhieuCan);
+    console.log('global.PhieuCan: ', global.PhieuCan);
     // console.log('DaCanXong: ', DaCanXong);
     // console.log('ThongKe: ', ThongKe);
     console.log('ThuThap: ', ThuThap);
@@ -734,11 +735,26 @@ function getDataChinhCanFromPLC() {
 //     }
 // }
 
+// function updateObject(oldObj, newObj) {
+//     if (newObj && oldObj) {
+//         for (let key in newObj) {
+//             if (newObj.hasOwnProperty(key) && oldObj[key] !== newObj[key]) {
+//                 oldObj[key] = newObj[key];
+//             }
+//         }
+//     }
+// }
+
+
 function updateObject(oldObj, newObj) {
     if (newObj && oldObj) {
         for (let key in newObj) {
-            if (newObj.hasOwnProperty(key) && oldObj[key] !== newObj[key]) {
-                oldObj[key] = newObj[key];
+            if (newObj.hasOwnProperty(key)) {
+                if (typeof newObj[key] === 'object' && !Array.isArray(newObj[key])) {
+                    updateObject(oldObj[key], newObj[key]);
+                } else {
+                    oldObj[key] = newObj[key];
+                }
             }
         }
     }
@@ -801,12 +817,117 @@ io.on("connection", function (socket) {
             socket.emit('error', 'Đang có một máy khách khác ghi dữ liệu lên ứng dụng, vui kiểm tra và thực hiện lại. Cảm ơn!');
         }
         // emit the updated data to all connected clients
-        io.emit('syncData', { CapPhoi, KhachHang, DonDatHang, XeBon, PhieuGiaoBeTong, PhieuCan, DaCanXong, ThongKe, ThuThap, CuaVatLieu, ThongTinCapPhoi, bttStatus });
+        // io.emit('syncData', { CapPhoi, KhachHang, DonDatHang, XeBon, PhieuGiaoBeTong, PhieuCan, DaCanXong, ThongKe, ThuThap, CuaVatLieu, ThongTinCapPhoi, bttStatus });
+        io.emit('syncData', { CapPhoi: global.CapPhoi, KhachHang: global.KhachHang, DonDatHang: global.DonDatHang, XeBon: global.XeBon, PhieuGiaoBeTong: global.PhieuGiaoBeTong, PhieuCan: global.PhieuCan, DaCanXong: global.DaCanXong, ThongKe: global.ThongKe, ThuThap: global.ThuThap, CuaVatLieu: global.CuaVatLieu, ThongTinCapPhoi: global.ThongTinCapPhoi, bttStatus: global.bttStatus });
     });
 
 
+    // socket.on('updateData1', (data) => {
+    //     console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Gọi hàm updateDataOnServer11111111111111111 tới client đang được kết nối, sau đó SynData đến tất cả các client:');
+    //     console.log(data)
+    //     if (!lock || lock === socket.id) {
+    //         // acquire the lock
+    //         lock = socket.id;
+    //         // only update the necessary properties of the objects
+    //         for (let object in data) {
+    //             updateObject(global[object], data[object]);
+    //             // log the updated value of the PhieuCan object
+    //             if (object === 'PhieuCan') {
+    //                 console.log('Updated PhieuCan:', global[object]);
+    //             }
+    //         }
+    //         // release the lock
+    //         lock = null;
+    //     } else {
+    //         // reject the update request
+    //         socket.emit('error', 'Đang có một máy khách khác ghi dữ liệu lên ứng dụng, vui kiểm tra và thực hiện lại. Cảm ơn@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+    //     }
+    //     // // log the updated value of the PhieuCan object
+    //     // if (object === PhieuCan) {
+    //     //     console.log('Updated PhieuCan:', PhieuCan);
+    //     // }
+    //     // // log the updated value of the PhieuCan object
+    //     // if (object === ThuThap) {
+    //     //     console.log('Updated PhieuCan:', ThuThap);
+    //     // }
+    //     // emit the updated data to all connected clients
+    //     io.emit('syncData', { CapPhoi, KhachHang, DonDatHang, XeBon, PhieuGiaoBeTong, PhieuCan, DaCanXong, ThongKe, ThuThap, CuaVatLieu, ThongTinCapPhoi, bttStatus });
+    // });
+
+    // socket.on('updateData1', (data) => {
+    //     console.log('Gọi hàm updateDataOnServer11111111111111111 tới client đang được kết nối, sau đó SynData đến tất cả các client:');
+    //     console.log('Dữ liệu client đang được kết nối gửi tới: ', data)
+    //     if (!lock || lock === socket.id) {
+    //         // acquire the lock
+    //         lock = socket.id;
+    //         // only update the necessary properties of the objects
+    //         for (let object in data) {
+    //             if (object === 'CapPhoi') {
+    //                 CapPhoi = data[object];
+    //             } else if (object === 'KhachHang') {
+    //                 KhachHang = data[object];
+    //             } else if (object === 'DonDatHang') {
+    //                 DonDatHang = data[object];
+    //             } else if (object === 'XeBon') {
+    //                 XeBon = data[object];
+    //             } else if (object === 'PhieuGiaoBeTong') {
+    //                 PhieuGiaoBeTong = data[object];
+    //             } else if (object === 'PhieuCan') {
+    //                 PhieuCan = data[object];
+    //                 console.log('Updated PhieuCan:', PhieuCan);
+    //             } else if (object === 'DaCanXong') {
+    //                 DaCanXong = data[object];
+    //             } else if (object === 'ThongKe') {
+    //                 ThongKe = data[object];
+    //             } else if (object === 'ThuThap') {
+    //                 ThuThap = data[object];
+    //             } else if (object === 'CuaVatLieu') {
+    //                 CuaVatLieu = data[object];
+    //             } else if (object === 'ThongTinCapPhoi') {
+    //                 ThongTinCapPhoi = data[object];
+    //             } else if (object === 'bttStatus') {
+    //                 bttStatus = data[object];
+    //             }
+    //         }
+    //         // release the lock
+    //         lock = null;
+    //     } else {
+    //         // reject the update request
+    //         socket.emit('error', 'Đang có một máy khách khác ghi dữ liệu lên ứng dụng, vui kiểm tra và thực hiện lại. Cảm ơn@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+    //     }
+    //     // emit the updated data to all connected clients
+    //     io.emit('syncData', { CapPhoi, KhachHang, DonDatHang, XeBon, PhieuGiaoBeTong, PhieuCan, DaCanXong, ThongKe, ThuThap, CuaVatLieu, ThongTinCapPhoi, bttStatus });
+    // });
+
+
+    // socket.on('updateData1', (data) => {
+    //     console.log('Gọi hàm updateDataOnServer11111111111111111 tới client đang được kết nối, sau đó SynData đến tất cả các client:');
+    //     console.log(data)
+    //     if (!lock || lock === socket.id) {
+    //         // acquire the lock
+    //         lock = socket.id;
+    //         // only update the necessary properties of the objects
+    //         for (let object in data) {
+    //             if (global.hasOwnProperty(object)) {
+    //                 global[object] = data[object];
+    //             }
+    //             // log the updated value of the PhieuCan object
+    //             if (object === 'PhieuCan') {
+    //                 console.log('Updated PhieuCan:', global[object]);
+    //             }
+    //         }
+    //         // release the lock
+    //         lock = null;
+    //     } else {
+    //         // reject the update request
+    //         socket.emit('error', 'Đang có một máy khách khác ghi dữ liệu lên ứng dụng, vui kiểm tra và thực hiện lại. Cảm ơn@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+    //     }
+    //     // emit the updated data to all connected clients
+    //     io.emit('syncData', { CapPhoi: global.CapPhoi, KhachHang: global.KhachHang, DonDatHang: global.DonDatHang, XeBon: global.XeBon, PhieuGiaoBeTong: global.PhieuGiaoBeTong, PhieuCan: global.PhieuCan, DaCanXong: global.DaCanXong, ThongKe: global.ThongKe, ThuThap: global.ThuThap, CuaVatLieu: global.CuaVatLieu, ThongTinCapPhoi: global.ThongTinCapPhoi, bttStatus: global.bttStatus });
+    // });
+
     socket.on('updateData1', (data) => {
-        console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Gọi hàm updateDataOnServer11111111111111111 tới client đang được kết nối, sau đó SynData đến tất cả các client:');
+        console.log('Gọi hàm updateDataOnServer11111111111111111 tới client đang được kết nối, sau đó SynData đến tất cả các client:');
         console.log(data)
         if (!lock || lock === socket.id) {
             // acquire the lock
@@ -816,7 +937,7 @@ io.on("connection", function (socket) {
                 updateObject(global[object], data[object]);
                 // log the updated value of the PhieuCan object
                 if (object === 'PhieuCan') {
-                    console.log('Updated PhieuCan:', global[object]);
+                    console.log('Updated PhieuCan Updated PhieuCan Updated PhieuCan Updated PhieuCan Updated PhieuCan Updated PhieuCan:', global[object]);
                 }
             }
             // release the lock
@@ -825,21 +946,9 @@ io.on("connection", function (socket) {
             // reject the update request
             socket.emit('error', 'Đang có một máy khách khác ghi dữ liệu lên ứng dụng, vui kiểm tra và thực hiện lại. Cảm ơn@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
         }
-        // // log the updated value of the PhieuCan object
-        // if (object === PhieuCan) {
-        //     console.log('Updated PhieuCan:', PhieuCan);
-        // }
-        // // log the updated value of the PhieuCan object
-        // if (object === ThuThap) {
-        //     console.log('Updated PhieuCan:', ThuThap);
-        // }
         // emit the updated data to all connected clients
-        io.emit('syncData', { CapPhoi, KhachHang, DonDatHang, XeBon, PhieuGiaoBeTong, PhieuCan, DaCanXong, ThongKe, ThuThap, CuaVatLieu, ThongTinCapPhoi, bttStatus });
+        io.emit('syncData', { CapPhoi: global.CapPhoi, KhachHang: global.KhachHang, DonDatHang: global.DonDatHang, XeBon: global.XeBon, PhieuGiaoBeTong: global.PhieuGiaoBeTong, PhieuCan: global.PhieuCan, DaCanXong: global.DaCanXong, ThongKe: global.ThongKe, ThuThap: global.ThuThap, CuaVatLieu: global.CuaVatLieu, ThongTinCapPhoi: global.ThongTinCapPhoi, bttStatus: global.bttStatus });
     });
-
-
-
-
 
 
     // Đoạn lệnh này sẽ nhận lệnh SET bit, sau đó nó sẽ gửi tin báo done lên client kèm với data chính là true mà phía client đã gửi trươc đó,

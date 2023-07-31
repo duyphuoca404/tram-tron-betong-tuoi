@@ -839,7 +839,8 @@ function LatestPhieucanValues(socket, callback) {
         // updateDataOnServer();
 
         console.log('Giá trị của đối tượng PhieuCan trong đối tượng toàn cục window hay window.PhieuCan khi chưa lặp lại việc gán window.PhieuCan = PhieuCan;: ', window.PhieuCan);
-        window.PhieuCan = PhieuCan;
+        // window.PhieuCan = PhieuCan;
+        syncWindowObject();
         console.log('Giá trị của đối tượng PhieuCan trong đối tượng toàn cục window hay window.PhieuCan khi ĐÃ lặp lại việc gán window.PhieuCan = PhieuCan;: ', window.PhieuCan);
         let propertiesPhieuCan = Object.keys(window.PhieuCan).map(prop => `PhieuCan.${prop}`);
         console.log('propertiesPhieuCan: ', propertiesPhieuCan);
@@ -963,6 +964,7 @@ function sendDataDatcapphoi(emptyValue) {
 
         // Đồng bộ dữ liệu với server
         // updateDataOnServer();
+        syncWindowObject();
         updateDataOnServer1(["PhieuCan.MaPhieuCan", "PhieuCan.CapPhoi.dieuchinh", "PhieuCan.CapPhoi.Som3Me", "PhieuCan.CapPhoi.SoMe", "PhieuCan.CapPhoi.DMXI", "PhieuCan.CapPhoi.DMNUOC",
             "PhieuCan.CapPhoi.DMPG[0]", "PhieuCan.CapPhoi.DMPG[1]", "PhieuCan.CapPhoi.DMTP[0]", "PhieuCan.CapPhoi.DMTP[1]", "PhieuCan.CapPhoi.DMTP[2]", " PhieuCan.CapPhoi.DMTP[3]",
             "PhieuCan.CapPhoi.DoAmTP[0]", "PhieuCan.CapPhoi.DoAmTP[1]", "PhieuCan.CapPhoi.DoAmTP[2]", "PhieuCan.CapPhoi.DoAmTP[3]", "PhieuCan.CapPhoi.DoSutThongKe", "PhieuCan.CapPhoi.TenMacBeTong", "PhieuCan.DaChonPhieuCan"]);
@@ -1326,11 +1328,12 @@ const cmdXeTronMoi = document.getElementById('bttAuto_XeTronMoi');
 
 // Định nghĩa hàm xử lý sự kiện nhấp chuột vào nút cmdXeTronMoi
 function cmdXeTronMoi_Click() {
-    console.log('Đã chọn xe: ', PhieuCan.DaChonXe)
-    console.log('Kiểm tra dữ liệu XeBon: ', PhieuCan.XeBon.STT)
-    console.log('Kiểm tra dữ liệu XeBon: ', PhieuCan.XeBon.BienSoXe)
-    console.log('Kiểm tra dữ liệu XeBon: ', PhieuCan.XeBon.TenLaiXe)
-    console.log('Hiện tại Mã Phiếu Cân là: ', PhieuCan.MaPhieuCan)
+    console.log('XE_TRON_MOI đã được nhấn để gọi hàm XeTronMoi')
+    console.log('Đã chọn xe (sau khi nhấn chọn nút XeTronMoi): ', PhieuCan.DaChonXe)
+    console.log('Kiểm tra dữ liệu XeBon (sau khi nhấn chọn nút XeTronMoi): ', PhieuCan.XeBon.STT)
+    console.log('Kiểm tra dữ liệu XeBon (sau khi nhấn chọn nút XeTronMoi): ', PhieuCan.XeBon.BienSoXe)
+    console.log('Kiểm tra dữ liệu XeBon (sau khi nhấn chọn nút XeTronMoi): ', PhieuCan.XeBon.TenLaiXe)
+    console.log('Hiện tại Mã Phiếu Cân là (sau khi nhấn chọn nút XeTronMoi): ', PhieuCan.MaPhieuCan)
     if (!PhieuCan.DaChonXe) {
         alert('Xe bồn chưa được chọn, vui lòng thực hiện lại!')
         return
@@ -1346,6 +1349,7 @@ function cmdXeTronMoi_Click() {
 
     // Đồng bộ dữ liệu với server
     // updateDataOnServer();
+    syncWindowObject();
     updateDataOnServer1(["PhieuCan.DaChonPhieuCan"]);
 
     // Gọi hàm XeTronMoi
@@ -1368,8 +1372,8 @@ function XeTronMoi() { // Hàm này cớ bản đã chuyển xong
     // Bật bit xe trộn mới lên 1, SAU ĐÓ RESET
     socket.emit('XE_TRON_MOI', true);
     // socket.emit('XE_TRON_MOI',false);
-    console.log('XE_TRON_MOI đã được nhấn để gọi hàm XeTronMoi')
-    console.log('Tiếp theo server sẽ nhận lệnh và xử lý việc bật tắt bit M21.5')
+    console.log(`Hàm XeTronMoi() đã được goi, và đã gửi hàm socket.emit('XE_TRON_MOI', true); để set bit XE_TRON_MI`)
+    console.log('Tiếp theo server sẽ nhận lệnh và xử lý việc bật tắt bit M21.5 XE_TRON_MI                                          ')
     // // Đọc tin done, sau đó nó đợi **(s) mới tiếp tục gửi lệnh reset đi
     // socket.on('done', function (data) {
     //     if (data) {
@@ -1402,6 +1406,7 @@ function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyể
         LatestPhieucanValues(socket, showPhieucanHientai);
         console.log('Mã đơn đặt hàng sau khi lấy dữ liệu Phiếu cân gần nhất từ server là: ', PhieuCan.dondathang.MaDonDatHang)
         // Đồng bộ dữ liệu với server
+        syncWindowObject();
         updateDataOnServer1(["PhieuCan.dondathang.MaDonDatHang"]);
         console.log('Mã đơn đặt hàng trong trường hợp chưa có MaDonDatHang sau khi đồng bộ là: ', PhieuCan.dondathang.MaDonDatHang)
         console.log('PhieuCan.MaPhieuCan trong trường hợp chưa có MaDonDatHang sau khi đồng bộ là: ', PhieuCan.MaPhieuCan)
@@ -1413,6 +1418,7 @@ function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyể
         PhieuCan.MaPhieuCan = docmaphieucan;
         // Đồng bộ dữ liệu với server
         // updateDataOnServer();
+        syncWindowObject();
         updateDataOnServer1(["PhieuCan.MaPhieuCan"]);
         console.log('Mã đơn đặt hàng sau khi đồng bộ là: ', PhieuCan.dondathang.MaDonDatHang)
         console.log('PhieuCan.MaPhieuCan sau khi đồng bộ là: ', PhieuCan.MaPhieuCan)
@@ -1429,6 +1435,7 @@ function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyể
     ThuThap.SoMeDM = PhieuCan.CapPhoi.SoMe;
     // Đồng bộ dữ liệu với server
     // updateDataOnServer();
+    syncWindowObject();
     updateDataOnServer1(["PhieuCan.DaChonXe", "PhieuCan.XeBon.BienSoXe", "PhieuCan.DaGhiGioXong", "PhieuCan.NhacNhapBienSo", "ThuThap.GhiPhieuCan", "ThuThap.SoMeDM"]);
     showPhieucanHientai();
     console.log('ThuThap.GhiPhieuCan : ', ThuThap.GhiPhieuCan)
@@ -1469,7 +1476,7 @@ function DatCacThongSoPhieuCanBanDau() { // Hàm này cơ bản đã chuyể
     // }
 
     // Hiển thi các thành phần định mức, ĐMXi, Nuoc, PG
-    console.log('Ghi giá trị định mức của các TP')
+    console.log('Ghi giá trị định mức của các TP Ghi giá trị định mức của các TP Ghi giá trị định mức của các TP Ghi giá trị định mức của các TP')
     for (let i = 0; i <= 3; i++) {
         let value = Number(PhieuCan.CapPhoi.DMTP[i]);
         if (!isNaN(value)) {
