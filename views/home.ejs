@@ -9,7 +9,7 @@
     <script src="js/jquery-ui.js"></script>
     <script src="socket.io/socket.io.js"></script>
     <script>
-        var socket = io("http://localhost:3000") // IP tĩnh (hoặc IP động, hoặc localhost)
+        var socket = io("http://quanlytramtron.drayddns.com:3000") // IP tĩnh (hoặc IP động, hoặc localhost)
 
     </script>
     <script src="js/FC2_Screen_Auto.js"></script>
@@ -40,6 +40,58 @@
             <button id="btt_Screen_datCapphoi" onclick="">THIẾT LẬP CẤU HÌNH</button>
             <!--Nút nhấn báo cáo-->
             <button id="btt_Screen_report" onclick="">BÁO CÁO</button>
+            <!--Form đăng nhập-->
+            <form id="login-form">
+                <label for="username">Tên đăng nhập:</label><br>
+                <input type="text" id="username" name="username"><br>
+                <label for="password">Mật khẩu:</label><br>
+                <input type="password" id="password" name="password"><br><br>
+                <div>
+                    <!--Nút đăng nhập-->
+                    <button id="login-button" onclick="" class="btn" style="float: left;">Đăng nhập</button>
+                    <!--Nút đăng ký-->
+                    <button id="register-button" onclick="" class="btn" style="float: right;">Đăng ký</button>
+                </div>
+            </form>
+            <form id="register-form" style="display: none;">
+                <label for="reg-username">Tên đăng nhập:</label><br>
+                <input type="text" id="reg-username" name="reg-username"><br>
+                <label for="reg-password">Mật khẩu:</label><br>
+                <input type="password" id="reg-password" name="reg-password"><br>
+                <label for="confirm-password">Xác nhận mật khẩu:</label><br>
+                <input type="password" id="confirm-password" name="confirm-password"><br>
+                <!-- <input type="submit" class="btn" value="Đăng ký">
+                <button id="cancel-button" class="btn">Thoát</button> -->
+                <label for="user-scope">Cấp bậc:</label><br>
+                <select id="user-scope" name="user-scope">
+                    <option value="">--Chọn cấp bậc--</option>
+                    <option value="Vận hành">Vận hành</option>
+                    <option value="Văn phòng">Văn phòng</option>
+                    <option value="Quản lý">Quản lý</option>
+                </select><br><br>
+                <div>
+                    <!--Nút đăng nhập-->
+                    <button id="submit-button" onclick="" class="btn" style="float: left;">Đăng ký</button>
+                    <!--Nút đăng ký-->
+                    <button id="cancel-button" onclick="" class="btn" style="float: right;">Thoát</button>
+                </div>
+            </form>
+            <div id="user-info" style="display: none;">
+                &#128100; <span id="username-display"></span> (<span id="scope-display"></span>)<br><br>
+                <button id="logout-button" class="btn">Đăng xuất</button>
+                <button id="change-password-button" class="btn">Đổi mật khẩu</button> <br><br>
+                <button id="add-user-button" style="display: none;" class="btn">Tạo tài khoản mới</button>
+            </div>
+            <form id="change-password-form" style="display: none;">
+                <label for="new-password">Mật khẩu mới:</label><br>
+                <input type="password" id="new-password" name="new-password"><br><br>
+                <label for="confirm-new-password">Xác nhận mật khẩu mới:</label><br>
+                <input type="password" id="confirm-new-password" name="confirm-new-password"><br><br>
+                <input type="submit" id="submit-change-password" value="Đổi mật khẩu" class="btn" style="float: left;">
+                <button id="cancel-change-password-button" onclick="" class="btn" style="float: right;">Thoát</button>
+            </form>
+
+
         </div>
         <!-- //////////////Code cho màn hình chính////////////// -->
         <div id="Screen_Auto">
@@ -147,13 +199,13 @@
                     <span>TRỘN</span>
                     <!-- IO Field hiển thị liệu 1 -->
                     <input class="count_Thoigian" id="act_ThoigianTron" disabled="disabled" type="text" />
-                    <script>fn_IOFieldDataShow("CountDownTronBON", "act_ThoigianTron", 0);</script>
+                    <script>fn_IOField_showforTime("CountDownTronBON", "act_ThoigianTron", 0);</script>
                 </div>
                 <div class="count_ThoigianXa">
                     <span>XẢ</span>
                     <!-- IO Field hiển thị liệu 1 -->
                     <input class="count_Thoigian" id="act_ThoigianXa" disabled="disabled" type="text" />
-                    <script>fn_IOFieldDataShow("CountDownXaBON", "act_ThoigianXa", 0);</script>
+                    <script>fn_IOField_showforTime("CountDownXaBON", "act_ThoigianXa", 0);</script>
                 </div>
             </div>
             <div class="xebon_display">
@@ -167,20 +219,31 @@
 
                 </select>
             </div>
+            <!-- Hiển thị tên của liệu lên các phểu -->
+            <div class="Xi_Nuoc_displayname">
+                <input id="pheuXi_displayname" disabled="disabled" type="text" />
+                <input id="pheuNuoc_displayname" disabled="disabled" type="text" />
+            </div>
+            <div class="CotLieu_displayname">
+                <input id="TP1_displayname" disabled="disabled" type="text" />
+                <input id="TP2_displayname" disabled="disabled" type="text" />
+                <input id="TP3_displayname" disabled="disabled" type="text" />
+                <input id="TP4_displayname" disabled="disabled" type="text" />
+            </div>
             <div class="bang_Dieukhien">
                 <div class="setup_OperationParamet">
                     <div>
                         <span>Cài đặt thời gian trộn:</span>
                         <!-- IO Field cài đặt thời gian trộn -->
                         <input id="set_ThoigianTron" disabled="disabled" type="text" />
-                        <script>fn_scrAuto_IOField_TronXA("TGTRON", "set_ThoigianTron", 2);</script>
+                        <script>fn_scrAuto_IOField_TronXA("TGTRON", "set_ThoigianTron", 1);</script>
                         <span> [s]</span>
                     </div>
                     <div>
                         <span>Cài đặt thời gian xả:</span>
                         <!-- IO Field cài đặt khối lượng liệu 1 -->
                         <input id="set_ThoigianXa" disabled="disabled" type="text" />
-                        <script>fn_scrAuto_IOField_TronXA("TG_XA", "set_ThoigianXa", 2);</script>
+                        <script>fn_scrAuto_IOField_TronXA("TG_XA", "set_ThoigianXa", 1);</script>
                         <span> [s]</span>
                     </div>
                     <!-- IO field thêm nước -->
@@ -203,7 +266,6 @@
                     <!-- //////////////Code cho button////////////// -->
                     <!-- Tạo Nút nhấn Auto -->
                     <button id="bttAuto_XeTronMoi">XE TRỘN MỚI</button>
-                    <button id="test">TEST</button>
                     <!-- Tạo Nút nhấn Manual -->
                     <button id="bttAuto_Chay" disabled="disabled">CHẠY</button>
                     <!-- Tạo Nút nhấn Xác nhận -->
@@ -322,7 +384,7 @@
                                 <br>
                                 <!-- Thêm các nút vào đây -->
                                 <div class="button-container-datCapphoi">
-                                    <button id="button3" onclick="validateNumberInput()">Sửa cấp
+                                    <button id="button3" onclick="validateNumberInput()" style="width:100%">Sửa cấp
                                         phối</button><br><br>
                                 </div>
                             </div>
@@ -366,7 +428,8 @@
                             </fieldset>
                         </div>
                         <br>
-                        <button id="sendDatcapphoi" style="border-radius: 2px; padding: 3px;">Truyền thông tin Cấp
+                        <button id="sendDatcapphoi" style="border-radius: 2px; padding: 3px; width:100%">Truyền thông
+                            tin Cấp
                             phối
                             đến PLC</button>
                     </div>
@@ -374,7 +437,7 @@
                 <div class="khungThietlapTencualieu"
                     style="margin-right:20px; border: 1px solid black; border-radius: 5px; padding: 10px;">
                     <h2>Tên cửa liệu</h2>
-                    <div class="container-datCapphoi">
+                    <div class="container-datCapphoi1">
                         <fieldset style="border-radius: 5px;">
                             <legend>Cửa liệu</legend>
                             <label for="pheuCan1">Phễu cân 1:</label><br>
@@ -421,8 +484,9 @@
                             <input type="text" id="tenPG2"><br>
                         </fieldset>
                         <br>
-                        <button id="saveCuavatlieu" style="border-radius: 2px; padding: 3px;">Lưu</button>
                     </div>
+                    <br>
+                    <button id="saveCuavatlieu" style="border-radius: 2px; padding: 3px;">Lưu</button>
                 </div>
                 <div class="khungThietlapThongsocan"
                     style="margin-right:20px; border: 1px solid black; border-radius: 5px; padding: 10px;">
@@ -466,7 +530,7 @@
                                     <script>fn_IOField_showforTime("TG_NHAY_COM4", "TG_NHAY_COM4", 1);</script>
                                     <label for="PAUSE1">Ổn định cân:</label><br>
                                     <input type="number" id="PAUSE1" tabindex="110"><br>
-                                    <script>fn_IOField_showforTime("PAUSE1", "PAUSE1", 0);</script>
+                                    <script>fn_IOField_showforTime("PAUSE1", "PAUSE1", 1);</script>
                                     <label for="DELAY_PE">Trễ lên gầu:</label><br>
                                     <input type="number" id="DELAY_PE" tabindex="112"><br>
                                     <script>fn_IOField_showforTime("DELAY_PE", "DELAY_PE", 1);</script>
@@ -748,7 +812,7 @@
                         </thead>
                     </table>
                     <!-- Thêm các trường nhập liệu và nút vào đây -->
-                    <div>
+                    <div style="margin-left:10px">
                         <div class="form-container-macBetong">
                             <div class="form-container-macBetong-left">
                                 <div>STT: <br>
@@ -938,7 +1002,7 @@
         <div id="Screen_report">
             <div class="main-container-macBetong" style="display: flex; flex-direction: row;">
                 <div style="margin-right:30px">
-                    <h2>Báo cáo chi tiết của Phiếu cân</h2>
+                    <h2>Chi Tiết Phiếu Cân</h2>
                     <div class="container-reportPhieucan">
                         <!-- Thêm các trường nhập liệu và nút vào đây, đang sắp xếp theo cột-->
                         <div class="form-reportPhieucanDetail">
@@ -977,7 +1041,9 @@
                             </div>
                             <br>
                             <div class="button-container-macBetong">
-                                <button id="PrintOut" class="btn">Print Out</button>
+                                <!--Nút tìm kiếm-->
+                                <button id="btt_SearchChitiet" class="btn"></i> TÌM KIẾM</button>
+                                <button id="btt_ExportExcel" class="btn" style="width:125px">XUẤT DỮ LIỆU</button>
                             </div>
                             <br>
                             <div class="reportPhieuCantheoMaPhieuCan">
@@ -1030,7 +1096,7 @@
                     </div>
                 </div>
                 <div>
-                    <h2>Thống kê phiếu cân</h2>
+                    <h2>Thống Kê Phiếu Cân</h2>
                     <div class="container-reportPhieucan">
                         <!-- Thêm các trường nhập liệu và nút vào đây -->
                         <div class="form-container-macBetong">
@@ -1070,14 +1136,12 @@
 
                         </div>
                         <br>
-                        <div>
+                        <div class="button-container-macBetong">
                             <!--Nút tìm kiếm-->
-                            <button id="btt_Search" class="btn" onclick="fn_SQL_By_Time();"></i> TÌM
-                                KIẾM</button>
+                            <button id="btt_Search" class="btn"></i> TÌM KIẾM</button>
                             <!--Nút Xuất Excel-->
-                            <button id="btt_Excel" class="btn" onclick="fn_excel();" style="margin-left: 20px;"></i>
-                                BÁO
-                                CÁO</button>
+                            <button id="btt_Excel" class="btn" style="width:125px"></i>XUẤT DỮ
+                                LIỆU</button>
                         </div>
                         <br>
                         <table id="reportPhieucan">
@@ -1189,6 +1253,67 @@
         </div>
     </div>
     <script src="js/FC3_Screen_Setup.js"></script>
+    <script>
+        // // // Lưu trạng thái hiện tại của các thẻ div vào sessionStorage
+        // // window.addEventListener('beforeunload', function () {
+        // //     var currentScreens = Array.from(document.querySelectorAll('.screen:target')).map(function (screen) {
+        // //         return screen.id;
+        // //     });
+        // //     console.log('Saving current screens:', currentScreens);
+        // //     sessionStorage.setItem('currentScreens', JSON.stringify(currentScreens));
+        // // });
+        // window.addEventListener('beforeunload', function (event) {
+        //     var currentScreens = Array.from(document.querySelectorAll('.screen:target')).map(function (screen) {
+        //         return screen.id;
+        //     });
+        //     console.log('Saving current screens:', currentScreens);
+        //     sessionStorage.setItem('currentScreens', JSON.stringify(currentScreens));
+        //     event.preventDefault();
+        //     event.returnValue = 'Bạn có muốn tải lại trang không?';
+        // });
+
+        // // Khôi phục lại trạng thái hiện tại của các thẻ div khi trang được tải lại
+        // window.addEventListener('load', function () {
+        //     if (sessionStorage.getItem('currentScreens') !== null) {
+        //         var currentScreens = JSON.parse(sessionStorage.getItem('currentScreens'));
+        //         console.log('Restoring current screens:', currentScreens);
+        //         currentScreens.forEach(function (screenId) {
+        //             document.getElementById(screenId).scrollIntoView();
+        //         });
+        //     }
+        // });
+
+        // // Lưu trạng thái hiện tại của các phần tử div vào sessionStorage
+        // window.addEventListener('beforeunload', function (event) {
+        //     // Lấy id của các phần tử div đang được hiển thị
+        //     var currentDivs = Array.from(document.querySelectorAll('div:target')).map(function (div) {
+        //         return div.id;
+        //     });
+        //     // Lưu id của các phần tử div vào sessionStorage
+        //     console.log('Saving current currentDivs:', currentDivs);
+        //     sessionStorage.setItem('currentDivs', JSON.stringify(currentDivs));
+        //     event.preventDefault();
+        //     event.returnValue = 'Bạn có muốn tải lại trang không?';
+        // });
+
+        // // Khôi phục lại trạng thái hiện tại của các phần tử div khi trang được tải lại
+        // window.addEventListener('load', function () {
+        //     // Kiểm tra xem có dữ liệu trong sessionStorage hay không
+        //     if (sessionStorage.getItem('currentDivs') !== null) {
+        //         // Lấy id của các phần tử div từ sessionStorage
+        //         var currentDivs = JSON.parse(sessionStorage.getItem('currentDivs'));
+        //         // Ẩn tất cả các phần tử div
+        //         // document.querySelectorAll('div').forEach(function (div) {
+        //         //     div.style.display = 'none';
+        //         // });
+        //         // Hiển thị các phần tử div có id được lưu trong sessionStorage
+        //         currentDivs.forEach(function (divId) {
+        //             document.getElementById(divId).style.display = 'block';
+        //         });
+        //     }
+        // });
+
+    </script>
 </body>
 
 </html>

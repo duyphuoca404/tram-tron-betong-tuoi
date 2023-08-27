@@ -16,17 +16,11 @@ function fn_IOFieldDataShow(tag, IOField, tofix) {
     socket.on(tag, function (data) {
         if (tofix == 0) {
             document.getElementById(IOField).value = data;
-            // string = data;
-            // console.log(tag);
-            // console.log("Du lieu tra ve của " + tag + " là: " + string);
         }
         else {
             // document.getElementById(IOField).value = data.toFixed(tofix);
             var num = Number(data);
             document.getElementById(IOField).value = num.toFixed(tofix);
-            // string = data;
-            // console.log(tag);
-            // console.log("Du lieu tra ve của " + tag + " là: " + string);
         }
 
     });
@@ -47,12 +41,13 @@ function fn_IOField_IO_datThongsocan(tag, IOField, tofix) {
 // Chương trình con đọc dữ liệu lên IO Field thời gian, vì nó đặc biệc ở chỗ đơn vị trên PLC và web UI nó khác nhau nên tôi đã modify hàm fn_scrAuto_IOField_IO
 function fn_IOField_showforTime(tag, IOField, tofix) {
     socket.on(tag, function (data) {
+        var num = Number(data) / 10;
         if (tofix == 0 & anable_edditting_datThongsocan != true) {
-            document.getElementById(IOField).value = data / 10;
+            document.getElementById(IOField).value = num.toFixed(0);;
         }
         else if (anable_edditting_datThongsocan != true) {
             // document.getElementById(IOField).value = data.toFixed(tofix) / 10;
-            var num = Number(data) / 10;
+
             document.getElementById(IOField).value = num.toFixed(tofix);
         }
     });

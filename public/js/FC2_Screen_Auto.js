@@ -35,11 +35,14 @@ let XeBon = {
 };
 
 let PhieuGiaoBeTong = {
+    MaPhieuXuat: '',
     ChuyenSo: '',
     khachhang: '',
     NoiNhanBeTong: '',
     NgayDo: '',
+    GioXong: '',
     SoXe: '',
+    SoM3: '',
     MacBetong: '',
     DoSut: '',
     YeuCauBom: '',
@@ -55,7 +58,6 @@ let PhieuGiaoBeTong = {
     LaiXe: '',
     TramSo: ''
 };
-
 let PhieuCan = {
     MaPhieuCan: '',
     dondathang: DonDatHang,
@@ -357,6 +359,9 @@ function showPopup() {
     closeButton.style.position = "absolute";
     closeButton.style.top = "10px";
     closeButton.style.right = "10px";
+    closeButton.style.height = "20px";
+    closeButton.style.width = "20px";
+    closeButton.style.padding = "0 20px 0 10px";
 
     // Thêm sự kiện cho nút đóng để đóng popup khi nhấn vào nút này
     closeButton.addEventListener("click", function () {
@@ -443,6 +448,18 @@ function showPopup() {
             socket.emit('get_data_popup', MaPhieuCan);
         }
     });
+    // Hàm xử lý khi có sự kiện click lên nút nhấn Tìm kiếm trong popup Chi tiết phiếu cân
+    popup.querySelector('#btt_SearchChitiet').addEventListener('click', function () {
+        // Lấy giá trị MaPhieuCan từ input field
+        let MaPhieuCan = popup.querySelector('[data-label="MaPhieuCan"]').value
+
+        // Gửi giá trị MaPhieuCan đến server
+        socket.emit('get_data_popup', MaPhieuCan);
+    });
+    // Hàm xử lý khi có sự kiện click lên nút nhấn Xuất dữ liệu trong popup Báo Cáo chi tiết phiếu cân
+    popup.querySelector('#btt_ExportExcel').addEventListener('click', function () {
+        fn_excel2();
+    });
 }
 
 // Nhận dữ liệu từ server và hiển thị lên trang web
@@ -463,7 +480,7 @@ socket.on('data_popup', function (data) {
     }
 
     // Hiển thị dữ liệu lên các input field
-    //popup.querySelector('[data-label="TenKhachHang"]').value = data.phieucan.TenKhachHang;
+    popup.querySelector('[data-label="TenKhachHang"]').value = data.phieucan.TenKhachHang;
     popup.querySelector('[data-label="BienSoXe"]').value = data.phieucan.BienSoXe;
     popup.querySelector('[data-label="SoM3"]').value = data.phieucan.Som3Me;
     popup.querySelector('[data-label="MacBeTong"]').value = data.phieucan.MacBeTong;
@@ -498,7 +515,7 @@ socket.on('data_popup', function (data) {
         let row = tbody.insertRow(-1);
         // Điền dữ liệu vào các ô
         row.insertCell(-1).innerHTML = '';
-        row.insertCell(-1).innerHTML = chitietphieucan.STTMe;
+        row.insertCell(-1).innerHTML = formatNumber(chitietphieucan.STTMe, "0");
         row.insertCell(-1).innerHTML = formatNumber(chitietphieucan.TP1, "0.0");
         row.insertCell(-1).innerHTML = formatNumber(chitietphieucan.TP2, "0.0");
         row.insertCell(-1).innerHTML = formatNumber(chitietphieucan.TP3, "0.0");
@@ -512,6 +529,7 @@ socket.on('data_popup', function (data) {
     // Tạo hàng Định Mức
     let dinhmucRow = rows[0];
     dinhmucRow.cells[0].innerHTML = 'Định Mức';
+    dinhmucRow.cells[0].style.fontWeight = 'bold';
     dinhmucRow.cells[1].innerHTML = '';
     dinhmucRow.cells[2].innerHTML = formatNumber(data.phieucan.DMTP1, "0.0");
     dinhmucRow.cells[3].innerHTML = formatNumber(data.phieucan.DMTP2, "0.0");
@@ -525,6 +543,7 @@ socket.on('data_popup', function (data) {
     // Tạo hàng Tổng mới
     let tongRow = tbody.insertRow(-1);
     tongRow.insertCell(-1).innerHTML = 'Tổng';
+    tongRow.cells[0].style.fontWeight = 'bold';
     tongRow.insertCell(-1).innerHTML = ''; // Ô trống ngay sau ô chứa chữ "Tổng"
     for (let i = 2; i < 10; i++) {
         let sum = 0;
@@ -658,8 +677,78 @@ function getAllProperties() {
     return properties;
 }
 
+function namePheuCan() {
+    document.querySelector('#pheuXi_displayname').value = CuaVatLieu.Xi;
+    document.querySelector('#pheuNuoc_displayname').value = 'Nước';
+    document.querySelector('#TP1_displayname').value = CuaVatLieu.Cua[0];
+    document.querySelector('#TP2_displayname').value = CuaVatLieu.Cua[1];
+    document.querySelector('#TP3_displayname').value = CuaVatLieu.Cua[2];
+    document.querySelector('#TP4_displayname').value = CuaVatLieu.Cua[3];
+}
+
+var currentUser = null;
+var currentScope = null;
+
+socket.on("login_result", function (data) {
+    if (data.success) {
+        // Đăng nhập thành công
+        currentUser = data.username;
+        currentScope = data.scope;
+        // Hiển thị thông tin người dùng và ẩn form đăng nhập
+        document.getElementById("username-display").textContent = currentUser;
+        document.getElementById("scope-display").textContent = currentScope;
+        document.getElementById("user-info").style.display = "block";
+        document.getElementById("login-form").style.display = "none";
+        if (currentScope !== "Vận hành") {
+            document.getElementById("add-user-button").style.display = "block";
+        }
+        // Lưu thông tin đăng nhập vào localStorage
+        localStorage.setItem("currentUser", currentUser);
+        localStorage.setItem("currentScope", currentScope);
+    } else {
+        // Đăng nhập thất bại
+        alert(data.message);
+    }
+});
 
 
+// socket.on("register_result", function (data) {
+//     if (data.success) {
+//         // Đăng ký thành công
+//         alert(`Tên đăng nhập "${data.username}" đã được đăng ký thành công!`);
+//         // Ẩn form đăng ký và hiển thị form đăng nhập
+//         document.getElementById("register-form").style.display = "none";
+//         document.getElementById("login-form").style.display = "block";
+//     } else {
+//         // Đăng ký thất bại
+//         alert(data.message);
+//     }
+// });
+socket.on("register_result", function (data) {
+    if (data.success) {
+        // Đăng ký thành công
+        alert(`Tên đăng nhập "${data.username}" đã được đăng ký thành công!`);
+        // Ẩn form đăng ký và hiển thị form đăng nhập
+        document.getElementById("register-form").style.display = "none";
+        document.getElementById("login-form").style.display = "block";
+    } else {
+        // Đăng ký thất bại
+        alert(data.message);
+    }
+});
+
+socket.on('change_password_result', function (data) {
+    if (data.success) {
+        // Đổi mật khẩu thành công
+        alert('Đổi mật khẩu thành công!');
+        // Ẩn form đổi mật khẩu và hiển thị thông tin người dùng
+        document.getElementById("change-password-form").style.display = "none";
+        document.getElementById("user-info").style.display = "block";
+    } else {
+        // Đổi mật khẩu thất bại
+        alert('Đổi mật khẩu thất bại, vui lòng thử lại sau');
+    }
+});
 
 
 // ///////////////////////////////////////////////////////////////// Hàm lắng nghe sự kiện HTML đã tải xong cấu trúc, chưa tải xong video, ảnh, ... ///////////////////////////////////////////////////////
@@ -758,7 +847,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         }
         showPhieucanHientai();
-
+        namePheuCan();
     });
     console.log('Updated objects with the data received from the server');
     console.log('Dữ liệu PhieuCan tại thời điểm syncData sau khi gọi hàm updateDataOnServer1 là: ', PhieuCan)
@@ -802,6 +891,7 @@ document.addEventListener("DOMContentLoaded", function () {
         fn_ShowByClass('bang_Phieubetong');
         // Vì sau khi đặt cấp phối PhieuCan không cập nhật mới vào khung hiển thị nên gọi hàm này khi nhấn HOME mục đích là để hiển thị lên khung popup
         showPhieucanHientai();
+        document.querySelector('.right-sidebar').style.left = '1671px';
         // Chú ý: Đặt log ở đây sẽ không in được MaPhieuCan sau khi nhấn nút Auto, vì lúc này PhieuCan chưa được đọc (chưa đc lưu), 
         // để có thể lấy được MaPhieuCan thì phải nhấn nút DatCapPhoi để gọi hàm đọc Phieucan gần nhất, lúc này sẽ có MaPhieuCan để hiển thị
         // update: đã xử lý xong hiện tượng trên băng cách sử dụng hàm callback sau khi gọi hàm lấy Phiêu cân gần nhất
@@ -813,6 +903,7 @@ document.addEventListener("DOMContentLoaded", function () {
     $('#btt_Screen_Manu').on('click', function () { // Hàm này sử dụng cú pháp của Query, còn một cách khác sử dụng javascript
         fn_ScreenChange('Screen_Manu', 'Screen_Auto', 'Screen_datCapphoi', 'Screen_report');
         fn_ShowById('Screen_Manu');
+        document.querySelector('.right-sidebar').style.left = '1700px';
         fn_HideByClass('bang_Phieubetong');
         fn_Table01_SQL_Show();
         // Khi chọn menu quản lý Mac bê tông thì
@@ -828,17 +919,20 @@ document.addEventListener("DOMContentLoaded", function () {
     $('#btt_Screen_datCapphoi').on('click', function () { // Hàm này sử dụng cú pháp của Query, còn một cách khác sử dụng javascript, phải đảm bảo query được gọi trước khi gọi js này
         fn_ScreenChange('Screen_datCapphoi', 'Screen_Manu', 'Screen_Auto', 'Screen_report');
         fn_ShowById('Screen_datCapphoi');
-        fn_HideByClass('bang_Phieubetong');
+        // fn_HideByClass('bang_Phieubetong');
         fn_Table02_SQL_Show();
         // Khi tiến hành chọn đạt cấp phối thì
         mnuThiHanhDatCapPhoi_Click();
+        document.querySelector('.right-sidebar').style.left = '1700px';
     });
     // Hàm xử lý khi có sự kiện click lên nút nhấn btt_Screen_report
     $('#btt_Screen_report').on('click', function () { // Hàm này sử dụng cú pháp của Query, còn một cách khác sử dụng javascript, phải đảm bảo query được gọi trước khi gọi js này
         fn_ScreenChange('Screen_report', 'Screen_Manu', 'Screen_Auto', 'Screen_datCapphoi');
         fn_ShowById('Screen_report');
+        // fn_HideByClass('bang_Nhietdohientai');
         fn_HideByClass('bang_Phieubetong');
-        fn_Table03_SQL_Show();
+        document.querySelector('.right-sidebar').style.left = '1700px';
+        // fn_Table03_SQL_Show(); // Hàm này dùng để gọi một socket yêu cầu server gửi lên các dữ liệu về lịch sử phiếu cân, nó sẽ gửi hết tất cả, khi nhấn nút BÁO CÁO trên thanh sidebar
         // Khi tiến hành chọ đạt cấp phối thì
         // mnuThiHanhDatCapPhoi_Click();
         document.querySelector('[data-label="MaPhieuCan"]').value = PhieuCan.MaPhieuCan;
@@ -851,6 +945,32 @@ document.addEventListener("DOMContentLoaded", function () {
         // Gọi danh sách đơn hàng cho form thống kê
         // socket.emit('getDataReportDonHang');
     });
+    // Hàm xử lý khi có sự kiện click lên nút nhấn Tìm kiếm trong trang Báo Cáo
+    $('#btt_Search').on('click', function () { // Hàm này sử dụng cú pháp của Query, còn một cách khác sử dụng javascript, phải đảm bảo query được gọi trước khi gọi js này
+        fn_SQL_By_Time();
+
+    });
+    // Hàm xử lý khi có sự kiện click lên nút nhấn Xuất dữ liệu trong trang Báo Cáo
+    $('#btt_Excel').on('click', function () { // Hàm này sử dụng cú pháp của Query, còn một cách khác sử dụng javascript, phải đảm bảo query được gọi trước khi gọi js này
+        fn_excel();
+
+    });
+
+    // Hàm xử lý khi có sự kiện click lên nút nhấn Tìm kiếm trong trang Báo Cáo
+    $('#btt_SearchChitiet').on('click', function () { // Hàm này sử dụng cú pháp của Query, còn một cách khác sử dụng javascript, phải đảm bảo query được gọi trước khi gọi js này
+        // Lấy giá trị MaPhieuCan từ input field
+        let MaPhieuCan = document.querySelector('[data-label="MaPhieuCan"]').value
+
+        // Gửi giá trị MaPhieuCan đến server
+        socket.emit('get_data', MaPhieuCan);
+    });
+
+    // Hàm xử lý khi có sự kiện click lên nút nhấn Xuất dữ liệu trong trang Báo Cáo chi tiết phiếu cân
+    $('#btt_ExportExcel').on('click', function () { // Hàm này sử dụng cú pháp của Query, còn một cách khác sử dụng javascript, phải đảm bảo query được gọi trước khi gọi js này
+        fn_excel2();
+
+    });
+
     // Phải đưa hàm thay đổi sự kiện này vào trong hàm lắng nghe event, vì file js chứa hàm này nó được gọi trước khi HTML load xong, vậy nên khi nhấn vào listbox nó ko work,
     // chỉ khi mình đưa vào hàm lắng nghe này thì nó mới hoạt động, do khi đó khung HTML đã được gọi xong, vậy nên chọn list nó mới chạy hàm được
     $('.scr_Auto_listbox-xebon').on('change', function () { // Phải đảm bảo query đã được gọi trước khi file js này được gọi, duyphuoc
@@ -911,7 +1031,128 @@ document.addEventListener("DOMContentLoaded", function () {
         // Hiển thị popup
         showPopup();
     });
+    // Xử lý sự kiện đăng nhập
+    document.getElementById("login-form").addEventListener("submit", function (event) {
+        event.preventDefault();
+        var username = document.getElementById("username").value;
+        var password = document.getElementById("password").value;
+        // Gửi yêu cầu đăng nhập đến server
+        socket.emit("login", { username: username, password: password });
+    });
+    // Xử lý sự kiện nhấn nút "Đăng ký"
+    document.getElementById("register-button").addEventListener("click", function (event) {
+        event.preventDefault();
+        // Ẩn form đăng nhập và hiển thị form đăng ký
+        document.getElementById("login-form").style.display = "none";
+        document.getElementById("register-form").style.display = "block";
+    });
+    // Xử lý sự kiện đăng ký
+    document.getElementById("register-form").addEventListener("submit", function (event) {
+        event.preventDefault();
+        var username = document.getElementById("reg-username").value;
+        var password = document.getElementById("reg-password").value;
+        var confirmPassword = document.getElementById("confirm-password").value;
+        var scope = document.getElementById("user-scope").value;
+        // Kiểm tra xem người dùng đã nhập đầy đủ thông tin chưa
+        if (!username || !password || !confirmPassword || !scope) {
+            alert("Vui lòng nhập đầy đủ thông tin vào các trường!");
+            return;
+        }
 
+        if (password !== confirmPassword) {
+            // Mật khẩu không khớp
+            alert("Mật khẩu không khớp!");
+            return;
+        }
+        // Gửi yêu cầu đăng ký đến server
+        socket.emit("register", { username: username, password: password, scope: scope, currentUserScope: currentScope });
+    });
+    // Xử lý sự kiện nhấn nút "Thoát"
+    document.getElementById("cancel-button").addEventListener("click", function (event) {
+        event.preventDefault();
+        // Ẩn form đăng ký và hiển thị form đăng nhập
+        if (currentUser) {
+            document.getElementById("register-form").style.display = "none";
+            document.getElementById("user-info").style.display = "block";
+        }
+        else {
+            document.getElementById("register-form").style.display = "none";
+            document.getElementById("login-form").style.display = "block";
+        }
+
+    });
+    // Xử lý sự kiện nhấn nút "Thoát" trong form đổi mật khẩu
+    document.getElementById("cancel-change-password-button").addEventListener("click", function (event) {
+        event.preventDefault();
+        // Ẩn form đổi mật khẩu và hiển thị thông tin người dùng
+        document.getElementById("change-password-form").style.display = "none";
+        document.getElementById("user-info").style.display = "block";
+    });
+    // Xử lý sự kiện nhấn nút "Đổi mật khẩu"
+    document.getElementById("change-password-button").addEventListener("click", function (event) {
+        event.preventDefault();
+        // Ẩn thông tin người dùng và hiển thị form đổi mật khẩu
+        document.getElementById("user-info").style.display = "none";
+        document.getElementById("change-password-form").style.display = "block";
+    });
+    // Xử lý sự kiện đổi mật khẩu
+    document.getElementById("change-password-form").addEventListener("submit", function (event) {
+        event.preventDefault();
+        var newPassword = document.getElementById("new-password").value;
+        var confirmNewPassword = document.getElementById("confirm-new-password").value;
+        // Kiểm tra xem người dùng đã nhập đầy đủ thông tin chưa
+        if (!newPassword || !confirmNewPassword) {
+            alert("Vui lòng nhập đầy đủ thông tin vào các trường!");
+            return;
+        }
+
+        if (newPassword !== confirmNewPassword) {
+            // Mật khẩu mới không khớp với xác nhận mật khẩu mới
+            alert("Mật khẩu mới không khớp với xác nhận mật khẩu mới!");
+            return;
+        }
+
+        // Gửi yêu cầu đổi mật khẩu đến server
+        socket.emit('change_password', { username: currentUser, newPassword: newPassword });
+    });
+    // Xử lý sự kiện nhấn nút "Đăng xuất"
+    document.getElementById("logout-button").addEventListener("click", function (event) {
+        event.preventDefault();
+        // Đăng xuất người dùng
+        socket.emit("logout", { username: currentUser });
+        currentUser = null;
+        currentScope = null;
+        // Ẩn thông tin người dùng và hiển thị form đăng nhập
+        document.getElementById("user-info").style.display = "none";
+        document.getElementById("login-form").style.display = "block";
+        document.getElementById("add-user-button").style.display = "none";
+        // Lưu thông tin đăng nhập vào localStorage
+        localStorage.setItem("currentUser", '');
+        localStorage.setItem("currentScope", '');
+    });
+    // Xử lý sự kiện nhấn nút "Tạo tài khoản mới"
+    document.getElementById("add-user-button").addEventListener("click", function (event) {
+        event.preventDefault();
+        // Ẩn form đăng ký và hiển thị form đăng nhập
+        document.getElementById("user-info").style.display = "none";
+        document.getElementById("register-form").style.display = "block";
+    });
+    // Kiểm tra xem người dùng đã đăng nhập trước đó hay chưa
+    var savedUser = localStorage.getItem("currentUser");
+    var savedScope = localStorage.getItem("currentScope");
+    if (savedUser && savedScope) {
+        currentUser = savedUser;
+        currentScope = savedScope;
+        // Hiển thị thông tin người dùng và ẩn form đăng nhập
+        document.getElementById("username-display").textContent = currentUser;
+        document.getElementById("scope-display").textContent = currentScope;
+        document.getElementById("user-info").style.display = "block";
+        document.getElementById("login-form").style.display = "none";
+
+        if (currentScope !== "Vận hành") {
+            document.getElementById("add-user-button").style.display = "block";
+        }
+    }
 });
 
 

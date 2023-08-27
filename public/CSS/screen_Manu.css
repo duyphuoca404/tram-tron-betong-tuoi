@@ -132,6 +132,15 @@ td {
     flex-direction: column;
 }
 
+.container-datCapphoi1 {
+    display: flex;
+    flex-direction: row;
+}
+
+.container-datCapphoi1 input {
+    width: 90px;
+}
+
 .container-datCapphoi input,
 .container-Hieuchinhcan input,
 .container-datThongsocan input[type="number"] {
@@ -316,18 +325,15 @@ td {
 }
 
 /*Nút Xuaast Excel*/
-#btt_Excel {
+/* #btt_Excel {
     border: none;
-    background-color: rgb(14, 199, 153);
+    background-color: DodgerBlue;
     color: rgb(255, 255, 255);
     text-align: center;
     display: inline-block;
     font-size: 11px;
     font-weight: bold;
     cursor: pointer;
-    /* position: absolute; */
     width: 105px;
     height: 30px;
-    /* left: 250px;
-    top: 110px; */
-}
+} */

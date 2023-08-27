@@ -1,6 +1,6 @@
 .right-sidebar {
     position: absolute;
-    right: 5px;
+    left: 1671px;
     top: 11px;
     display: inline-block;
     max-width: 200px;
@@ -87,7 +87,6 @@
 
 /*Nút Màn 1*/
 #btt_Screen_Manu {
-    border: none;
     background-color: rgb(240, 236, 11);
     border: none;
     color: rgb(0, 0, 0);
@@ -104,7 +103,6 @@
 }
 
 #btt_Screen_datCapphoi {
-    border: none;
     background-color: rgb(240, 236, 11);
     border: none;
     color: rgb(0, 0, 0);
@@ -121,7 +119,6 @@
 }
 
 #btt_Screen_report {
-    border: none;
     background-color: rgb(240, 236, 11);
     border: none;
     color: rgb(0, 0, 0);
@@ -135,4 +132,163 @@
     height: 40px;
     left: 22px;
     top: 170px;
+}
+
+#login-form {
+    margin-top: 757px;
+    margin-left: 10px;
+    margin-right: 10px;
+    color: #e5e5e5;
+}
+
+#register-form {
+    margin-top: 700px;
+    margin-left: 10px;
+    margin-right: 10px;
+    color: #e5e5e5;
+}
+
+#user-info {
+    margin-top: 757px;
+    margin-left: 10px;
+    margin-right: 10px;
+    color: #e5e5e5;
+}
+
+#change-password-form {
+    margin-top: 757px;
+    margin-left: 10px;
+    margin-right: 10px;
+    color: #e5e5e5;
+}
+
+#login-button {
+    background-color: rgb(240, 236, 11);
+    border: none;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: normal;
+    cursor: pointer;
+    /* position: absolute; */
+    width: 80px;
+    /* left: 22px;
+    top: 900px; */
+    text-transform: capitalize;
+}
+
+#register-button {
+    background-color: rgb(240, 236, 11);
+    border: none;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: normal;
+    cursor: pointer;
+    /* position: absolute; */
+    width: 80px;
+    /* left: 22px;
+    top: 800px; */
+    text-transform: capitalize;
+}
+
+#submit-button {
+    background-color: rgb(240, 236, 11);
+    border: none;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: normal;
+    cursor: pointer;
+    width: 80px;
+    text-transform: capitalize;
+}
+
+#cancel-button {
+    background-color: rgb(240, 236, 11);
+    border: none;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: normal;
+    cursor: pointer;
+    width: 80px;
+    text-transform: capitalize;
+}
+
+#logout-button {
+    background-color: rgb(240, 236, 11);
+    border: none;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: normal;
+    cursor: pointer;
+    width: 80px;
+    text-transform: capitalize;
+}
+
+#change-password-button {
+    background-color: rgb(240, 236, 11);
+    border: none;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: normal;
+    cursor: pointer;
+    width: 90px;
+    text-transform: capitalize;
+}
+
+#cancel-change-password-button {
+    background-color: rgb(240, 236, 11);
+    border: none;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: normal;
+    cursor: pointer;
+    width: 80px;
+    text-transform: capitalize;
+}
+
+#submit-change-password {
+    background-color: rgb(240, 236, 11);
+    border: none;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: normal;
+    cursor: pointer;
+    width: 90px;
+    height: 30px;
+    transition: all 0.3s ease-in-out;
+    white-space: nowrap;
+    padding: 0 10px;
+    text-transform: capitalize;
+}
+
+#add-user-button {
+    width: 100%;
+    background-color: rgb(240, 236, 11);
+    border: none;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: normal;
+    cursor: pointer;
+    text-transform: capitalize;
+}
+
+#change-password-button {
+    float: right;
 }

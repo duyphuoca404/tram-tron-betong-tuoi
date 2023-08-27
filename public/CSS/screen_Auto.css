@@ -4,6 +4,11 @@ body {
     padding: 0px !important;
 }
 
+@font-face {
+    font-family: 'SevenSegment';
+    src: url('/font/Seven Segment.ttf') format('truetype');
+}
+
 /*Màn hình Auto*/
 #Screen_Auto {
     position: absolute;
@@ -237,6 +242,7 @@ body {
     left: 10px;
     top: 270px;
     display: inline;
+
 }
 
 #act_statusXi,
@@ -246,6 +252,10 @@ body {
     height: 40px;
     display: block;
     margin-bottom: 3px;
+    text-align: center;
+    /* font-weight: bold; */
+    font-size: 20px;
+    color: darkmagenta
 }
 
 #act_someXi,
@@ -255,6 +265,9 @@ body {
     height: 40px;
     display: block;
     margin-bottom: 3px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 20px;
 }
 
 #act_Xi,
@@ -264,6 +277,9 @@ body {
     height: 60px;
     display: block;
     background-color: aquamarine;
+    text-align: center;
+    font-weight: bold;
+    font-size: 20px;
 }
 
 .inforNuoc {
@@ -284,8 +300,8 @@ body {
 /* Bảng đếm ngược thời gian */
 .count_ThoigianTron {
     position: absolute;
-    left: 230px;
-    top: 428px;
+    left: 497px;
+    top: 440px;
     width: 60px;
     height: 20px;
     text-align: center;
@@ -293,8 +309,8 @@ body {
 
 .count_ThoigianXa {
     position: absolute;
-    left: 374px;
-    top: 428px;
+    left: 600px;
+    top: 440px;
     width: 60px;
     height: 20px;
     text-align: center;
@@ -304,7 +320,13 @@ body {
     width: 60px;
     height: 60px;
     display: block;
-    background-color: aquamarine;
+    /* background-color: aquamarine; */
+    text-align: center;
+    font-weight: bold;
+    font-family: 'SevenSegment';
+    font-size: 40px;
+    font-style: normal;
+    color: red;
 }
 
 /* Bảng điều khiển */
@@ -320,13 +342,7 @@ body {
     /* hoặc có thể dùng float:right  */
 }
 
-.edit_save>button {
-    border-radius: 2px;
-    /* padding: 3px; */
-    height: 20px;
-    width: 50px;
-    text-align: center;
-}
+
 
 /* Combobox chọn xe bồn*/
 .selectXebon-container {
@@ -337,8 +353,103 @@ body {
 
 .xebon_display {
     position: absolute;
-    left: 550px;
+    left: 552px;
     top: 614px;
+}
+
+.Xi_Nuoc_displayname {
+    border: 1px solid black;
+    border-radius: 5px;
+
+}
+
+.CotLieu_displayname {
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
+#pheuXi_displayname {
+    width: 60px;
+    height: 30px;
+    position: absolute;
+    left: 208px;
+    top: 140px;
+    display: block;
+    text-align: center;
+    font-size: 20px;
+    /* font-weight: bold; */
+    color: darkmagenta;
+    text-transform: uppercase;
+}
+
+#pheuNuoc_displayname {
+    width: 70px;
+    height: 30px;
+    position: absolute;
+    left: 555px;
+    top: 140px;
+    display: block;
+    text-align: center;
+    font-size: 20px;
+    /* font-weight: bold; */
+    color: darkmagenta;
+    text-transform: uppercase;
+}
+
+#TP1_displayname {
+    width: 45px;
+    height: 20px;
+    position: absolute;
+    left: 1108px;
+    top: 575px;
+    display: block;
+    text-align: center;
+    font-size: 15px;
+    /* font-weight: bold; */
+    color: darkmagenta;
+    text-transform: uppercase;
+}
+
+#TP2_displayname {
+    width: 45px;
+    height: 20px;
+    position: absolute;
+    left: 1195px;
+    top: 575px;
+    display: block;
+    text-align: center;
+    font-size: 15px;
+    /* font-weight: bold; */
+    color: darkmagenta;
+    text-transform: uppercase;
+}
+
+#TP3_displayname {
+    width: 45px;
+    height: 20px;
+    position: absolute;
+    left: 1280px;
+    top: 575px;
+    display: block;
+    text-align: center;
+    font-size: 15px;
+    /* font-weight: bold; */
+    color: darkmagenta;
+    text-transform: uppercase;
+}
+
+#TP4_displayname {
+    width: 45px;
+    height: 20px;
+    position: absolute;
+    left: 1365px;
+    top: 575px;
+    display: block;
+    text-align: center;
+    font-size: 15px;
+    /* font-weight: bold; */
+    color: darkmagenta;
+    text-transform: uppercase;
 }
 
 /*Nút nhấn LƯU*/
@@ -523,7 +634,7 @@ th {
 }
 
 /*Nút tìm kiếm*/
-#btt_Search {
+/* #btt_Search {
     border: none;
     background-color: DodgerBlue;
     color: rgb(255, 255, 255);
@@ -532,27 +643,60 @@ th {
     font-size: 11px;
     font-weight: bold;
     cursor: pointer;
-    /* position: absolute; */
     width: 105px;
     height: 30px;
-    /* left: 127px;
-    top: 110px; */
+} */
+
+/* .btn {
+    border: none;
+    background-color: DodgerBlue;
+    color: rgb(255, 255, 255);
+    text-align: center;
+    display: inline-block;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 105px;
+    height: 30px;
+} */
+
+/* button:not([style]) {
+    border: none;
+    background-color: DodgerBlue;
+    color: rgb(255, 255, 255);
+    text-align: center;
+    display: inline-block;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 105px;
+    height: 30px;
+} */
+
+button {
+    border: none;
+    background-color: #fff;
+    color: #333;
+    text-align: center;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 105px;
+    height: 30px;
+    transition: all 0.3s ease-in-out;
+    white-space: nowrap;
+    padding: 0 10px;
+    text-transform: uppercase;
 }
 
-.btn {
-    border: none;
-    background-color: DodgerBlue;
-    color: rgb(255, 255, 255);
-    text-align: center;
-    display: inline-block;
-    font-size: 11px;
-    font-weight: bold;
-    cursor: pointer;
-    /* position: absolute; */
-    width: 105px;
-    height: 30px;
-    /* left: 127px;
-    top: 110px; */
+button:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+button:active {
+    transform: scale(0.90);
 }
 
 /*//////////////TRƯỜNG TÌM KIẾM DỮ LIỆU - END/////////////////*/

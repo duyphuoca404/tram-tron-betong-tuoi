@@ -193,7 +193,7 @@ socket.on('updateDataMacbetongSuccess', function () {
 
 // Tìm kiếm SQL theo khoảng thời gian
 function fn_SQL_By_Time() {
-    ThongKe.MaPhieuCan = document.querySelector('# document.querySelector').value;
+    ThongKe.MaPhieuCan = document.querySelector('#maphieucan').value;
     ThongKe.BienSoXe = document.querySelector('[data-label="bienSoXe"]').value;
     ThongKe.MacBetong = document.querySelector('[data-label="macBetong"]').value;
     var val = [document.getElementById('dtpk_Search_Start').value, document.getElementById('dtpk_Search_End').value, ThongKe.MaDonDatHang, ThongKe.TenKhachHang, ThongKe.MaPhieuCan, ThongKe.BienSoXe, ThongKe.MacBetong];
@@ -1584,7 +1584,7 @@ function formatNumber(number, format) {
 }
 
 
-// Lắng nghe sự kiện nhấn phím Enter trên form report Chit tiết phiếu cân
+// Lắng nghe sự kiện nhấn phím Enter trên form report Chi tiết phiếu cân
 document.querySelector('[data-label="MaPhieuCan"]').addEventListener('keyup', function (event) {
     if (event.key === 'Enter') {
         // Lấy giá trị MaPhieuCan từ input field
@@ -1594,6 +1594,7 @@ document.querySelector('[data-label="MaPhieuCan"]').addEventListener('keyup', fu
         socket.emit('get_data', MaPhieuCan);
     }
 });
+
 
 // Nhận dữ liệu từ server và hiển thị lên trang web
 socket.on('data', function (data) {
@@ -1656,6 +1657,8 @@ socket.on('data', function (data) {
     // Tạo hàng Định Mức
     let dinhmucRow = rows[0];
     dinhmucRow.cells[0].innerHTML = 'Định Mức';
+    dinhmucRow.cells[0].style.fontWeight = 'bold';
+    // dinhmucRow.cells[0].style.fontSize = '20px';
     dinhmucRow.cells[1].innerHTML = '';
     dinhmucRow.cells[2].innerHTML = formatNumber(data.phieucan.DMTP1, "0.0");
     dinhmucRow.cells[3].innerHTML = formatNumber(data.phieucan.DMTP2, "0.0");
@@ -1668,6 +1671,7 @@ socket.on('data', function (data) {
     // Tạo hàng Tổng mới
     let tongRow = tbody.insertRow(-1);
     tongRow.insertCell(-1).innerHTML = 'Tổng';
+    tongRow.cells[0].style.fontWeight = 'bold';
     tongRow.insertCell(-1).innerHTML = ''; // Ô trống ngay sau ô chứa chữ "Tổng"
     for (let i = 2; i < 10; i++) {
         let sum = 0;
@@ -1742,4 +1746,5 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('error', function (msg) {
         console.log(msg);
     });
+
 });
