@@ -495,10 +495,11 @@ body {
     padding: 5px;
     /* position: absolute;
     left: 10px;
-    top: 700px; */
-    display: flex;
+    top: 700px; 
+    display: flex;*/
     text-align: center;
     margin-top: 10px;
+    display: none;
 }
 
 .setup_OperationParamet {
@@ -509,7 +510,7 @@ body {
     /* position: absolute;
     left: 10px;
     top: 560px; */
-    display: inline-block;
+    display: none;
 }
 
 .setup_OperationParamet div {

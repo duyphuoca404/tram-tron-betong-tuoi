@@ -688,7 +688,8 @@ function namePheuCan() {
 
 var currentUser = null;
 var currentScope = null;
-
+var savedUser;
+var savedScope;
 socket.on("login_result", function (data) {
     if (data.success) {
         // Đăng nhập thành công
@@ -699,12 +700,29 @@ socket.on("login_result", function (data) {
         document.getElementById("scope-display").textContent = currentScope;
         document.getElementById("user-info").style.display = "block";
         document.getElementById("login-form").style.display = "none";
-        if (currentScope !== "Vận hành") {
-            document.getElementById("add-user-button").style.display = "block";
-        }
+
         // Lưu thông tin đăng nhập vào localStorage
         localStorage.setItem("currentUser", currentUser);
         localStorage.setItem("currentScope", currentScope);
+        savedUser = localStorage.getItem("currentUser");
+        savedScope = localStorage.getItem("currentScope");
+        if (savedScope == "Vận hành" || savedScope == "Quản lý") {
+            var elements = document.getElementsByClassName("setup_OperationParamet");
+            for (var i = 0; i < elements.length; i++) {
+                elements[i].style.display = "inline-block";
+            }
+
+            elements = document.getElementsByClassName("btt_Control");
+            for (var i = 0; i < elements.length; i++) {
+                elements[i].style.display = "flex";
+            }
+        }
+        if (savedScope !== "Vận hành") {
+            document.getElementById("add-user-button").style.display = "inline-block";
+        } else {
+            document.getElementById("add-user-button").style.display = "none";
+        }
+
     } else {
         // Đăng nhập thất bại
         alert(data.message);
@@ -898,52 +916,84 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log('Kiểm tra PhieuCan.MaPhieuCan: ', PhieuCan.MaPhieuCan)
         console.log('Kiểm tra dữ liệu PhieuCan tại thời điểm nhấn nút HOME: ', PhieuCan)
     });
-
+    savedUser = localStorage.getItem("currentUser");
+    savedScope = localStorage.getItem("currentScope");
+    // alert(`savedScope bên ngoài hàm là "${savedScope}"`);
     // Hàm xử lý khi có sự kiện click lên nút nhấn QUẢN LÝ CHUNG
     $('#btt_Screen_Manu').on('click', function () { // Hàm này sử dụng cú pháp của Query, còn một cách khác sử dụng javascript
-        fn_ScreenChange('Screen_Manu', 'Screen_Auto', 'Screen_datCapphoi', 'Screen_report');
-        fn_ShowById('Screen_Manu');
-        document.querySelector('.right-sidebar').style.left = '1700px';
-        fn_HideByClass('bang_Phieubetong');
-        fn_Table01_SQL_Show();
-        // Khi chọn menu quản lý Mac bê tông thì
-        ThongTinCapPhoi.DangDatCapPhoi = false;
-        // Đồng bộ dữ liệu đến server
-        // updateDataOnServer();
-        syncWindowObject();
-        updateDataOnServer1(["ThongTinCapPhoi.DangDatCapPhoi"]);
+        // alert(`savedScope là "${savedScope}"`);
+        if (savedScope == "Vận hành") {
+            alert(`Xin lỗi, chức năng này không khả dụng với cấp bậc "${savedScope}"`);
+            return;
+        } else if (!savedScope) {
+            alert(`Vui lòng đăng nhập trước khi sử dụng chức năng này`);
+            return;
+        }
+        else {
+            fn_ScreenChange('Screen_Manu', 'Screen_Auto', 'Screen_datCapphoi', 'Screen_report');
+            fn_ShowById('Screen_Manu');
+            document.querySelector('.right-sidebar').style.left = '1700px';
+            fn_HideByClass('bang_Phieubetong');
+            fn_Table01_SQL_Show();
+            // Khi chọn menu quản lý Mac bê tông thì
+            ThongTinCapPhoi.DangDatCapPhoi = false;
+            // Đồng bộ dữ liệu đến server
+            // updateDataOnServer();
+            syncWindowObject();
+            updateDataOnServer1(["ThongTinCapPhoi.DangDatCapPhoi"]);
+        }
+
 
     });
 
     // Hàm xử lý khi có sự kiện click lên nút nhấn THIẾT LẬP CẤU HÌNH
     $('#btt_Screen_datCapphoi').on('click', function () { // Hàm này sử dụng cú pháp của Query, còn một cách khác sử dụng javascript, phải đảm bảo query được gọi trước khi gọi js này
-        fn_ScreenChange('Screen_datCapphoi', 'Screen_Manu', 'Screen_Auto', 'Screen_report');
-        fn_ShowById('Screen_datCapphoi');
-        // fn_HideByClass('bang_Phieubetong');
-        fn_Table02_SQL_Show();
-        // Khi tiến hành chọn đạt cấp phối thì
-        mnuThiHanhDatCapPhoi_Click();
-        document.querySelector('.right-sidebar').style.left = '1700px';
+        if (savedScope == "Vận hành") {
+            alert(`Xin lỗi, chức năng này không khả dụng với cấp bậc "${savedScope}"`);
+            return;
+        } else if (!savedScope) {
+            alert(`Vui lòng đăng nhập trước khi sử dụng chức năng này`);
+            return;
+        } else {
+            fn_ScreenChange('Screen_datCapphoi', 'Screen_Manu', 'Screen_Auto', 'Screen_report');
+            fn_ShowById('Screen_datCapphoi');
+            // fn_HideByClass('bang_Phieubetong');
+            fn_Table02_SQL_Show();
+            // Khi tiến hành chọn đạt cấp phối thì
+            mnuThiHanhDatCapPhoi_Click();
+            document.querySelector('.right-sidebar').style.left = '1700px';
+        }
+
     });
     // Hàm xử lý khi có sự kiện click lên nút nhấn btt_Screen_report
     $('#btt_Screen_report').on('click', function () { // Hàm này sử dụng cú pháp của Query, còn một cách khác sử dụng javascript, phải đảm bảo query được gọi trước khi gọi js này
-        fn_ScreenChange('Screen_report', 'Screen_Manu', 'Screen_Auto', 'Screen_datCapphoi');
-        fn_ShowById('Screen_report');
-        // fn_HideByClass('bang_Nhietdohientai');
-        fn_HideByClass('bang_Phieubetong');
-        document.querySelector('.right-sidebar').style.left = '1700px';
-        // fn_Table03_SQL_Show(); // Hàm này dùng để gọi một socket yêu cầu server gửi lên các dữ liệu về lịch sử phiếu cân, nó sẽ gửi hết tất cả, khi nhấn nút BÁO CÁO trên thanh sidebar
-        // Khi tiến hành chọ đạt cấp phối thì
-        // mnuThiHanhDatCapPhoi_Click();
-        document.querySelector('[data-label="MaPhieuCan"]').value = PhieuCan.MaPhieuCan;
-        if (PhieuCan.MaPhieuCan !== 'undefined' || PhieuCan.MaPhieuCan !== "" || PhieuCan.MaPhieuCan !== null) {
-            // Gửi giá trị MaPhieuCan đến server
-            socket.emit('get_data', PhieuCan.MaPhieuCan);
+        if (savedScope == "Vận hành") {
+            alert(`Xin lỗi, chức năng này không khả dụng với cấp bậc "${savedScope}"`);
+            return;
+        } else if (!savedScope) {
+            alert(`Vui lòng đăng nhập trước khi sử dụng chức năng này`);
+            return;
         }
-        // Gọi danh sách khách hàng cho form thống kê
-        socket.emit('getDataReportKhachhang');
-        // Gọi danh sách đơn hàng cho form thống kê
-        // socket.emit('getDataReportDonHang');
+        else {
+            fn_ScreenChange('Screen_report', 'Screen_Manu', 'Screen_Auto', 'Screen_datCapphoi');
+            fn_ShowById('Screen_report');
+            // fn_HideByClass('bang_Nhietdohientai');
+            fn_HideByClass('bang_Phieubetong');
+            document.querySelector('.right-sidebar').style.left = '1700px';
+            // fn_Table03_SQL_Show(); // Hàm này dùng để gọi một socket yêu cầu server gửi lên các dữ liệu về lịch sử phiếu cân, nó sẽ gửi hết tất cả, khi nhấn nút BÁO CÁO trên thanh sidebar
+            // Khi tiến hành chọ đạt cấp phối thì
+            // mnuThiHanhDatCapPhoi_Click();
+            document.querySelector('[data-label="MaPhieuCan"]').value = PhieuCan.MaPhieuCan;
+            if (PhieuCan.MaPhieuCan !== 'undefined' || PhieuCan.MaPhieuCan !== "" || PhieuCan.MaPhieuCan !== null) {
+                // Gửi giá trị MaPhieuCan đến server
+                socket.emit('get_data', PhieuCan.MaPhieuCan);
+            }
+            // Gọi danh sách khách hàng cho form thống kê
+            socket.emit('getDataReportKhachhang');
+            // Gọi danh sách đơn hàng cho form thống kê
+            // socket.emit('getDataReportDonHang');
+        }
+
     });
     // Hàm xử lý khi có sự kiện click lên nút nhấn Tìm kiếm trong trang Báo Cáo
     $('#btt_Search').on('click', function () { // Hàm này sử dụng cú pháp của Query, còn một cách khác sử dụng javascript, phải đảm bảo query được gọi trước khi gọi js này
@@ -1036,6 +1086,7 @@ document.addEventListener("DOMContentLoaded", function () {
         event.preventDefault();
         var username = document.getElementById("username").value;
         var password = document.getElementById("password").value;
+        localStorage.setItem("currentPass", password);
         // Gửi yêu cầu đăng nhập đến server
         socket.emit("login", { username: username, password: password });
     });
@@ -1129,6 +1180,10 @@ document.addEventListener("DOMContentLoaded", function () {
         // Lưu thông tin đăng nhập vào localStorage
         localStorage.setItem("currentUser", '');
         localStorage.setItem("currentScope", '');
+        savedUser = localStorage.getItem("currentUser");
+        savedScope = localStorage.getItem("currentScope");
+        fn_HideByClass('setup_OperationParamet');
+        fn_HideByClass('btt_Control');
     });
     // Xử lý sự kiện nhấn nút "Tạo tài khoản mới"
     document.getElementById("add-user-button").addEventListener("click", function (event) {
@@ -1138,20 +1193,25 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("register-form").style.display = "block";
     });
     // Kiểm tra xem người dùng đã đăng nhập trước đó hay chưa
-    var savedUser = localStorage.getItem("currentUser");
-    var savedScope = localStorage.getItem("currentScope");
+    // savedUser = localStorage.getItem("currentUser");
+    // savedScope = localStorage.getItem("currentScope");
     if (savedUser && savedScope) {
-        currentUser = savedUser;
-        currentScope = savedScope;
+        // currentUser = savedUser;
+        // currentScope = savedScope;
         // Hiển thị thông tin người dùng và ẩn form đăng nhập
-        document.getElementById("username-display").textContent = currentUser;
-        document.getElementById("scope-display").textContent = currentScope;
-        document.getElementById("user-info").style.display = "block";
-        document.getElementById("login-form").style.display = "none";
+        // document.getElementById("username-display").textContent = savedUser;
+        // document.getElementById("scope-display").textContent = savedScope;
+        // document.getElementById("user-info").style.display = "block";
+        // document.getElementById("login-form").style.display = "none";
 
-        if (currentScope !== "Vận hành") {
-            document.getElementById("add-user-button").style.display = "block";
-        }
+        // if (currentScope !== "Vận hành") {
+        //     document.getElementById("add-user-button").style.display = "block";
+        // }
+        // var username = document.getElementById("username").value;
+        var password = document.getElementById("password").value;
+        var savedPass = localStorage.getItem("currentPass");
+        // Gửi yêu cầu đăng nhập đến server
+        socket.emit("login", { username: savedUser, password: savedPass });
     }
 });
 

@@ -171,7 +171,7 @@ var nodes7 = require('nodes7');
 var conn_plc = new nodes7; //PLC1
 let newTextContent = "";
 // Tạo địa chỉ kết nối (slot = 2 nếu là 300/400, slot = 1 nếu là 1200/1500)
-conn_plc.initiateConnection({ port: 102, host: '192.168.0.5', rack: 0, slot: 1 }, PLC_connected);
+conn_plc.initiateConnection({ port: 102, host: '10.10.10.5', rack: 0, slot: 1 }, PLC_connected);
 // Bảng tag trong Visual studio code, chú ý là bảng tag này phải đúng thứ tự nhé, nó phải trùng với thứ tự trong TIA thì phải (check lại điểm này)
 var tags_list = {
     DTO: 'I0.0',
@@ -520,7 +520,7 @@ setInterval(() => {
     // console.log('CuaVatLieu: ', CuaVatLieu);
     // console.log('ThongTinCapPhoi: ', ThongTinCapPhoi);
     console.log('/////////////////////////////////////////////////////////////////////////////////////////////////////////////', newTextContent);
-}, 1000);
+}, 500);
 
 setInterval(() => {
     //fn_read_data_scan();
@@ -546,7 +546,7 @@ setInterval(() => {
     // console.log('ThuThap: ', ThuThap);
     // console.log('KhoiLuongCotLieu: ', ThuThap.KhoiLuongCotLieu);
     // console.log('ThuThap.KhoiLuongHienTaiCotLieu: ', ThuThap.KhoiLuongHienTaiCotLieu);
-    // console.log('CuaVatLieu: ', CuaVatLieu);
+    console.log("//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////operatorUser là: ", operatorUser)
 
     // Cách gọi hàm DocMaPhieuCan để lấy MaPhieuCan dưới mysql
     DocMaPhieuCan(function (result) {
@@ -556,7 +556,7 @@ setInterval(() => {
         console.log('/////////////////////////////////////////////////////////////////////////////////////////////////////////////');
     });
 
-}, 5000);
+}, 1000);
 
 // ///////////////////////////////////////////////////////////////////////////////////////++THIẾT LẬP KẾT NỐI VỚI TRÌNH DUYỆT PHÍA CLIENT/////////////////////////
 var express = require("express");
@@ -782,42 +782,60 @@ io.on("connection", function (socket) {
         // Nghĩa là, nếu dùng câu lệnh socket.on(tag, function (data){} , nếu tag là TGTRON thì giá trị nhận được sẽ là 305
     });
     // Xử lý yêu cầu đăng nhập
+
     socket.on('login', (data) => {
         let username = data.username;
         let password = data.password;
+        let onlineScope = "Vận hành";
+        console.log("/////////////////////////////////////////////////////////////////////////////////////////////////Tên của người dùng đăng nhập là: ", username)
+        console.log("/////////////////////////////////////////////////////////////////////////////////////////////////Password người dùng đăng nhập là: ", password)
         // Kiểm tra thông tin đăng nhập
-        sqlcon.query("SELECT * FROM users WHERE username=? AND password=?", [username, password], (err, result) => {
-            if (err) throw err;
-            if (result.length > 0) {
-                // Đăng nhập thành công
-                let scope = result[0].scope;
-                if (scope === "Vận hành") {
-                    if (operatorUser) {
-                        // Đã có một người dùng cấp bậc Vận hành đang đăng nhập
-                        socket.emit('login_result', { success: false, message: "Đang có một người dùng Vận hành hệ thống" });
-                        return;
-                    } else {
-                        // Đánh dấu người dùng này là người dùng cấp bậc Vận hành đang đăng nhập
-                        operatorUser = username;
+        // Nếu user đăng nhập trùng với user đang vận hành thì
+        if (username == operatorUser) {
+            socket.emit('login_result', { success: true, username: username, scope: onlineScope });
+            console.log("/////////////////////////////////////////////////////////////////////////////////////////////////Cấp bậc người dùng đăng nhập là: ", onlineScope)
+        } else { // Ngược lại nếu user đang muốn đăng nhập không trùng với user đang vận hành
+            sqlcon.query("SELECT * FROM users WHERE username=? AND password=?", [username, password], (err, result) => {
+                if (err) throw err;
+                if (result.length > 0) {
+                    // Đăng nhập thành công
+                    let scope = result[0].scope;
+                    onlineScope = scope; // Lưu lại cấp bậc của user Vận hành để phục vụ trường hợp đăng nhập tự động bằng Refresh
+                    console.log("/////////////////////////////////////////////////////////////////////////////////////////////////Cấp bậc người dùng đăng nhập là: ", scope)
+                    if (scope == "Vận hành") {
+                        if (operatorUser) {
+                            // Đã có một người dùng cấp bậc Vận hành đang đăng nhập
+                            console.log("/////////////////////////////////////////////////////////////////////////////////////////////////Đang có người dùng Vận hành onlien: ", operatorUser)
+                            socket.emit('login_result', { success: false, message: `Hiện tại "${operatorUser}" đang vận hành hệ thống. Vui lòng đăng xuất trước khi đăng nhập.` });
+                            return;
+                        } else {
+                            // Đánh dấu người dùng này là người dùng cấp bậc Vận hành đang đăng nhập
+                            operatorUser = username;
+
+                        }
                     }
+                    socket.emit('login_result', { success: true, username: username, scope: scope });
+
+                    // Ghi lại thông tin đăng nhập của người dùng
+                    let loginTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+                    sqlcon.query("INSERT INTO login_history (username, login_time) VALUES (?, ?)", [username, loginTime], (err, result) => {
+                        if (err) throw err;
+                    });
+                } else {
+                    // Đăng nhập thất bại
+                    socket.emit('login_result', { success: false, message: "Tên đăng nhập hoặc mật khẩu không chính xác" });
                 }
-                socket.emit('login_result', { success: true, username: username, scope: scope });
-                // Ghi lại thông tin đăng nhập của người dùng
-                let loginTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
-                sqlcon.query("INSERT INTO login_history (username, login_time) VALUES (?, ?)", [username, loginTime], (err, result) => {
-                    if (err) throw err;
-                });
-            } else {
-                // Đăng nhập thất bại
-                socket.emit('login_result', { success: false, message: "Tên đăng nhập hoặc mật khẩu không chính xác" });
-            }
-        });
+            });
+        }
+
+
     });
     // Xử lý yêu cầu đăng xuất
     socket.on('logout', (data) => {
         let username = data.username;
+        console.log("/////////////////////////////////////////////////////////////////////////////////////////////////User của người dùng đăng xuất là: ", username)
         // Kiểm tra xem người dùng này có phải là người dùng cấp bậc Vận hành đang đăng nhập hay không
-        if (username === operatorUser) {
+        if (username == operatorUser) {
             operatorUser = null;
         }
         // Ghi lại thông tin đăng xuất của người dùng
@@ -1227,9 +1245,10 @@ io.on("connection", function (socket) {
             // Gửi thông báo thành công về cho máy khách
             socket.emit('updateDataDonhangSuccess');
         });
+        io.emit('capnhatSoM3DaDo', { SoM3Dat: data.SoM3Dat, SoM3DaDo: data.SoM3DaDo });
     });
     socket.on('deleteDonhang', function (data) {
-        var STT = data.STT;
+        var MaDonDatHang = data.MaDonDatHang;
         var query = 'DELETE FROM dondathang WHERE MaDonDatHang = ?';
         sqlcon.query(query, [MaDonDatHang], function (error, results, fields) {
             if (error) throw error;
@@ -2531,8 +2550,38 @@ function GhiPhieuCan() {
     ThuThap.DaCanXong.DaCanXongNuoc = false;
     ThuThap.DaCanXong.DaCanXongPG = false;
     ThuThap.DaCanXong.DaCanXongXi = false;
+    capnhatSoM3DaDo = false;
+
+
+
 }
 
+function UpdateSoM3DaDo() {
+    let SoM3DaDo;
+    let SoM3Dat;
+    let SoM3Xe = PhieuCan.CapPhoi.SoMe * PhieuCan.CapPhoi.Som3Me;
+    let MaDonDatHang = PhieuCan.dondathang.MaDonDatHang;
+    console.log('SoM3Xe = PhieuCan.CapPhoi.SoMe * PhieuCan.CapPhoi.Som3Me: ', SoM3Xe)
+    console.log('MaDonDatHang = PhieuCan.dondathang.MaDonDatHang; ', MaDonDatHang)
+
+    // Đọc giá trị hiện tại của SoM3DaDo trong bảng dondathang
+    var query1 = 'SELECT SoM3Dat, SoM3DaDo FROM dondathang WHERE MaDonDatHang =?';
+    sqlcon.query(query1, [MaDonDatHang], function (error, results1, fields) {
+        if (error) throw error;
+        SoM3Dat = results1[0].SoM3Dat;
+        SoM3DaDo = results1[0].SoM3DaDo + SoM3Xe; // Lưu giá trị SoM3DaDo bằng thể tích hiện tại cộng với số m3 của xe mới cân
+        console.log('Số m3 đã đỗ sau khi tính toán với sô m3 vừa cân xong (chỉ là cân thôi, chưa xả ra xe) ', SoM3DaDo)
+        var query2 = 'UPDATE dondathang SET SoM3DaDo = ? WHERE MaDonDatHang = ?';
+        sqlcon.query(query2, [SoM3DaDo, MaDonDatHang], function (error, results2, fields) {
+            console.log('Số M3 đã đổ của đơn hàng ', MaDonDatHang, ' là:', results2);
+            if (error) throw error;
+            // Gửi thông báo thành công về cho máy khách
+            // socket.emit('updateDataDonhangSuccess');
+            console.log('Đã cập nhật số m3 của xe vào số m3 đã đổ của đơn hàng')
+        });
+        io.emit('capnhatSoM3DaDo', { SoM3Dat: SoM3Dat, SoM3DaDo: SoM3DaDo });
+    });
+}
 
 function DocMaPhieuCan(callback) {
     // console.log('Vào hàm DocMaPhieuCan ở server Node')
@@ -2771,6 +2820,11 @@ function TmrDocPLC_timer() {
 
     if (ThuThap.DaCanXong.DaCanXongCotLieu && ThuThap.DaCanXong.DaCanXongXi && ThuThap.DaCanXong.DaCanXongNuoc) {
         // KiemTraFileDuLieu();
+        if (!capnhatSoM3DaDo) {
+            UpdateSoM3DaDo();
+            capnhatSoM3DaDo = true;
+        }
+
         if (!PhieuCan.DaGhiGioXong) {
             GhiThoiGianTronXong();
             PhieuCan.DaGhiGioXong = true;

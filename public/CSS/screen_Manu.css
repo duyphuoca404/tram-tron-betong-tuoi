@@ -6,7 +6,8 @@
     top: 11px;
     /* width: 800px;
     height: 686px; */
-    background-color: rgb(33, 210, 210);
+    /* background-color: rgb(33, 210, 210); */
+    background-color: #f1f1f1;
     display: none;
     /*Ban đầu thẻ này sẽ không được hiện, để khi load web lên chỉ có Screen_Auto là hiển thị lên màn hình, sau đó khi nhấn button của màn hình thì sẽ đổi thuộc tính display này thành block để nó có thể hiện lên trên web*/
 }
@@ -17,14 +18,15 @@
     top: 11px;
     /* width: 800px;
     height: 686px; */
-    background-color: rgb(33, 210, 210);
+    /* background-color: rgb(33, 210, 210); */
+    background-color: #f1f1f1;
     display: none;
     /*Ban đầu thẻ này sẽ không được hiện*/
 }
 
 /*Bảng mác bê tông*/
 .main-container-macBetong {
-    border: 1px solid black;
+    border: 1px solid #f1f1f1;
     padding: 10px;
 }
 
@@ -121,7 +123,7 @@ td {
 
 /*/////////////////////////////////////////////////////////////////////////////////////Khu vực cho Đặt cáp phối////////////////////////////////////////////////////////////////////////*/
 .main-container-datCapphoi {
-    border: 1px solid black;
+    /* border: 1px solid black; */
     padding: 10px;
 }
 

@@ -358,7 +358,7 @@ $('#editKhachhang').on('click', function () {
         DiaChi: $('#diachi-khachhang').val()
     };
     socket.emit('editDataKhachhang', data);
-    //socket.emit('getDataKhachhang');
+    socket.emit('getDataKhachhang'); // Cập nhật lại list-box Khách hàng
 });
 // Thêm một dòng mới vào bảng khi nút "Thêm" được nhấn
 $('#addKhachhang').on('click', function () {
@@ -367,7 +367,7 @@ $('#addKhachhang').on('click', function () {
         DiaChi: $('#diachi-khachhang').val()
     };
     socket.emit('addData', data);
-    //socket.emit('getDataKhachhang');
+    socket.emit('getDataKhachhang'); // Cập nhật lại list-box Khách hàng
 });
 $('#deleteKhachhang').on('click', function () {
     var selectedOption = $('.listbox-khachhang').find('option:selected');
@@ -377,6 +377,7 @@ $('#deleteKhachhang').on('click', function () {
         MaKhachHang: rowData.MaKhachHang
     };
     socket.emit('deleteDataKhachhang', data);
+    socket.emit('getDataKhachhang'); // Cập nhật lại list-box Khách hàng
 });
 socket.on('addDataSuccess', function () {
     // Xử lý thông báo thành công từ server
@@ -418,7 +419,7 @@ $('#editXebon').on('click', function () {
         TenLaiXe: $('#taixe').val()
     };
     socket.emit('editDataXebon', data);
-    //socket.emit('getDataXebon');
+    socket.emit('getDataXebon'); // Cập nhật lại list-box xe bồn
 });
 // Thêm một dòng mới vào bảng khi nút "Thêm" được nhấn
 $('#addXebon').on('click', function () {
@@ -427,7 +428,7 @@ $('#addXebon').on('click', function () {
         TenLaiXe: $('#taixe').val()
     };
     socket.emit('addDataXebon', data);
-    //socket.emit('getDataXebon');
+    socket.emit('getDataXebon'); // Cập nhật lại list-box xe bồn
 });
 $('#deleteXebon').on('click', function () {
     var selectedOption = $('.listbox-xebon').find('option:selected');
@@ -436,6 +437,7 @@ $('#deleteXebon').on('click', function () {
         STT: rowData.STT
     };
     socket.emit('deleteXebon', data);
+    socket.emit('getDataXebon'); // Cập nhật lại list-box xe bồn
 });
 socket.on('addDataXebonSuccess', function () {
     // Xử lý thông báo thành công từ server
@@ -554,15 +556,15 @@ $('#saveDonhang').on('click', function () {
             }
             //console.log(`editingDonhang: ` + editingDonhang + 'found: ' + found);
             if (editingDonhang) {
-                // Ẩn nút Lưu và hiển thị nút Sửa
-                document.getElementById('saveDonhang').style.display = 'none';
-                document.getElementById('editDonhang').style.display = 'inline';
                 if (!found) {
                     alert('Mã đơn hàng này không có trong cơ sở dữ liệu, vui lòng thử lại!');
                 } else {
                     // Nếu tìm thấy, tăng mã đơn hàng lên một đơn vị theo cấu trúc DH+"số gồm bốn chữ số sẽ được tăng tự động"
                     if (confirm("Bạn có muốn lưu thông tin vừa mới sửa không?")) {
                         // Gọi function đã được viết từ trước để lưu thông tin đơn hàng mới
+                        // Ẩn nút Lưu và hiển thị nút Sửa
+                        document.getElementById('saveDonhang').style.display = 'none';
+                        document.getElementById('editDonhang').style.display = 'inline';
                         var data = {
                             MaDonDatHang: $('#madondathang').val(),
                             MaKhachHang: $('#makhachhang-donhang').val(),
@@ -582,6 +584,8 @@ $('#saveDonhang').on('click', function () {
             if (addingDonhang) {
                 if (confirm("Bạn có muốn thêm mã đơn hàng mới này không?")) {
                     // Gọi function đã được viết từ trước để lưu thông tin đơn hàng mới
+                    document.getElementById('addDonhang').style.display = 'inline';
+                    document.getElementById('saveDonhang').style.display = 'none';
                     var data = {
                         MaDonDatHang: $('#madondathang').val(),
                         MaKhachHang: $('#makhachhang-donhang').val(),
@@ -589,13 +593,14 @@ $('#saveDonhang').on('click', function () {
                         SoM3Dat: $('#som3dathang').val(),
                         SoM3DaDo: $('#som3dado').val()
                     };
-                    socket.emit('editDataDonhang', data);
+                    socket.emit('addDataDonhang', data);
                     addingDonhang = false;
                 } else {
                     // Người dùng tiếp tục hiệu chỉnh thông tin đơn hàng
                 }
 
             }
+            socket.emit('getDataDonhang'); // Cập nhật list-box Đơn hàng
         }
 
     }
@@ -617,7 +622,7 @@ $('#addDonhang').on('click', function () {
         }
     }
     // Tăng mã đơn hàng lên một đơn vị theo cấu trúc DH+"4 chữ số tiến"
-    var newMaDonHang = 'DH' + String(parseInt(maxMaDonHang.slice(2)) + 1).padStart(4, '0');
+    var newMaDonHang = 'DH' + String(parseInt(maxMaDonHang.slice(2)) + 1).padStart(3, '0');
 
     // Lưu mã đơn hàng mới vào input field #madondathang
     document.getElementById('madondathang').value = newMaDonHang;
@@ -629,6 +634,8 @@ $('#addDonhang').on('click', function () {
     addingDonhang = true;
     // Gọi function đã được viết từ trước
     // ...
+    document.getElementById('addDonhang').style.display = 'none';
+    document.getElementById('saveDonhang').style.display = 'inline';
 });
 $('#deleteDonhang').on('click', function () {
     var selectedOption = $('.listbox-donhang').find('option:selected');
@@ -637,6 +644,7 @@ $('#deleteDonhang').on('click', function () {
         MaDonDatHang: rowData.MaDonDatHang
     };
     socket.emit('deleteDonhang', data);
+    socket.emit('getDataDonhang'); // Cập nhật list-box Đơn hàng
 });
 socket.on('addDataDonhangSuccess', function () {
     // Xử lý thông báo thành công từ server
@@ -1335,7 +1343,15 @@ socket.on('updateDataChinhCanFromPLC', data => {
 
 const cmdChay = document.getElementById('bttAuto_Chay');
 const cmdXeTronMoi = document.getElementById('bttAuto_XeTronMoi');
-
+var SoM3Dat;
+var SoM3DaDo;
+socket.on('capnhatSoM3DaDo', function (data) {
+    SoM3Dat = data.SoM3Dat;
+    SoM3DaDo = data.SoM3DaDo;
+    // Xử lý hai giá trị tại đây
+    localStorage.setItem('savedSoM3Dat', SoM3Dat);
+    localStorage.setItem('savedSoM3DaDo', SoM3DaDo);
+});
 // Định nghĩa hàm xử lý sự kiện nhấp chuột vào nút cmdXeTronMoi
 function cmdXeTronMoi_Click() {
     console.log('XE_TRON_MOI đã được nhấn để gọi hàm XeTronMoi')
@@ -1344,6 +1360,12 @@ function cmdXeTronMoi_Click() {
     console.log('Kiểm tra dữ liệu XeBon (sau khi nhấn chọn nút XeTronMoi): ', PhieuCan.XeBon.BienSoXe)
     console.log('Kiểm tra dữ liệu XeBon (sau khi nhấn chọn nút XeTronMoi): ', PhieuCan.XeBon.TenLaiXe)
     console.log('Hiện tại Mã Phiếu Cân là (sau khi nhấn chọn nút XeTronMoi): ', PhieuCan.MaPhieuCan)
+    var SoM3DatCurrent = parseFloat(localStorage.getItem('savedSoM3Dat'));
+    var SoM3DaDoCurrent = parseFloat(localStorage.getItem('savedSoM3DaDo'));
+    if ((SoM3DatCurrent - SoM3DaDoCurrent) < (PhieuCan.CapPhoi.SoMe * PhieuCan.CapPhoi.Som3Me)) {
+        alert(`Đơn hàng ${PhieuCan.dondathang.MaDonDatHang} còn lại ${SoM3DatCurrent - SoM3DaDoCurrent}m3 không đủ để tạo xe trộn mới, vui lòng kiểm tra lại.`);
+        return
+    }
     if (cmdChay.textContent === "DỪNG") {
         alert('Vui lòng Dừng hệ thống trước khi chọn xe trộn mới.')
         return

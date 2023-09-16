@@ -282,7 +282,7 @@
     border: none;
     color: rgb(0, 0, 0);
     text-align: center;
-    display: inline-block;
+    display: none;
     font-size: 13px;
     font-weight: normal;
     cursor: pointer;
