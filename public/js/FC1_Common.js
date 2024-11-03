@@ -107,6 +107,7 @@ function fn_HideByClass(Class) {
     var elements = document.getElementsByClassName(myClass);
     for (var i = 0; i < elements.length; i++) {
         elements[i].style.display = 'none';
+        elements[i].style.pointerEvents = 'none';
     }
 }
 // Hàm hiển thị một đối tượng với Class

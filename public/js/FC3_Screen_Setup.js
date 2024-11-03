@@ -717,10 +717,15 @@ $('.listbox-datcapphoi-donhang').on('change', function () {
     PhieuCan.dondathang.MaDonDatHang = rowData.MaDonDatHang;
     console.log("MaDonDatHang: " + PhieuCan.dondathang.MaDonDatHang);
 });
-socket.on('error', function (message) {
-    alert(message);
+// socket.on('error', function (message) {
+//     alert(message);
+// });
+socket.on('error', function (data) {
+    alert(data.message);
+    if (data.error) {
+        console.error(data.error)
+    }
 });
-
 //////////////////////////////////////////////////////// Update data for report /////////////////////////////////////////////////////////////////////////
 socket.on('updateDataReportKhachhang', function (data) {
     // Cập nhật listbox-donhang-khachhang
@@ -739,19 +744,26 @@ $('.listbox-report-khachhang').on('change', function () {
     // Cách viết hay được sử dụng ở nhưng đoạn code trước đây từng sử dụng sẽ viết như thế này để lấy MaKhachHang
     var selectedOption = $('.listbox-report-khachhang').find('option:selected');
     var rowData = selectedOption.data('rowData');
-    var MaKhachHang = rowData.MaKhachHang;
-    // Còn đây là cách viết gọn, nó là cách viết nối chứ không phải tách ra từng phần như trên
-    // Get the selected MaKhachHang
-    // const MaKhachHang = $(this).find(':selected').data('rowData').MaKhachHang;
+    console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ rowdata: ', rowData)
+    if (rowData !== undefined) {
+        var MaKhachHang = rowData.MaKhachHang;
+        // Còn đây là cách viết gọn, nó là cách viết nối chứ không phải tách ra từng phần như trên
+        // Get the selected MaKhachHang
+        // const MaKhachHang = $(this).find(':selected').data('rowData').MaKhachHang;
 
-    // Emit the 'getDonHang' event with the selected MaKhachHang
-    socket.emit('getDataReportDonHang', MaKhachHang);
-    console.log('Gửi tin nhắn yêu cầu gửi thông tin đơn hàng của MaKhachHang: ' + MaKhachHang);
-    // Lưu MaKhachHang và TenKhachHang vao trong object PhieuCan
-    ThongKe.MaKhachHang = rowData.MaKhachHang;
-    ThongKe.TenKhachHang = rowData.TenKhachHang;
-    // console.log("ThongKe.MaKhachHang: " + ThongKe.MaKhachHang);
-    // console.log("ThongKe.TenKhachHang: " + ThongKe.TenKhachHang);
+        // Emit the 'getDonHang' event with the selected MaKhachHang
+        socket.emit('getDataReportDonHang', MaKhachHang);
+        console.log('Gửi tin nhắn yêu cầu gửi thông tin đơn hàng của MaKhachHang: ' + MaKhachHang);
+        // Lưu MaKhachHang và TenKhachHang vao trong object PhieuCan
+        ThongKe.MaKhachHang = rowData.MaKhachHang;
+        ThongKe.TenKhachHang = rowData.TenKhachHang;
+        // console.log("ThongKe.MaKhachHang: " + ThongKe.MaKhachHang);
+        // console.log("ThongKe.TenKhachHang: " + ThongKe.TenKhachHang);
+    } else {
+        ThongKe.MaKhachHang = '';
+        ThongKe.TenKhachHang = '';
+    }
+
 });
 socket.on('updateDataReportDonhang', function (data) {
     var listbox = $('.listbox-report-donhang');
@@ -777,9 +789,14 @@ $('.listbox-report-donhang').on('change', function () {
     // Cách viết hay được sử dụng ở nhưng đoạn code trước đây từng sử dụng sẽ viết như thế này để lấy MaKhachHang
     var selectedOption = $('.listbox-report-donhang').find('option:selected');
     var rowData = selectedOption.data('rowData');
-    // Lưu MaDonDatHang vao trong object PhieuCan
-    ThongKe.MaDonDatHang = rowData.MaDonDatHang;
-    console.log("MaDonDatHang: " + ThongKe.MaDonDatHang);
+    if (rowData !== undefined) {
+        // Lưu MaDonDatHang vao trong object PhieuCan
+        ThongKe.MaDonDatHang = rowData.MaDonDatHang;
+        console.log("MaDonDatHang: " + ThongKe.MaDonDatHang);
+    } else {
+        ThongKe.MaDonDatHang = '';
+    }
+
 });
 
 /////////////////////////////////////////////////////////////////////////////////// End //////////////////////////////////////////////////////////////////////////////
@@ -994,6 +1011,8 @@ function sendDataDatcapphoi(emptyValue) {
 
 document.querySelector('#sendDatcapphoi').addEventListener('click', function () {
     sendDataDatcapphoi("Vui lòng chọn ...............");
+    localStorage.setItem('savedSoM3Dat', '');
+    localStorage.setItem('savedSoM3DaDo', '');
 });
 
 // Phần code liên quan đến việc ghi Phiếu cân vào Mysql, hàm này sẽ kiểm tra và lấy xác nhận của người dùng về việc .... CHỨC NĂNG NÀY CHƯA XONG

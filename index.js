@@ -163,6 +163,18 @@ global.ThongKe = ThongKe;
 global.ThuThap = ThuThap;
 global.CuaVatLieu = CuaVatLieu;
 global.bttStatus = bttStatus;
+///////////////////////////////////////////////////////////////////////////// KHAI BÁO MODULE LOG LỖI ///////////////////////////////////////////////////////////////////////////
+var winston = require('winston');
+
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.json(),
+    defaultMeta: { service: 'user-service' },
+    transports: [
+        new winston.transports.File({ filename: 'error.log', level: 'error' }),
+        new winston.transports.File({ filename: 'combined.log' }),
+    ],
+});
 // ////////////////////////////////////////////////////////////////////////// ++THIẾT LẬP KẾT NỐI VỚI SERVER VỚI PLC/////////////////////////////////////////////////////////////
 // Biến để lưu trữ thông tin về người dùng cấp bậc Vận hành đang đăng nhập
 var operatorUser = null;
@@ -171,7 +183,7 @@ var nodes7 = require('nodes7');
 var conn_plc = new nodes7; //PLC1
 let newTextContent = "";
 // Tạo địa chỉ kết nối (slot = 2 nếu là 300/400, slot = 1 nếu là 1200/1500)
-conn_plc.initiateConnection({ port: 102, host: '10.10.10.5', rack: 0, slot: 1 }, PLC_connected);
+conn_plc.initiateConnection({ port: 102, host: '10.0.0.5', rack: 0, slot: 1 }, PLC_connected);
 // Bảng tag trong Visual studio code, chú ý là bảng tag này phải đúng thứ tự nhé, nó phải trùng với thứ tự trong TIA thì phải (check lại điểm này)
 var tags_list = {
     DTO: 'I0.0',
@@ -321,7 +333,7 @@ var tags_list = {
 // GỬI DỮ LIỆu TAG CHO PLC
 function PLC_connected(err) {
     if (typeof (err) !== "undefined") {
-        console.log(err); // Hiển thị lỗi nếu không kết nối đƯỢc với PLC
+        console.log(err); // Hiển thị lỗi nếu không kết nối được với PLC
     }
     conn_plc.setTranslationCB(function (tag) { return tags_list[tag]; });  // Đưa giá trị đọc lên từ PLC và mảng
     conn_plc.addItems([
@@ -796,7 +808,13 @@ io.on("connection", function (socket) {
             console.log("/////////////////////////////////////////////////////////////////////////////////////////////////Cấp bậc người dùng đăng nhập là: ", onlineScope)
         } else { // Ngược lại nếu user đang muốn đăng nhập không trùng với user đang vận hành
             sqlcon.query("SELECT * FROM users WHERE username=? AND password=?", [username, password], (err, result) => {
-                if (err) throw err;
+                // if (err) throw err;
+                if (err) {
+                    console.error('Lỗi khi thực hiện truy vấn:', err);
+                    logger.error('Lỗi khi thực hiện truy vấn:', err);
+                    socket.emit('error', { message: 'Lỗi khi thực hiện truy vấn', error: err });
+                    return;
+                }
                 if (result.length > 0) {
                     // Đăng nhập thành công
                     let scope = result[0].scope;
@@ -819,7 +837,13 @@ io.on("connection", function (socket) {
                     // Ghi lại thông tin đăng nhập của người dùng
                     let loginTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
                     sqlcon.query("INSERT INTO login_history (username, login_time) VALUES (?, ?)", [username, loginTime], (err, result) => {
-                        if (err) throw err;
+                        // if (err) throw err;
+                        if (err) {
+                            console.error('Lỗi khi thực hiện truy vấn:', err);
+                            logger.error('Lỗi khi thực hiện truy vấn:', err);
+                            socket.emit('error', { message: 'Lỗi khi thực hiện truy vấn', error: err });
+                            return;
+                        }
                     });
                 } else {
                     // Đăng nhập thất bại
@@ -841,7 +865,13 @@ io.on("connection", function (socket) {
         // Ghi lại thông tin đăng xuất của người dùng
         let logoutTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
         sqlcon.query("UPDATE login_history SET logout_time=? WHERE username=? AND logout_time IS NULL", [logoutTime, username], (err, result) => {
-            if (err) throw err;
+            // if (err) throw err;
+            if (err) {
+                console.error('Lỗi khi thực hiện truy vấn:', err);
+                logger.error('Lỗi khi thực hiện truy vấn:', err);
+                socket.emit('error', { message: 'Lỗi khi thực hiện truy vấn', error: err });
+                return;
+            }
         });
     });
 
@@ -863,14 +893,26 @@ io.on("connection", function (socket) {
         }
         // Kiểm tra xem tên đăng nhập đã tồn tại chưa
         sqlcon.query("SELECT * FROM users WHERE username=?", [username], (err, result) => {
-            if (err) throw err;
+            // if (err) throw err;
+            if (err) {
+                console.error('Lỗi khi thực hiện truy vấn:', err);
+                logger.error('Lỗi khi thực hiện truy vấn:', err);
+                socket.emit('error', { message: 'Lỗi khi thực hiện truy vấn', error: err });
+                return;
+            }
             if (result.length > 0) {
                 // Tên đăng nhập đã tồn tại
                 socket.emit('register_result', { success: false, message: "Tên đăng nhập này đã tồn tại" });
             } else {
                 // Thêm người dùng mới vào cơ sở dữ liệu
                 sqlcon.query("INSERT INTO users (username, password, scope) VALUES (?, ?, ?)", [username, password, scope], (err, result) => {
-                    if (err) throw err;
+                    // if (err) throw err;
+                    if (err) {
+                        console.error('Lỗi khi thực hiện truy vấn:', err);
+                        logger.error('Lỗi khi thực hiện truy vấn:', err);
+                        socket.emit('error', { message: 'Lỗi khi thực hiện truy vấn', error: err });
+                        return;
+                    }
                     // Đăng ký thành công
                     socket.emit('register_result', { success: true, username: username });
                 });
@@ -884,7 +926,13 @@ io.on("connection", function (socket) {
         let newPassword = data.newPassword;
         // Cập nhật mật khẩu mới cho người dùng trong cơ sở dữ liệu
         sqlcon.query("UPDATE users SET password=? WHERE username=?", [newPassword, username], (err, result) => {
-            if (err) throw err;
+            // if (err) throw err;
+            if (err) {
+                console.error('Lỗi khi thực hiện truy vấn:', err);
+                logger.error('Lỗi khi thực hiện truy vấn:', err);
+                socket.emit('error', { message: 'Lỗi khi thực hiện truy vấn', error: err });
+                return;
+            }
             // Đổi mật khẩu thành công
             socket.emit('change_password_result', { success: true });
         });
@@ -950,7 +998,7 @@ io.on("connection", function (socket) {
             lock = null;
         } else {
             // reject the update request
-            socket.emit('error', 'Đang có một máy khách khác ghi dữ liệu lên ứng dụng, vui kiểm tra và thực hiện lại. Cảm ơn@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+            socket.emit('error', { message: 'Đang có một máy khách khác ghi dữ liệu lên ứng dụng, vui kiểm tra và thực hiện lại. Cảm ơn' });
         }
         // emit the updated data to all connected clients
         io.emit('syncData', { CapPhoi: global.CapPhoi, KhachHang: global.KhachHang, DonDatHang: global.DonDatHang, XeBon: global.XeBon, PhieuGiaoBeTong: global.PhieuGiaoBeTong, PhieuCan: global.PhieuCan, DaCanXong: global.DaCanXong, ThongKe: global.ThongKe, ThuThap: global.ThuThap, CuaVatLieu: global.CuaVatLieu, ThongTinCapPhoi: global.ThongTinCapPhoi, bttStatus: global.bttStatus });
@@ -963,6 +1011,7 @@ io.on("connection", function (socket) {
         conn_plc.writeItems('XE_TRON_MOI', data, function (err) {
             if (err) {
                 console.log("Error writing to PLC: ", err);
+                logger.error('Error writing to PLC:', err);
                 socket.emit("error", "Error writing to PLC");
             } else {
                 console.log('Trạng thái bit XE_TRON_MOI: ', data);
@@ -1016,6 +1065,7 @@ io.on("connection", function (socket) {
             conn_plc.writeItems(['CHAY_DUNG', 'PAUSE_COM3'], [true, true], function (err) {
                 if (err) {
                     console.log("Error writing to PLC: ", err);
+                    logger.error('Error writing to PLC:', err);
                     socket.emit("error", "Error writing to PLC");
                 } else {
                     console.log('Trạng thái bit CHAY_DUNG, PAUSE_COM3: ' + valuesKey.CHAY_DUNG + valuesKey.PAUSE_COM3);
@@ -1032,6 +1082,7 @@ io.on("connection", function (socket) {
             conn_plc.writeItems('CHAY_DUNG', false, function (err) {
                 if (err) {
                     console.log("Error writing to PLC: ", err);
+                    logger.error('Error writing to PLC:', err);
                     socket.emit("error", "Error writing to PLC");
                 } else {
                     console.log('Trạng thái bit CHAY_DUNG: ' + valuesKey.CHAY_DUNG);
@@ -1048,6 +1099,7 @@ io.on("connection", function (socket) {
             conn_plc.writeItems('CHAY_DUNG', false, function (err) {
                 if (err) {
                     console.log("Error writing to PLC: ", err);
+                    logger.error('Error writing to PLC:', err);
                     socket.emit("error", "Error writing to PLC");
                 } else {
                     console.log('Trạng thái bit CHAY_DUNG: ' + valuesKey.CHAY_DUNG);
@@ -1074,7 +1126,9 @@ io.on("connection", function (socket) {
             sqlcon.query(updateSql, [...values[0].slice(1), values[0][0]], function (err) {
                 if (err) {
                     console.log('Error updating record:', err);
-                    throw err;
+                    logger.error('Error updating record:', err);
+                    socket.emit('error', { message: 'Error updating record', error: err });
+                    return
                 }
                 console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Record updated");
             });
@@ -1082,7 +1136,13 @@ io.on("connection", function (socket) {
             // Handle insert
             values[0][0]++;
             sqlcon.query(insertSql, [values], function (err) {
-                if (err) throw err;
+                // if (err) throw err;
+                if (err) {
+                    console.log('Error inserting record:', err);
+                    logger.error('Error inserting record:', err);
+                    socket.emit('error', { message: 'Error inserting record', error: err });
+                    return
+                }
                 console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Record inserted");
             });
         } else {
@@ -1119,7 +1179,13 @@ io.on("connection", function (socket) {
         sqlcon.query(
             'UPDATE macbetong SET STT = ?, TenMacBeTong = ?, TP1 = ?, TP2 = ?, TP3 = ?, TP4 = ?, Xi = ?, Nuoc = ?, PG1 = ?, PG2 = ?, DoSutThongKe = ? WHERE STT = ?',
             [data.STT, data.TenMacBeTong, data.TP1, data.TP2, data.TP3, data.TP4, data.Xi, data.Nuoc, data.PG1, data.PG2, data.DoSutThongKe, data.STT], function (error, results, fields) {
-                if (error) throw error;
+                // if (error) throw error;
+                if (error) {
+                    console.error('Lỗi khi thực hiện truy vấn:', error);
+                    logger.error('Lỗi khi thực hiện truy vấn:', error);
+                    socket.emit('error', { message: 'Lỗi khi thực hiện truy vấn', error: error });
+                    return;
+                }
                 // Cập nhật thành công
                 socket.emit('updateDataMacbetongSuccess');
             }
@@ -1131,7 +1197,10 @@ io.on("connection", function (socket) {
         var queryy1 = "SELECT * FROM " + sqltable_Name + ";"
         sqlcon.query(queryy1, function (err, results, fields) {
             if (err) {
-                console.log(err);
+                console.error('Lỗi khi thực hiện truy vấn:', err);
+                logger.error('Lỗi khi thực hiện truy vấn:', err);
+                socket.emit('error', { message: 'Lỗi khi thực hiện truy vấn', error: err });
+                return;
             } else {
                 const objectifyRawPacket = row => ({ ...row });
                 const convertedResponse = results.map(objectifyRawPacket);
@@ -1143,28 +1212,52 @@ io.on("connection", function (socket) {
 
     socket.on('getDataKhachhang', function () {
         sqlcon.query('SELECT MaKhachHang, TenKhachHang, DiaChi FROM khachhang', function (error, results, fields) {
-            if (error) throw error;
+            // if (error) throw error;
+            if (error) {
+                console.error('Lỗi khi thực hiện truy vấn:', error);
+                logger.error('Lỗi khi thực hiện truy vấn:', error);
+                socket.emit('error', { message: 'Lỗi khi thực hiện truy vấn', error: error });
+                return;
+            }
             socket.emit('updateDataKhachhang', results);
             //console.log('Received tenkhachhang event from client with data:', results);
         });
     });
     socket.on('getDataDonhangKhachhang', function () {
         sqlcon.query('SELECT MaKhachHang, TenKhachHang, DiaChi FROM khachhang', function (error, results, fields) {
-            if (error) throw error;
+            // if (error) throw error;
+            if (error) {
+                console.error('Lỗi khi thực hiện truy vấn:', error);
+                logger.error('Lỗi khi thực hiện truy vấn:', error);
+                socket.emit('error', { message: 'Lỗi khi thực hiện truy vấn', error: error });
+                return;
+            }
             socket.emit('updateDataDonhangKhachhang', results);
             console.log('Dữ liệu Khách hàng của đơn hàng gửi qua trình duyệt là:', results);
         });
     });
     socket.on('getDataXebon', function () {
         sqlcon.query('SELECT STT, BienSoXe, TenLaiXe FROM xebon', function (error, results, fields) {
-            if (error) throw error;
+            // if (error) throw error;
+            if (error) {
+                console.error('Lỗi khi thực hiện truy vấn:', error);
+                logger.error('Lỗi khi thực hiện truy vấn:', error);
+                socket.emit('error', { message: 'Lỗi khi thực hiện truy vấn', error: error });
+                return;
+            }
             socket.emit('updateDataXebon', results);
             //console.log('Received Xebon event from client with data:', results);
         });
     });
     socket.on('scr_Auto_getDataXebon', function () {
         sqlcon.query('SELECT STT, BienSoXe, TenLaiXe FROM xebon', function (error, results, fields) {
-            if (error) throw error;
+            // if (error) throw error;
+            if (error) {
+                console.error('Lỗi khi thực hiện truy vấn:', error);
+                logger.error('Lỗi khi thực hiện truy vấn:', error);
+                socket.emit('error', { message: 'Lỗi khi thực hiện truy vấn', error: error });
+                return;
+            }
             socket.emit('scr_Auto_updateDataXebon', results);
             console.log('Received Xebon event from client with data:', results);
         });
@@ -1172,7 +1265,13 @@ io.on("connection", function (socket) {
     socket.on('addData', function (data) {
         var query = 'INSERT INTO khachhang (TenKhachHang, DiaChi) VALUES (?, ?)';
         sqlcon.query(query, [data.TenKhachHang, data.DiaChi], function (error, results, fields) {
-            if (error) throw error;
+            // if (error) throw error;
+            if (error) {
+                console.error('Lỗi khi thực hiện truy vấn:', error);
+                logger.error('Lỗi khi thực hiện truy vấn:', error);
+                socket.emit('error', { message: 'Lỗi khi thực hiện truy vấn', error: error });
+                return;
+            }
             // Gửi thông báo thành công về cho máy khách
             socket.emit('addDataSuccess');
         });
@@ -1277,7 +1376,7 @@ io.on("connection", function (socket) {
             // Kiểm tra xem có kết quả nào được trả về không
             if (results.length === 0) {
                 // Gửi thông báo lỗi đến máy khách
-                socket.emit('error', 'Khách hàng này hiện tại chưa có đơn hàng nào trên hệ thống');
+                socket.emit('error', { message: 'Khách hàng này hiện tại chưa có đơn hàng nào trên hệ thống' });
             } else {
                 // Gửi kết quả truy vấn đến máy khách
                 socket.emit('updateDataDatcapphoiDonhang', results);
@@ -1293,7 +1392,7 @@ io.on("connection", function (socket) {
             // Kiểm tra xem có kết quả nào được trả về không
             if (results.length === 0) {
                 // Gửi thông báo lỗi đến máy khách
-                socket.emit('error', 'Khách hàng này hiện tại chưa có đơn hàng nào trên hệ thống');
+                socket.emit('error', { message: 'Khách hàng này hiện tại chưa có đơn hàng nào trên hệ thống' });
             } else {
                 // Gửi kết quả truy vấn đến máy khách
                 socket.emit('updateDataReportDonhang', results);
@@ -1307,7 +1406,7 @@ io.on("connection", function (socket) {
             if (error) {
                 // Xử lý lỗi ở đây, ví dụ như thông báo lên client
                 // Gửi thông báo lỗi đến máy khách
-                socket.emit('error', 'Đã có lỗi khi xử lý dữ liệu Phiếu Cân gần nhất');
+                socket.emit('error', { message: 'Đã có lỗi khi xử lý dữ liệu Phiếu Cân gần nhất' });
             } else {
                 // Lấy kết quả truy vấn
                 let data = results[0];
@@ -1323,7 +1422,7 @@ io.on("connection", function (socket) {
             if (error) {
                 // Xử lý lỗi ở đây, ví dụ như thông báo lên client
                 // Gửi thông báo lỗi đến máy khách
-                socket.emit('error', 'Đã có lỗi khi xử lý dữ liệu Phiếu Cân');
+                socket.emit('error', { message: 'Đã có lỗi khi xử lý dữ liệu Phiếu Cân' });
             } else {
                 let count = results[0]['COUNT(*)'];
 
@@ -1333,7 +1432,7 @@ io.on("connection", function (socket) {
                         if (error) {
                             // Xử lý lỗi ở đây, ví dụ như thông báo lên client
                             // Gửi thông báo lỗi đến máy khách
-                            socket.emit('error', 'Đã có lỗi khi xử lý dữ liệu Phiếu Cân');
+                            socket.emit('error', { message: 'Đã có lỗi khi xử lý dữ liệu Phiếu Cân' });
                         } else {
                             let last_maphieucan = results[0]['MaPhieuCan'];
 
@@ -1397,7 +1496,7 @@ io.on("connection", function (socket) {
         sqlcon.query(queryy1, function (err, results, fields) {
             if (err) {
                 console.log(err);
-                socket.emit('error', 'Đã có lỗi khi xử lý dữ liệu Chi tiết phiếu cân');
+                socket.emit('error', { message: 'Đã có lỗi khi xử lý dữ liệu Chi tiết phiếu cân' });
                 throw err;
             } else {
                 const objectifyRawPacket = row => ({ ...row });
@@ -1431,7 +1530,7 @@ io.on("connection", function (socket) {
         // }
 
 
-        var timeR = timeS1 + "AND" + timeE1; // Khoảng thời gian tìm kiếm (Time Range)
+        // var timeR = timeS1 + "AND" + timeE1; // Khoảng thời gian tìm kiếm (Time Range)
 
         // var sqltable_Name = "chitietphieucan"; // Tên bảng
         // var dt_col_Name = "Gio";  // Tên cột thời gian
@@ -1468,7 +1567,7 @@ io.on("connection", function (socket) {
             // Có thời gian bắt đầu và kết thúc
             var timeS = new Date(convertDateFormat(data[0])); // Thời gian bắt đầu
             var timeE = new Date(convertDateFormat(data[1])); // Thời gian kết thúc
-
+            timeE.setDate(timeE.getDate() + 1); // Tăng thêm một ngày cho thời gian kết thúc
             if (isNaN(timeS) || isNaN(timeE)) {
                 console.log('Giá trị ngày tháng không hợp lệ:', data[0], data[1]);
                 return;
@@ -1492,7 +1591,9 @@ io.on("connection", function (socket) {
 
         sqlcon.query(Query, function (err, results, fields) {
             if (err) {
-                console.log(err);
+                console.error('Lỗi khi thực hiện truy vấn:', err);
+                socket.emit('error', { message: 'Lỗi khi thực hiện truy vấn', error: err });
+                return;
             } else {
                 const objectifyRawPacket = row => ({ ...row });
                 const convertedResponse = results.map(objectifyRawPacket);
@@ -1511,19 +1612,35 @@ io.on("connection", function (socket) {
         // Truy vấn dữ liệu từ cơ sở dữ liệu MySQL
         let query = `SELECT * FROM phieucan WHERE MaPhieuCan=${MaPhieuCan}`;
         sqlcon.query(query, function (err, result) {
-            if (err) throw err;
-
+            // if (err) throw err;
+            if (err) {
+                console.error(err);
+                socket.emit('error', { message: 'Lỗi khi truy vấn phieucan' });
+                return;
+            }
             // Lấy dữ liệu từ bảng phieucan
             let phieucan = result[0];
-
+            if (!phieucan) {
+                console.error('Không tìm thấy phieucan');
+                socket.emit('error', { message: 'Không tìm thấy phieucan' });
+                // return;
+            }
             // Truy vấn dữ liệu từ bảng chitietphieucan
             query = `SELECT * FROM chitietphieucan WHERE MaPhieuCan=${MaPhieuCan}`;
             sqlcon.query(query, function (err, result) {
-                if (err) throw err;
-
+                // if (err) throw err;
+                if (err) {
+                    console.error(err);
+                    socket.emit('error', { message: 'Lỗi khi truy vấn chitietphieucan' });
+                    return;
+                }
                 // Lấy dữ liệu từ bảng chitietphieucan
                 let chitietphieucan = result;
-
+                if (!chitietphieucan) {
+                    console.error('Không tìm thấy chitietphieucan');
+                    socket.emit('error', { message: 'Không tìm thấy chitietphieucan' });
+                    return;
+                }
                 // Gửi dữ liệu đến client
                 socket.emit('data', { phieucan: phieucan, chitietphieucan: chitietphieucan });
                 console.log('Chi tiết phiếu cân: ', chitietphieucan)
@@ -1552,19 +1669,39 @@ io.on("connection", function (socket) {
         // Truy vấn dữ liệu từ cơ sở dữ liệu MySQL
         let query = `SELECT * FROM phieucan WHERE MaPhieuCan=${MaPhieuCan}`;
         sqlcon.query(query, function (err, result) {
-            if (err) throw err;
-
+            // if (err) throw err;
+            if (err) {
+                console.error('Lỗi khi thực hiện truy vấn:', err);
+                socket.emit('error', { message: 'Lỗi khi thực hiện truy vấn', error: err });
+                logger.error('Lỗi khi thực hiện truy vấn:', err);
+                return;
+            }
             // Lấy dữ liệu từ bảng phieucan
             let phieucan = result[0];
-
+            if (!phieucan) {
+                console.error('Không tìm thấy phieucan');
+                socket.emit('error', { message: 'Không tìm thấy phieucan' });
+                logger.error('Lỗi không tìm thấy phieucan');
+                // return;
+            }
             // Truy vấn dữ liệu từ bảng chitietphieucan
             query = `SELECT * FROM chitietphieucan WHERE MaPhieuCan=${MaPhieuCan}`;
             sqlcon.query(query, function (err, result) {
-                if (err) throw err;
-
+                // if (err) throw err;
+                if (err) {
+                    console.error('Lỗi khi thực hiện truy vấn:', err);
+                    socket.emit('error', { message: 'Lỗi khi thực hiện truy vấn', error: err });
+                    logger.error('Lỗi khi thực hiện truy vấn:', err);
+                    return;
+                }
                 // Lấy dữ liệu từ bảng chitietphieucan
                 let chitietphieucan = result;
-
+                if (!chitietphieucan) {
+                    console.error('Không tìm thấy chitietphieucan');
+                    socket.emit('error', { message: 'Không tìm thấy chitietphieucan' });
+                    logger.error('Lỗi không tìm thấy chitietphieucan');
+                    return;
+                }
                 // Gửi dữ liệu đến client
                 socket.emit('data_popup', { phieucan: phieucan, chitietphieucan: chitietphieucan });
                 console.log('Chi tiết phiếu cân: ', chitietphieucan)
@@ -1782,7 +1919,13 @@ function getCuaVatLieu(callback) {
     //     ThuThapPG: false
     // };
     sqlcon.query('SELECT * FROM cuavatlieu', function (error, results, fields) {
-        if (error) throw error;
+        // if (error) throw error;
+        if (error) {
+            console.error('Lỗi khi thực hiện truy vấn:', error);
+            socket.emit('error', { message: 'Lỗi khi thực hiện truy vấn', error: error });
+            logger.error('Lỗi khi thực hiện truy vấn:', error);
+            return;
+        }
         //console.log('Kết quả đọc từ bảng cuavatlieu: ', results);
         //console.log('Chiều dài mảng dữ liệu đọc từ bảng cuavatlieu là: ', results.length);
         // Nếu tồn tại tên các cửa vật liệu trang bảng cuavatlieu thì sẽ đọc và gửi qua trình duyệt
@@ -2616,7 +2759,7 @@ function DocPhieuCanGanNhat() {
         //     // Xử lý lỗi tại đây
         //     console.error(err);
         //     // Gửi thông báo lỗi đến trình duyệt (đến tất cả các client đang kết nối tới server)
-        //     io.socket.emit('error', 'Đã có lỗi trong quá trình xử lý dữ liệu. Vui lòng kiểm tra và thực hiện theo đúng hướng dẫn. Cảm ơn!');
+        //     io.socket.emit('error', {message:'Đã có lỗi trong quá trình xử lý dữ liệu. Vui lòng kiểm tra và thực hiện theo đúng hướng dẫn. Cảm ơn!'});
         // } else {
         //     console.log("Record readed");
         // }
@@ -2667,7 +2810,7 @@ function GhiThoiGianTronXong() {
         //     // Xử lý lỗi tại đây
         //     console.error(err);
         //     // Gửi thông báo lỗi đến trình duyệt (đến tất cả các client đang kết nối tới server)
-        //     io.socket.emit('error', 'Đã có lỗi trong quá trình xử lý dữ liệu. Vui lòng kiểm tra và thực hiện theo đúng hướng dẫn. Cảm ơn!');
+        //     io.socket.emit('error', {message:'Đã có lỗi trong quá trình xử lý dữ liệu. Vui lòng kiểm tra và thực hiện theo đúng hướng dẫn. Cảm ơn!'});
         // } else {
         //     console.log("Record updated");
         // }
